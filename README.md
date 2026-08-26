@@ -96,32 +96,137 @@ graph TD
 
 ---
 
-## 📁 Project Structure
+## 📁 Full Project Structure
 
 ```bash
 codingclub/
+├── public/                                 # Static assets & public branding
+│   ├── ccc_logo.png                        # Primary club logo & favicon assets
+│   ├── cuh-logo.png                        # University crest & insignia
+│   ├── cuhteam.jpeg                        # Team banner assets
+│   ├── contributors/                       # Contributor portraits & media
+│   ├── events/                             # Event posters & promotional assets
+│   ├── sitemap.xml                         # Auto-generated XML sitemap
+│   └── site.webmanifest                    # PWA web manifest
+│
 ├── src/
-│   ├── app/
-│   │   ├── (app)/                  # Public web application routes
-│   │   │   ├── (home)/             # Hero landing page
-│   │   │   ├── events/             # Events catalog & registration
-│   │   │   ├── posts/              # Articles & announcements
-│   │   │   ├── student/            # Student portal
-│   │   │   ├── team/               # Core team & contributor directory
-│   │   │   └── verify/             # Certificate verification engine
-│   │   ├── (payload)/              # Payload CMS Admin panel & endpoints
-│   │   └── og-image/               # Dynamic OpenGraph image generator
-│   ├── components/                 # Reusable UI & motion components
-│   │   ├── magicui/                # Animated UI elements
-│   │   ├── motion-primitives/      # Framer motion transitions
-│   │   ├── payload/                # CMS rendering blocks
-│   │   └── ui/                     # Radix UI primitives
-│   ├── lib/                        # Utility functions & global constants
-│   ├── payload/                    # CMS collections, hooks, and plugins
-│   └── payload.config.ts           # Payload CMS root configuration
-├── public/                         # Static assets, branding, and icons
-├── next.config.ts                  # Next.js optimization configuration
-└── package.json                    # Project dependencies and scripts
+│   ├── app/                                # Next.js 15 App Router root
+│   │   ├── (app)/                          # Frontend user-facing route group
+│   │   │   ├── (home)/                     # Hero landing page & showcase
+│   │   │   ├── (sitemaps)/                 # Dynamic XML sitemaps generator
+│   │   │   │   ├── pages-sitemap.xml/      # Pages sitemap index
+│   │   │   │   └── posts-sitemap.xml/      # Posts & articles sitemap
+│   │   │   ├── about/                      # About CUH Coding Club
+│   │   │   ├── actions/                    # Next.js server actions (e.g. contact form)
+│   │   │   ├── auth/                       # Authentication & session routes
+│   │   │   │   ├── login/                  # User login page
+│   │   │   │   ├── signin/                 # Alternative login handler
+│   │   │   │   └── signup/                 # New student registration
+│   │   │   ├── certificate/                # Certificate viewer & PDF exporter
+│   │   │   │   └── [certificateId]/        # Individual certificate layout & render
+│   │   │   ├── contact/                    # Contact form & club support
+│   │   │   ├── events/                     # Events catalog & registration
+│   │   │   ├── form/                       # Custom dynamic form handlers
+│   │   │   ├── next/                       # Next.js preview & seed triggers
+│   │   │   │   ├── exit-preview/           # Draft preview exit endpoint
+│   │   │   │   ├── preview/                # Payload CMS live preview bridge
+│   │   │   │   └── seed/                   # Database seed trigger endpoint
+│   │   │   ├── posts/                      # Blog, articles & news
+│   │   │   │   ├── page/[pageNumber]/      # Paginated post archive
+│   │   │   │   └── [slug]/                 # Single post article reader
+│   │   │   ├── search/                     # Global search across collections
+│   │   │   ├── student/                    # Student dashboard & profile
+│   │   │   ├── team/                       # Team hierarchy & member directory
+│   │   │   ├── verify/                     # Certificate verification system
+│   │   │   │   └── [certificateId]/        # Instant cryptographic credential check
+│   │   │   ├── [slug]/                     # Dynamic page renderer for CMS pages
+│   │   │   ├── globals.css                 # Global Tailwind CSS v4 styling rules
+│   │   │   └── layout.tsx                  # Root web layout & providers wrapper
+│   │   │
+│   │   ├── (payload)/                      # Payload CMS backend interface
+│   │   │   ├── admin/                      # Embedded Payload Admin dashboard
+│   │   │   │   └── [[...segments]]/        # Dynamic admin routing & catch-all
+│   │   │   ├── api/                        # Headless API layer
+│   │   │   │   ├── graphql/                # GraphQL endpoint
+│   │   │   │   ├── graphql-playground/     # Interactive GraphQL playground
+│   │   │   │   └── [...slug]/              # Payload REST API endpoints
+│   │   │   ├── custom.scss                 # Payload admin panel theme customizations
+│   │   │   └── layout.tsx                  # Dedicated admin layout wrapper
+│   │   │
+│   │   └── og-image/                       # Dynamic OpenGraph image generator
+│   │       └── [text]/                     # Dynamic social card route handler
+│   │
+│   ├── components/                         # Modular component library
+│   │   ├── magicui/                        # Animated visual components (Border Beam, etc.)
+│   │   ├── motion-primitives/              # Smooth motion utilities (Text effects, infinite sliders)
+│   │   ├── payload/                        # Payload CMS block renderers
+│   │   │   ├── Card/                       # Post / Event preview cards
+│   │   │   ├── CollectionArchive/          # Archive grid & pagination
+│   │   │   ├── Link/                       # Dynamic CMS link resolver
+│   │   │   ├── LivePreviewListener/        # Hot-reloading live preview listener
+│   │   │   ├── Media/                      # Responsive image/video renderer
+│   │   │   ├── Pagination/                 # CMS pagination controls
+│   │   │   ├── PayloadRedirects/           # Server-side 301/302 redirect engine
+│   │   │   └── RichText/                   # Lexical rich text HTML serialiser
+│   │   ├── payload-admin/                  # Custom Payload CMS admin UI components
+│   │   │   ├── Actions/                    # Admin bar quick actions
+│   │   │   ├── AdminBar/                   # Frontend admin bar for logged-in staff
+│   │   │   ├── BeforeDashboard/            # Custom dashboard welcome card
+│   │   │   ├── BeforeLogin/                # Custom login screen disclaimer
+│   │   │   └── GraphicsIcon/ & GraphicsLogo/ # Custom admin branding logos
+│   │   ├── ui/                             # Accessible Radix UI primitives & components
+│   │   │   ├── accordion.tsx               # Collapsible accordion element
+│   │   │   ├── avatar.tsx                  # User & contributor avatar
+│   │   │   ├── button.tsx                  # Interactive button states
+│   │   │   ├── card.tsx                    # Surface card wrapper
+│   │   │   ├── carousel.tsx                # Embla carousel wrapper
+│   │   │   ├── dropdown-menu.tsx           # Context & dropdown menus
+│   │   │   ├── sonner.tsx                  # Modern toast notification engine
+│   │   │   └── timeline.tsx                # Event / history timeline component
+│   │   ├── navbar.tsx                      # Navigation bar with theme toggle
+│   │   ├── footer.tsx                      # Global footer with university links
+│   │   └── theme-provider.tsx              # NextThemes dark/light provider
+│   │
+│   ├── payload/                            # Payload CMS architecture & schemas
+│   │   ├── access/                         # Access control policies (RBAC)
+│   │   ├── blocks/                         # Modular layout blocks (CTA, Banner, Code, Form)
+│   │   ├── collections/                    # Content collections & schemas
+│   │   │   ├── Achievements.ts             # Student awards & recognitions
+│   │   │   ├── Categories.ts               # Content categorization taxonomy
+│   │   │   ├── Certificates.ts             # Issued certificates & verification data
+│   │   │   ├── Courses/                    # Structured learning roadmaps & modules
+│   │   │   ├── Events.ts                   # Hackathons, bootcamps & workshop records
+│   │   │   ├── Gallery.ts                  # Event photos & activity media
+│   │   │   ├── Media.ts                    # S3 / Local media storage collection
+│   │   │   ├── Pages/                      # Dynamic CMS landing pages
+│   │   │   ├── Posts/                      # Blog posts, articles & updates
+│   │   │   ├── Projects.ts                 # Student showcase repositories
+│   │   │   ├── Teams.ts                    # Core team, mentors & council members
+│   │   │   └── Users/                      # Club members & admin accounts
+│   │   ├── fields/                         # Reusable Lexical fields & slug formatters
+│   │   ├── Header/ & Footer/               # Global navigation & footer CMS schemas
+│   │   ├── heros/                          # Hero banner components (High/Medium/Low impact)
+│   │   ├── hooks/                          # Revalidation & data normalization hooks
+│   │   ├── plugins/                        # Payload plugins (SEO, Search, Form builder, etc.)
+│   │   ├── providers/                      # Header & admin theme contexts
+│   │   └── utilities/                      # CMS helpers (formatDate, getURL, deepMerge)
+│   │
+│   ├── lib/                                # Core utility functions & constants
+│   │   ├── constants.ts                    # Global navigation items & site metadata
+│   │   └── utils.ts                        # Tailwind class merge (clsx + twMerge)
+│   │
+│   ├── payload-types.ts                    # Auto-generated TypeScript types from schemas
+│   └── payload.config.ts                   # Root Payload CMS configuration
+│
+├── .env.example                            # Template environment variables
+├── components.json                         # Shadcn/Radix UI CLI configuration
+├── eslint.config.mjs                       # ESLint 9 configuration
+├── next-sitemap.config.cjs                 # Dynamic sitemap generator settings
+├── next.config.ts                          # Next.js 15 configuration & image domains
+├── package.json                            # Package dependencies and execution scripts
+├── pnpm-lock.yaml                          # Pnpm lockfile
+├── postcss.config.mjs                      # PostCSS & Tailwind v4 config
+└── tsconfig.json                           # TypeScript compiler configuration
 ```
 
 ---
