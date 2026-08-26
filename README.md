@@ -10,7 +10,7 @@
     <a href="https://github.com/itsmeaj27/codingclub/stargazers"><img src="https://img.shields.io/github/stars/itsmeaj27/codingclub?style=for-the-badge&logo=apachespark&color=f59e0b&logoColor=white" alt="Stars Badge"/></a>
     <a href="https://github.com/itsmeaj27/codingclub/network/members"><img src="https://img.shields.io/github/forks/itsmeaj27/codingclub?style=for-the-badge&color=6366f1" alt="Forks Badge"/></a>
     <a href="https://github.com/itsmeaj27/codingclub/issues"><img src="https://img.shields.io/github/issues/itsmeaj27/codingclub?style=for-the-badge&color=10b981" alt="Issues Badge"/></a>
-    <a href="https://github.com/itsmeaj27/codingclub/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"/></a>
+    <a href="https://github.com/itsmeaj27/codingclub/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-CUH%20CS%20%26%20IT%20Only-dc2626?style=for-the-badge" alt="Restricted License"/></a>
   </p>
 
   <p align="center">
@@ -227,9 +227,14 @@ git push origin feat/your-feature-name
 
 ---
 
-## 📄 License
+## 📄 License & Usage Terms
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+This project is protected under a **Restricted Academic & Institutional License**.
+
+> [!CAUTION]
+> **Restricted Authorization**: This codebase, platform, and associated materials are strictly proprietary and reserved exclusively for enrolled students and faculty members of the **Computer Science (CS)** and **Information Technology (IT)** departments at the **Central University of Haryana (CUH)**. Unauthorized usage, distribution, hosting, or reproduction by any external entity is strictly prohibited.
+
+For complete terms and legal details, please consult the [`LICENSE`](LICENSE) file.
 
 <div align="center">
   <sub>Built with 💙 by <b>Coding Club CUH</b> — Central University of Haryana</sub>
