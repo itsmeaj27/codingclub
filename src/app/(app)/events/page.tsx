@@ -1,69 +1,106 @@
 import Image from "next/image";
 import { Timeline } from "@/components/ui/timeline";
 import PageHeader from "@/components/page-header";
+import { getPayload } from "payload";
+import configPromise from "@payload-config";
+import Link from "next/link";
+import { Calendar, MapPin, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function TimelineDemo() {
-  const data = [
+export default async function EventsPage() {
+  const payload = await getPayload({ config: configPromise });
 
-    // {
-    //   title: "Find The Treasure",
-    //   content: (
-    //     <div>
-    //       <p className="text-neutral-800 dark:text-neutral-200 text-xs md:text-xl font-normal mb-8">
-    //         Built and launched Aceternity UI and Aceternity UI Pro from scratch
-    //       </p>
-    //     </div>
-    //   ),
-    // },
-    {
-      title: "Full Stack Development",
+  const eventsReq = await payload.find({
+    collection: "events",
+    limit: 50,
+    sort: "-date",
+  });
+  const events = eventsReq.docs || [];
+
+  const timelineData = events.map((event) => {
+    const date = new Date(event.date);
+    const formattedDate = date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+
+    const coverUrl =
+      event.coverPhoto && typeof event.coverPhoto === "object" && event.coverPhoto.url
+        ? event.coverPhoto.url
+        : null;
+
+    return {
+      title: event.title,
       content: (
-        <div>
-          <p className="text-neutral-800 dark:text-neutral-200 font-normal mb-8">
-         Learn to create complete web applications with front-end, back-end, and database skills.
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <Image
-              src="/events/full-stack.jpg"
-              alt="hero template"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
-            />
+        <div key={event.id} className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+            <span className="inline-flex items-center gap-1.5 font-medium text-zinc-700 dark:text-zinc-300">
+              <Calendar className="w-4 h-4 text-blue-500" />
+              {formattedDate}
+            </span>
+            {event.location && (
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-red-500" />
+                {event.location}
+              </span>
+            )}
+            <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full uppercase tracking-wider ${
+              event.status === "upcoming" 
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400" 
+                : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+            }`}>
+              {event.status}
+            </span>
           </div>
+
+          <p className="text-neutral-800 dark:text-neutral-200 text-sm md:text-base leading-relaxed">
+            {event.shortDescription}
+          </p>
+
+          {coverUrl && (
+            <div className="relative aspect-video w-full max-w-lg rounded-xl overflow-hidden shadow-md border border-zinc-200 dark:border-zinc-800">
+              <Image
+                src={coverUrl}
+                alt={event.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          {event.registrationLink && event.status === "upcoming" && (
+            <div className="pt-2">
+              <Button asChild size="sm" className="rounded-full">
+                <Link href={event.registrationLink} target="_blank">
+                  Register Now <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
       ),
-    },
-        {
-      title: "C and Python Classes",
-      content: (
-        <div>
-          <p className="text-neutral-800 dark:text-neutral-200  font-normal mb-8">
-     Interactive sessions to build strong programming fundamentals using C and Python.
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <Image
-              src="/events/c-python.jpg"
-              alt="startup template"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
-            />
-          </div>
-        </div>
-      ),
-    },
-  ];
+    };
+  });
 
   return (
-    <div className="w-full">
+    <div className="w-full min-h-screen pb-16">
       <PageHeader
         pagetitle={`Coding Club Events`}
         image1={"/images/icons/calendar.png"}
         image2={"/images/icons/time.png"}
         pagedescription={`Bringing Coders Together to Learn, Build, and Grow.`}
       />
-      <Timeline data={data} />
+      {timelineData.length === 0 ? (
+        <div className="mx-auto max-w-3xl px-6 py-20 text-center text-zinc-500">
+          <p className="text-xl font-medium">No events published yet.</p>
+          <p className="text-sm mt-2 text-zinc-400">
+            Admins can add workshops, hackathons, and seminars directly from the Payload CMS admin panel.
+          </p>
+        </div>
+      ) : (
+        <Timeline data={timelineData} />
+      )}
     </div>
   );
 }
