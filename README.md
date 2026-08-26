@@ -103,8 +103,6 @@ codingclub/
 ├── public/                                 # Static assets & public branding
 │   ├── ccc_logo.png                        # Primary club logo & favicon assets
 │   ├── cuh-logo.png                        # University crest & insignia
-│   ├── cuhteam.jpeg                        # Team banner assets
-│   ├── contributors/                       # Contributor portraits & media
 │   ├── events/                             # Event posters & promotional assets
 │   ├── sitemap.xml                         # Auto-generated XML sitemap
 │   └── site.webmanifest                    # PWA web manifest

@@ -8,19 +8,4 @@ export const menuLinks = [
   { name: "Posts", href: "/posts" },
 ];
 
-export const teamMembers = {
-  developers: [
-    {
-      name: "Raman Dahiya",
-      role: "FullStack Dev",
-      avatar: "/team/raman.jpeg",
-      type: "developer",
-    },
-    {
-      name: "Aaditya Sindhi",
-      role: "Frontend Dev",
-      avatar: "/team/rahul.jpeg",
-      type: "developer",
-    },
-  ],
-};
+
