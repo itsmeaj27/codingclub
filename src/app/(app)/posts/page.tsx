@@ -4,47 +4,29 @@ import { CollectionArchive } from "@/components/payload/CollectionArchive";
 import { PageRange } from "@/components/payload/PageRange";
 import { Pagination } from "@/components/payload/Pagination";
 import configPromise from "@payload-config";
-import { getPayload, type PaginatedDocs } from "payload";
+import { getPayload } from "payload";
 import React from "react";
 import PageHeader from "@/components/page-header";
-import type { Post } from "@/payload-types";
 
 export const dynamic = "force-static";
 export const revalidate = 600;
 
 export default async function Page() {
-  let posts: PaginatedDocs<Post> = {
-    docs: [],
-    totalDocs: 0,
-    page: 1,
-    totalPages: 1,
-    hasNextPage: false,
-    hasPrevPage: false,
+  const payload = await getPayload({ config: configPromise });
+
+  const posts = await payload.find({
+    collection: "posts",
+    depth: 1,
     limit: 12,
-    nextPage: null,
-    pagingCounter: 1,
-    prevPage: null,
-  }
-
-  try {
-    const payload = await getPayload({ config: configPromise });
-
-    posts = await payload.find({
-      collection: "posts",
-      depth: 1,
-      limit: 12,
-      overrideAccess: false,
-      select: {
-        title: true,
-        slug: true,
-        categories: true,
-        meta: true,
-        heroImage: true,
-      },
-    });
-  } catch (error) {
-    console.warn("Unable to query posts:", error);
-  }
+    overrideAccess: false,
+    select: {
+      title: true,
+      slug: true,
+      categories: true,
+      meta: true,
+      heroImage: true,
+    },
+  });
 
   return (
     <section className="">
