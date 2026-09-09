@@ -77,6 +77,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
+    "@netlify/plugin-nextjs": "^5.15.13",
     "@playwright/test": "1.54.1",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.13",
