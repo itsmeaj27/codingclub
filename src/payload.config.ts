@@ -107,7 +107,7 @@ export default buildConfig({
   plugins: [
     ...plugins,
   ],
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: process.env.PAYLOAD_SECRET || 'development-secret-key-for-local-testing',
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

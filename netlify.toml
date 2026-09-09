@@ -2,5 +2,8 @@
   command = "pnpm build"
   publish = ".next"
 
+[build.environment]
+  PAYLOAD_SECRET = "development-secret-key-for-local-testing"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
