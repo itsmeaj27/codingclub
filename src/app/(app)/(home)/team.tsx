@@ -5,15 +5,16 @@ import configPromise from "@payload-config";
 import { Github, Linkedin } from "lucide-react";
 
 export default async function TeamSection() {
-  const payload = await getPayload({ config: configPromise });
-  
-  const teamReq = await payload.find({
-    collection: "teams",
-    limit: 50,
-  });
-  const teams = teamReq.docs || [];
+  try {
+    const payload = await getPayload({ config: configPromise });
+    
+    const teamReq = await payload.find({
+      collection: "teams",
+      limit: 50,
+    });
+    const teams = teamReq.docs || [];
 
-  if (teams.length === 0) return null;
+    if (teams.length === 0) return null;
 
   // Sorting logic based on hierarchy
   const categoryWeight: Record<string, number> = {
@@ -88,4 +89,8 @@ export default async function TeamSection() {
       </div>
     </section>
   );
+  } catch (e) {
+    console.error("Error loading team section:", e);
+    return null;
+  }
 }

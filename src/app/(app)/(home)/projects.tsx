@@ -5,15 +5,16 @@ import configPromise from "@payload-config";
 import { ExternalLink, Github } from "lucide-react";
 
 export default async function ProjectsSection() {
-  const payload = await getPayload({ config: configPromise });
-  
-  const projectsReq = await payload.find({
-    collection: "projects",
-    limit: 4,
-  });
-  const projects = projectsReq.docs || [];
+  try {
+    const payload = await getPayload({ config: configPromise });
+    
+    const projectsReq = await payload.find({
+      collection: "projects",
+      limit: 4,
+    });
+    const projects = projectsReq.docs || [];
 
-  if (projects.length === 0) return null;
+    if (projects.length === 0) return null;
 
   return (
     <section className="py-12 md:py-20 bg-zinc-50 dark:bg-zinc-900/50">
@@ -68,4 +69,8 @@ export default async function ProjectsSection() {
       </div>
     </section>
   );
+  } catch (e) {
+    console.error("Error loading projects section:", e);
+    return null;
+  }
 }

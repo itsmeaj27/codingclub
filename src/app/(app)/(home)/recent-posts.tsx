@@ -6,16 +6,17 @@ import { ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default async function RecentPostsSection() {
-  const payload = await getPayload({ config: configPromise });
-  
-  const postsReq = await payload.find({
-    collection: "posts",
-    limit: 3,
-    sort: '-publishedAt',
-  });
-  const posts = postsReq.docs || [];
+  try {
+    const payload = await getPayload({ config: configPromise });
+    
+    const postsReq = await payload.find({
+      collection: "posts",
+      limit: 3,
+      sort: '-publishedAt',
+    });
+    const posts = postsReq.docs || [];
 
-  if (posts.length === 0) return null;
+    if (posts.length === 0) return null;
 
   return (
     <section className="py-12 md:py-20 bg-zinc-50 dark:bg-zinc-900/50">
@@ -85,4 +86,8 @@ export default async function RecentPostsSection() {
       </div>
     </section>
   );
+  } catch (e) {
+    console.error("Error loading recent posts section:", e);
+    return null;
+  }
 }

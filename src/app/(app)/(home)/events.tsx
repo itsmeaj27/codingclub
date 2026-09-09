@@ -6,16 +6,17 @@ import { ArrowRight, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default async function EventsSection() {
-  const payload = await getPayload({ config: configPromise });
-  
-  const eventsReq = await payload.find({
-    collection: "events",
-    limit: 3,
-    sort: '-date',
-  });
-  const events = eventsReq.docs || [];
+  try {
+    const payload = await getPayload({ config: configPromise });
+    
+    const eventsReq = await payload.find({
+      collection: "events",
+      limit: 3,
+      sort: '-date',
+    });
+    const events = eventsReq.docs || [];
 
-  if (events.length === 0) return null;
+    if (events.length === 0) return null;
 
   return (
     <section className="py-12 md:py-20">
@@ -79,4 +80,8 @@ export default async function EventsSection() {
       </div>
     </section>
   );
+  } catch (e) {
+    console.error("Error loading events section:", e);
+    return null;
+  }
 }

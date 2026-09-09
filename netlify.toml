@@ -6,5 +6,9 @@
   PAYLOAD_SECRET = "development-secret-key-for-local-testing"
   DATABASE_URI = "postgresql://postgres.awtneocokxlaunyxajzr:Codingclubcuh%4022@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
 
+[context.production.environment]
+  PAYLOAD_SECRET = "development-secret-key-for-local-testing"
+  DATABASE_URI = "postgresql://postgres.awtneocokxlaunyxajzr:Codingclubcuh%4022@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"

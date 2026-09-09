@@ -98,12 +98,25 @@ export default buildConfig({
   editor: defaultLexical,
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI || '',
+      connectionString:
+        process.env.DATABASE_URI ||
+        'postgresql://postgres.awtneocokxlaunyxajzr:Codingclubcuh%4022@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres',
     },
-    push: true,
+    push: false,
   }),
   collections: [Courses,Pages, Posts, Media, Categories, Users, Events, Teams, Projects, Gallery, Achievements, Certificates],
-  cors: [getServerSideURL()].filter(Boolean),
+  cors: [
+    getServerSideURL(),
+    'https://codingclubcuh.online',
+    'https://cuhcodingclub.netlify.app',
+    process.env.NEXT_PUBLIC_SERVER_URL || '',
+  ].filter(Boolean),
+  csrf: [
+    getServerSideURL(),
+    'https://codingclubcuh.online',
+    'https://cuhcodingclub.netlify.app',
+    process.env.NEXT_PUBLIC_SERVER_URL || '',
+  ].filter(Boolean),
   globals: [Header, Footer],
   plugins: [
     ...plugins,

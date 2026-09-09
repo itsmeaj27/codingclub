@@ -4,16 +4,17 @@ import Image from "next/image";
 import { Award, Trophy, Star } from "lucide-react";
 
 export default async function AchievementsSection() {
-  const payload = await getPayload({ config: configPromise });
-  
-  const achievementsReq = await payload.find({
-    collection: "achievements",
-    limit: 6,
-    sort: '-date',
-  });
-  const achievements = achievementsReq.docs || [];
+  try {
+    const payload = await getPayload({ config: configPromise });
+    
+    const achievementsReq = await payload.find({
+      collection: "achievements",
+      limit: 6,
+      sort: '-date',
+    });
+    const achievements = achievementsReq.docs || [];
 
-  if (achievements.length === 0) return null;
+    if (achievements.length === 0) return null;
 
   return (
     <section className="py-12 md:py-20">
@@ -68,4 +69,8 @@ export default async function AchievementsSection() {
       </div>
     </section>
   );
+  } catch (e) {
+    console.error("Error loading achievements section:", e);
+    return null;
+  }
 }
