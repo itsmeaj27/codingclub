@@ -3,9 +3,9 @@ User-agent: *
 Disallow: /admin/*
 
 # Host
-Host: https://codingclubcuh.vercel.app
+Host: https://codingclubcuh.online
 
 # Sitemaps
-Sitemap: https://codingclubcuh.vercel.app/sitemap.xml
-Sitemap: https://codingclubcuh.vercel.app/pages-sitemap.xml
-Sitemap: https://codingclubcuh.vercel.app/posts-sitemap.xml
+Sitemap: https://codingclubcuh.online/sitemap.xml
+Sitemap: https://codingclubcuh.online/pages-sitemap.xml
+Sitemap: https://codingclubcuh.online/posts-sitemap.xml

@@ -8,10 +8,6 @@ export const getServerSideURL = (): string => {
     return process.env.URL
   }
 
-  if (!url && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  }
-
   if (!url) {
     url = process.env.NODE_ENV === 'production' ? 'https://codingclubcuh.online' : 'http://localhost:3000'
   }

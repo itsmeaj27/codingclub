@@ -24,7 +24,7 @@ const fontJersey = localFont({
 export const metadata: Metadata = {
   title: "Coding Club Cuh",
   description: "coding club central university of haryana",
-  metadataBase: new URL("https://codingclubcuh.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || process.env.URL || "https://codingclubcuh.online"),
   openGraph: {
     title: "Coding Club Cuh",
     description: "coding club central university of haryana",

@@ -5,10 +5,12 @@
 [build.environment]
   PAYLOAD_SECRET = "development-secret-key-for-local-testing"
   DATABASE_URI = "postgresql://postgres.awtneocokxlaunyxajzr:Codingclubcuh%4022@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+  NEXT_PUBLIC_SERVER_URL = "https://codingclubcuh.online"
 
 [context.production.environment]
   PAYLOAD_SECRET = "development-secret-key-for-local-testing"
   DATABASE_URI = "postgresql://postgres.awtneocokxlaunyxajzr:Codingclubcuh%4022@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+  NEXT_PUBLIC_SERVER_URL = "https://codingclubcuh.online"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
