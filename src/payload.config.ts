@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { buildConfig, PayloadRequest } from 'payload'
-import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 
 import { Media } from './payload/collections/Media'
 import { Pages } from './payload/collections/Pages'
@@ -96,10 +96,11 @@ export default buildConfig({
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URI || 'file:payload.db',
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URI || '',
     },
+    push: true,
   }),
   collections: [Courses,Pages, Posts, Media, Categories, Users, Events, Teams, Projects, Gallery, Achievements, Certificates],
   cors: [getServerSideURL()].filter(Boolean),

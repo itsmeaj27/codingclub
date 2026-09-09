@@ -4,6 +4,7 @@
 
 [build.environment]
   PAYLOAD_SECRET = "development-secret-key-for-local-testing"
+  DATABASE_URI = "postgresql://postgres:Codingclubcuh%4022@db.awtneocokxlaunyxajzr.supabase.co:5432/postgres"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
