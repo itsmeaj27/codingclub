@@ -56,7 +56,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
 })
 
 type Props = {
-  data: DefaultTypedEditorState
+  data: DefaultTypedEditorState | Record<string, unknown>
   enableGutter?: boolean
   enableProse?: boolean
 } & React.HTMLAttributes<HTMLDivElement>
@@ -76,6 +76,7 @@ export default function RichText(props: Props) {
         className,
       )}
       {...rest}
+      data={rest.data as DefaultTypedEditorState}
     />
   )
 }
