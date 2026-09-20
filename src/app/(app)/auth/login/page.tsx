@@ -51,20 +51,26 @@ export default function LoginPage() {
     }
 
     return (
-        <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
-            <form onSubmit={handleSubmit} className="bg-muted m-auto h-fit w-full max-w-md overflow-hidden rounded-[calc(var(--radius)+.125rem)] border shadow-md shadow-zinc-950/5 dark:[--color-muted:var(--color-zinc-900)]">
-                <div className="bg-card -m-px rounded-[calc(var(--radius)+.125rem)] border p-8 pb-6">
+        <section className="flex min-h-screen bg-background relative px-4 py-16 md:py-32 overflow-hidden">
+            {/* Background gradient effect */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none" />
+            
+            <form onSubmit={handleSubmit} className="relative z-10 bg-card glass-card m-auto h-fit w-full max-w-md overflow-hidden rounded-2xl border border-border shadow-xl">
+                {/* Subtle top gradient accent */}
+                <div className="h-1 w-full bg-gradient-to-r from-primary to-accent" />
+                
+                <div className="p-8 pb-6">
                     <div className="text-center">
                         <Link href="/" aria-label="go home" className="mx-auto block w-fit">
                             <Logo />
                         </Link>
-                        <h1 className="text-title mb-1 mt-4 text-2xl font-semibold font-handjet tracking-wider">Coding Club CUH</h1>
-                        <p className="text-sm">Sign in to your member account</p>
+                        <h1 className="mb-1 mt-4 text-3xl font-semibold font-handjet tracking-wider text-gradient">Coding Club CUH</h1>
+                        <p className="text-sm text-muted-foreground">Sign in to your member account</p>
                     </div>
 
-                    <div className="mt-6 space-y-4">
+                    <div className="mt-8 space-y-5">
                         <div className="space-y-2">
-                            <Label htmlFor="identifier">University Email or Roll Number</Label>
+                            <Label htmlFor="identifier" className="text-foreground">University Email or Roll Number</Label>
                             <Input 
                                 id="identifier" 
                                 type="text" 
@@ -72,15 +78,16 @@ export default function LoginPage() {
                                 required 
                                 value={identifier}
                                 onChange={(e) => setIdentifier(e.target.value)}
+                                className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground"
                             />
                         </div>
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password" className="text-foreground">Password</Label>
                                 <Link
                                     href="/auth/forgot-password"
-                                    className="text-muted-foreground hover:text-foreground text-sm font-medium underline-offset-4 hover:underline"
+                                    className="text-muted-foreground hover:text-primary text-sm font-medium underline-offset-4 hover:underline transition-colors"
                                 >
                                     Forgot password?
                                 </Link>
@@ -92,15 +99,16 @@ export default function LoginPage() {
                                 required 
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground"
                             />
                         </div>
 
-                        <Button type="submit" className="w-full" disabled={loading}>
+                        <Button type="submit" className="w-full bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity border-0" disabled={loading}>
                             {loading ? 'Signing in...' : 'Sign in'}
                         </Button>
 
-                        <div className="flex justify-center">
-                            <Button type="button" variant="outline" asChild className="w-full">
+                        <div className="flex justify-center pt-2">
+                            <Button type="button" variant="outline" asChild className="w-full border-border text-foreground hover:bg-muted transition-colors">
                                 <Link href="/admin">
                                     Go to Admin Panel
                                 </Link>
@@ -109,10 +117,10 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <div className="p-3">
-                    <p className="text-accent-foreground text-center text-sm">
+                <div className="p-4 bg-muted/50 border-t border-border">
+                    <p className="text-muted-foreground text-center text-sm">
                         Not a member yet?
-                        <Button asChild variant="link" className="px-2">
+                        <Button asChild variant="link" className="px-2 text-primary hover:text-accent transition-colors">
                             <Link href="/auth/signup">Register</Link>
                         </Button>
                     </p>

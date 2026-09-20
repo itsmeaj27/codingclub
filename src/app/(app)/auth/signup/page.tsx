@@ -66,20 +66,26 @@ export default function SignupPage() {
     }
 
     return (
-        <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
-            <form onSubmit={handleSubmit} className="bg-muted m-auto h-fit w-full max-w-md overflow-hidden rounded-[calc(var(--radius)+.125rem)] border shadow-md shadow-zinc-950/5 dark:[--color-muted:var(--color-zinc-900)]">
-                <div className="bg-card -m-px rounded-[calc(var(--radius)+.125rem)] border p-8 pb-6">
+        <section className="flex min-h-screen bg-background relative px-4 py-16 md:py-32 overflow-hidden">
+            {/* Background gradient effect */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none" />
+            
+            <form onSubmit={handleSubmit} className="relative z-10 bg-card glass-card m-auto h-fit w-full max-w-md overflow-hidden rounded-2xl border border-border shadow-xl">
+                {/* Subtle top gradient accent */}
+                <div className="h-1 w-full bg-gradient-to-r from-primary to-accent" />
+                
+                <div className="p-8 pb-6">
                     <div className="text-center">
                         <Link href="/" aria-label="go home" className="mx-auto block w-fit">
                             <Logo />
                         </Link>
-                        <h1 className="text-title mb-1 mt-4 text-2xl font-semibold font-handjet tracking-wider">Join Coding Club CUH</h1>
-                        <p className="text-sm">Register to become an official member of the club</p>
+                        <h1 className="mb-1 mt-4 text-3xl font-semibold font-handjet tracking-wider text-gradient">Join Coding Club CUH</h1>
+                        <p className="text-sm text-muted-foreground">Register to become an official member of the club</p>
                     </div>
 
-                    <div className="mt-6 space-y-4">
+                    <div className="mt-8 space-y-5">
                         <div className="space-y-2">
-                            <Label htmlFor="fullname" className="block text-sm">Full Name</Label>
+                            <Label htmlFor="fullname" className="block text-sm text-foreground">Full Name</Label>
                             <Input 
                                 type="text" 
                                 required 
@@ -87,11 +93,12 @@ export default function SignupPage() {
                                 placeholder="Student Name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
+                                className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="studentid" className="block text-sm">Student ID / Roll No</Label>
+                            <Label htmlFor="studentid" className="block text-sm text-foreground">Student ID / Roll No</Label>
                             <Input 
                                 type="text" 
                                 required 
@@ -99,11 +106,12 @@ export default function SignupPage() {
                                 placeholder="University Roll No"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
+                                className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="block text-sm">University Email</Label>
+                            <Label htmlFor="email" className="block text-sm text-foreground">University Email</Label>
                             <Input 
                                 type="email" 
                                 required 
@@ -111,11 +119,12 @@ export default function SignupPage() {
                                 placeholder="example@cuh.ac.in"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="pwd" className="block text-sm">Password</Label>
+                            <Label htmlFor="pwd" className="block text-sm text-foreground">Password</Label>
                             <Input 
                                 type="password" 
                                 required 
@@ -123,19 +132,20 @@ export default function SignupPage() {
                                 placeholder="Create a secure password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground"
                             />
                         </div>
 
-                        <Button type="submit" className="w-full mt-4 bg-[#1a365d] text-white hover:bg-[#112340]" disabled={loading}>
+                        <Button type="submit" className="w-full mt-4 bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity border-0" disabled={loading}>
                             {loading ? 'Registering...' : 'Register'}
                         </Button>
                     </div>
                 </div>
 
-                <div className="p-3">
-                    <p className="text-accent-foreground text-center text-sm">
+                <div className="p-4 bg-muted/50 border-t border-border">
+                    <p className="text-muted-foreground text-center text-sm">
                         Already a member?
-                        <Button asChild variant="link" className="px-2">
+                        <Button asChild variant="link" className="px-2 text-primary hover:text-accent transition-colors">
                             <Link href="/auth/login">Sign In</Link>
                         </Button>
                     </p>

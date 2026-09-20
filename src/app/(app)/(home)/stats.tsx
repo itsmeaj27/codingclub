@@ -1,82 +1,79 @@
-import { Logo } from "@/components/logo";
+"use client";
+
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { SectionHeading } from "@/components/ui/section-heading";
 import Image from "next/image";
 
 export default function StatsSection() {
   return (
-    <section className="">
-      <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-12">
-        <div className="relative z-10 space-y-6">
-          <div className="flex w-full">
-            <h2 className="text-4xl font-medium lg:text-5xl w-[50%]">
-              Create Practical Learning Environment.
-            </h2>
-            <div className="w-[50%]  justify-end hidden md:flex">
-              <Image
-                src={"/images/monitorsetup.png"}
-                className="scale-x-[-1] mr-20 dark:invert  w-10 md:w-30 right-[0%]"
-                width={200}
-                height={200}
-                alt="arrow"
+    <section className="py-16 md:py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <SectionHeading
+          title="Creating Practical Learning Environments"
+          subtitle="Igniting a passion for coding since 2022 — learn, build, and innovate with CUH's hub of programming and technology."
+          align="center"
+        />
+
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-16">
+          {[
+            { value: 500, label: "Active Members", suffix: "+" },
+            { value: 10, label: "Events Organised", suffix: "+" },
+            { value: 15, label: "Projects Built", suffix: "+" },
+            { value: 20, label: "Workshops Held", suffix: "+" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="text-center p-6 rounded-2xl border border-border bg-card/50 glow-hover transition-all"
+            >
+              <AnimatedCounter
+                value={stat.value}
+                suffix={stat.suffix}
+                className="text-4xl md:text-5xl font-bold text-gradient block"
+                duration={2.5}
               />
+              <p className="mt-2 text-muted-foreground font-medium">{stat.label}</p>
             </div>
-          </div>
-
-          {/* <Image
-            src={"/images/pointer.png"}
-            className="absolute w-10 md:w-18 top-10 right-[5%] animate-pulse -rotate-20"
-            width={200}
-            height={200}
-            alt="arrow"
-          /> */}
-
-          <p>
-           Igniting a passion for coding since 2022 — learn, build, and innovate with CUH’s hub of programming and technology.
-          </p>
+          ))}
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24">
+
+        <div className="grid gap-8 md:grid-cols-2 items-center">
           <div>
-            <p>
-              Shaping the future of programmers through coding, creativity, and collaboration
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+              Shaping the future of programmers through coding, creativity, and collaboration. Our peer-driven model ensures every student has the support to grow and excel.
             </p>
-            <div className="mb-12 mt-12 grid grid-cols-2 gap-2 md:mb-0">
-              <div className="space-y-4">
-                <div className="bg-linear-to-r from-zinc-950 to-zinc-600 bg-clip-text text-5xl font-bold text-transparent dark:from-white dark:to-zinc-800">
-                  +500
-                </div>
-                <p>Students</p>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 rounded-xl border border-border bg-card/50">
+                <span className="text-3xl font-bold text-gradient">3+</span>
+                <p className="text-sm text-muted-foreground mt-1">Years of Excellence</p>
               </div>
-              <div className="space-y-4">
-                <div className="bg-linear-to-r from-zinc-950 to-zinc-600 bg-clip-text text-5xl font-bold text-transparent dark:from-white dark:to-zinc-800">
-                  +10
-                </div>
-                <p>Events Organised</p>
+              <div className="p-4 rounded-xl border border-border bg-card/50">
+                <span className="text-3xl font-bold text-gradient">50+</span>
+                <p className="text-sm text-muted-foreground mt-1">Student Mentors</p>
               </div>
             </div>
           </div>
 
-          <div className="relative">
-            <blockquote className="">
-              <p className="text-lg font-semibold">{`The Coding Club was established with a vision to spark curiosity and passion for programming among students of CUH. Our goal is to nurture talent, encourage innovation, and provide a platform for hands-on learning in emerging fields like web development, machine learning, and beyond. Together, we are building a community of learners who will shape the digital future.`}</p>
-
-              <div className="flex flex-row gap-x-5 items-center mt-5">
-                <div className="">
-                  <Image
-                    alt="Dr. Sunil Kumar"
-                    className="size-16 rounded-full border object-cover"
-                    src="/cuh/sunilsir.jpeg"
-                    loading="lazy"
-                    width={120}
-                    height={120}
-                  />
-                </div>
-                <div className=" space-y-3 border-l-4 pl-4">
-                  <cite className="block font-medium">
-                    Dr. Sunil Kumar, Coordinator
+          <div className="relative bg-card rounded-2xl border border-border p-6 shadow-sm">
+            <blockquote>
+              <p className="text-lg font-medium leading-relaxed text-foreground">
+                {`"The Coding Club was established with a vision to spark curiosity and passion for programming among students of CUH. Together, we are building a community of learners who will shape the digital future."`}
+              </p>
+              <div className="flex items-center gap-4 mt-6 pt-6 border-t border-border">
+                <Image
+                  alt="Dr. Sunil Kumar"
+                  className="size-14 rounded-full border-2 border-primary/20 object-cover"
+                  src="https://res.cloudinary.com/azzisskq/image/upload/v1789927151/codingclub/teams/coordinators/dr_sunil_kumar.jpg"
+                  loading="lazy"
+                  width={120}
+                  height={120}
+                />
+                <div>
+                  <cite className="block font-semibold text-foreground not-italic">
+                    Dr. Sunil Kumar
                   </cite>
-                  <Logo
-                    className="invert-100 dark:invert-0 w-5 h-5 md:w-7 md:h-7"
-                    textSize="text-md md:text-lg font-bold font-handjet"
-                  />
+                  <span className="text-sm text-muted-foreground">
+                    Faculty Coordinator, Coding Club CUH
+                  </span>
                 </div>
               </div>
             </blockquote>

@@ -13,19 +13,43 @@ import Faq from "./faq";
 
 export default function Home() {
   return (
-    <>
+    <div className="overflow-hidden">
       <HeroSection />
-      <AboutSection />
+
+      <div className="relative">
+        {/* Subtle section divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        <AboutSection />
+      </div>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <StatsSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <ObjectivesSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <EventsSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <ProjectsSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <AchievementsSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <TeamSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <GallerySection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <RecentPostsSection />
+
       <WallOfLoveSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <Faq />
-    </>
+    </div>
   );
 }

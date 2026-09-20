@@ -7,34 +7,34 @@ import PageHeader from "@/components/page-header";
 
 export default function ContactSection() {
   return (
-    <section className="">
+    <section className="bg-background min-h-screen">
       <PageHeader
         pagetitle={`Get in touch with us`}
         image1={"/images/icons/mail.png"}
         image2={"/images/icons/contact.png"}
         pagedescription={`We'd love to hear from you. Fill out the form below or drop us an email.`}
       />
-      <div className="mx-auto max-w-4xl px-4 lg:px-0 pb-12">
-        <div className="grid divide-y border md:grid-cols-2 md:gap-4 md:divide-x md:divide-y-0">
-          <div className="flex flex-col justify-between space-y-8 p-6 sm:p-12">
+      <div className="mx-auto max-w-4xl px-4 lg:px-0 pb-16 mt-8">
+        <div className="grid border border-border rounded-2xl overflow-hidden md:grid-cols-2 md:gap-px bg-border glass-card">
+          <div className="flex flex-col justify-between space-y-8 p-8 sm:p-12 bg-card">
             <div>
-              <h2 className="mb-3 text-lg font-semibold">General Inquiry</h2>
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-2">For any questions about the club, events, or membership.</p>
+              <h2 className="mb-3 text-xl font-semibold text-foreground font-handjet tracking-wider">General Inquiry</h2>
+              <p className="text-muted-foreground text-sm mb-4">For any questions about the club, events, or membership.</p>
               <a
                 href="mailto:contact@codingclubcuh.in"
-                className="text-blue-600 hover:underline block"
+                className="text-primary hover:text-accent transition-colors font-medium hover:underline block"
               >
                 contact@codingclubcuh.in
               </a>
             </div>
           </div>
-          <div className="flex flex-col justify-between space-y-8 p-6 sm:p-12 bg-zinc-50 dark:bg-zinc-900/50">
+          <div className="flex flex-col justify-between space-y-8 p-8 sm:p-12 bg-muted/30">
             <div>
-              <h2 className="mb-3 text-lg font-semibold">Admin / Tech Support</h2>
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-2">For website issues or CMS administration.</p>
+              <h2 className="mb-3 text-xl font-semibold text-foreground font-handjet tracking-wider">Admin / Tech Support</h2>
+              <p className="text-muted-foreground text-sm mb-4">For website issues or CMS administration.</p>
               <a
                 href="mailto:admin@codingclubcuh.in"
-                className="text-blue-600 hover:underline block"
+                className="text-primary hover:text-accent transition-colors font-medium hover:underline block"
               >
                 admin@codingclubcuh.in
               </a>
@@ -42,29 +42,35 @@ export default function ContactSection() {
           </div>
         </div>
 
-        <div className="h-3 border-x bg-[repeating-linear-gradient(-45deg,var(--color-border),var(--color-border)_1px,transparent_1px,transparent_6px)]"></div>
-        <form action="" className="border px-4 py-12 lg:px-0 lg:py-24">
-          <Card className="mx-auto max-w-lg p-8 sm:p-16">
-            <h3 className="text-xl font-semibold">Send us a message</h3>
+        <div className="h-8 mx-auto w-px bg-gradient-to-b from-border to-transparent"></div>
+        <form action="" className="mt-8">
+          <Card className="mx-auto max-w-2xl p-8 sm:p-12 bg-card glass-card border-border shadow-xl rounded-2xl overflow-hidden relative">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-accent" />
+            <h3 className="text-2xl font-semibold text-foreground font-handjet tracking-wider mb-2">Send us a message</h3>
+            <p className="text-muted-foreground text-sm mb-8">Fill out the form below and we&apos;ll get back to you soon.</p>
             
-            <div className="mt-8 space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full name</Label>
-                <Input type="text" id="name" placeholder="John Doe" required />
+            <div className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-foreground">Full name</Label>
+                  <Input type="text" id="name" placeholder="John Doe" required className="focus:ring-primary/50 focus:border-primary bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-foreground">Email</Label>
+                  <Input type="email" id="email" placeholder="john@example.com" required className="focus:ring-primary/50 focus:border-primary bg-background border-border" />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input type="email" id="email" placeholder="john@example.com" required />
+                <Label htmlFor="subject" className="text-foreground">Subject</Label>
+                <Input type="text" id="subject" placeholder="How can we help?" required className="focus:ring-primary/50 focus:border-primary bg-background border-border" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
-                <Input type="text" id="subject" placeholder="How can we help?" required />
+                <Label htmlFor="msg" className="text-foreground">Message</Label>
+                <Textarea id="msg" rows={5} placeholder="Your message here..." required className="focus:ring-primary/50 focus:border-primary bg-background border-border resize-none" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="msg">Message</Label>
-                <Textarea id="msg" rows={4} placeholder="Your message here..." required />
-              </div>
-              <Button className="w-full">Send Message</Button>
+              <Button className="w-full bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity border-0">
+                Send Message
+              </Button>
             </div>
           </Card>
         </form>

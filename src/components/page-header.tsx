@@ -18,39 +18,43 @@ const PageHeader = ({
   pagedescription?: string;
 }) => {
   return (
-    <div className={cn(className, textSize)}>
-    <div className="w-full text-center p-10">
-      <div className="relative hidden lg:block">
-        <div className=" p-2 border border-black/55 dark:border-white/55 rounded-2xl absolute w-15 right-[10vw] top-0 z-50">
+    <div className={cn("relative w-full overflow-hidden dot-grid", className, textSize)}>
+      <div className="w-full text-center px-6 pt-24 pb-12 md:pt-32 md:pb-16 max-w-5xl mx-auto">
+        <div className="relative hidden lg:block">
           {image1 && (
-            <Image
-              src={image1}
-              className="dark:invert"
-              width={200}
-              height={200}
-              alt="arrow"
-            />
+            <div className="glass-card p-3 rounded-2xl absolute w-16 md:w-20 right-[5vw] xl:right-[10vw] top-4 z-10 animate-fade-in">
+              <Image
+                src={image1}
+                className="dark:invert w-full h-auto object-contain"
+                width={200}
+                height={200}
+                alt="decorative element"
+              />
+            </div>
           )}
-        </div>
-        <div className=" p-2 border border-black/55 dark:border-white/55 rounded-2xl absolute w-15 left-[10vw] top-0 z-50">
           {image2 && (
-            <Image
-              src={image2}
-              className="dark:invert"
-              width={200}
-              height={200}
-              alt="arrow"
-            />
+            <div className="glass-card p-3 rounded-2xl absolute w-16 md:w-20 left-[5vw] xl:left-[10vw] top-12 z-10 animate-fade-in" style={{ animationDelay: "150ms" }}>
+              <Image
+                src={image2}
+                className="dark:invert w-full h-auto object-contain"
+                width={200}
+                height={200}
+                alt="decorative element"
+              />
+            </div>
           )}
         </div>
+        
+        <h2 className="font-handjet font-black text-4xl md:text-6xl lg:text-7xl mb-6 text-gradient uppercase tracking-tight">
+          {pagetitle}
+        </h2>
+        
+        {pagedescription && (
+          <p className="text-muted-foreground text-base md:text-xl max-w-2xl mx-auto font-medium leading-relaxed">
+            {pagedescription}
+          </p>
+        )}
       </div>
-      <h2 className="font-handjet font-black text-2xl md:text-5xl mb-4 text-black dark:text-white">
-        {pagetitle}
-      </h2>
-      <p className="font-jersey text-neutral-700 dark:text-neutral-300 text-sm md:text-xl ">
-        {pagedescription}
-      </p>
-    </div>
     </div>
   );
 };

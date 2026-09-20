@@ -1,15 +1,17 @@
 import type { CollectionConfig } from 'payload'
+import fs from 'fs/promises'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 import {
   FixedToolbarFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import path from 'path'
-import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
+import { getCloudinaryTransformUrl, uploadToCloudinary } from '../utilities/cloudinary'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,11 +24,108 @@ export const Media: CollectionConfig = {
     read: anyone,
     update: authenticated,
   },
+  hooks: {
+    beforeChange: [
+      async ({ data, req }) => {
+        try {
+          let fileBuffer: Buffer | null = null
+          const file = req.file
+
+          if (file?.data && file.data.length > 0) {
+            fileBuffer = file.data
+          } else if (file?.tempFilePath) {
+            fileBuffer = await fs.readFile(file.tempFilePath)
+          }
+
+          if (fileBuffer && file) {
+            // Determine target Cloudinary folder based on user selection or default
+            const subfolder = (data.folder as string) || 'gallery/2026'
+            const targetFolder = `codingclub/${subfolder}`
+
+            req.payload.logger.info(
+              `Uploading file "${file.name}" to Cloudinary under "${targetFolder}"...`,
+            )
+            const uploadResult = await uploadToCloudinary(
+              fileBuffer,
+              file.name,
+              file.mimetype || 'application/octet-stream',
+              targetFolder,
+            )
+
+            data.url = uploadResult.secure_url
+            if (uploadResult.bytes) data.filesize = uploadResult.bytes
+            if (uploadResult.width) data.width = uploadResult.width
+            if (uploadResult.height) data.height = uploadResult.height
+            if (uploadResult.format) data.mimeType = `image/${uploadResult.format}`
+            if (!data.filename) {
+              data.filename = `${uploadResult.public_id}.${uploadResult.format || 'jpg'}`
+            }
+
+            // Populate on-the-fly Cloudinary transformation URLs for image sizes
+            if (data.sizes && typeof data.sizes === 'object') {
+              const transforms: Record<string, string> = {
+                thumbnail: 'w_300,c_limit',
+                square: 'w_500,h_500,c_fill',
+                small: 'w_600,c_limit',
+                medium: 'w_900,c_limit',
+                large: 'w_1400,c_limit',
+                xlarge: 'w_1920,c_limit',
+                og: 'w_1200,h_630,c_fill',
+              }
+              for (const [sizeName, transform] of Object.entries(transforms)) {
+                if (data.sizes[sizeName]) {
+                  data.sizes[sizeName].url = getCloudinaryTransformUrl(
+                    uploadResult.secure_url,
+                    transform,
+                  )
+                }
+              }
+            }
+            req.payload.logger.info(`Uploaded to Cloudinary: ${uploadResult.secure_url}`)
+          }
+        } catch (err) {
+          req.payload.logger.error(`Error uploading to Cloudinary: ${err}`)
+          throw err
+        }
+        return data
+      },
+    ],
+    afterRead: [
+      ({ doc }) => {
+        if (doc?.url && typeof doc.url === 'string' && doc.url.includes('res.cloudinary.com')) {
+          doc.thumbnailURL = getCloudinaryTransformUrl(doc.url, 'w_300,c_limit')
+        }
+        return doc
+      },
+    ],
+  },
   fields: [
+    {
+      name: 'folder',
+      type: 'select',
+      defaultValue: 'gallery/2026',
+      options: [
+        { label: 'Events > Coding Class', value: 'events/coding-class' },
+        { label: 'Events > Hackathon', value: 'events/hackathon' },
+        { label: 'Events > Workshops', value: 'events/workshops' },
+        { label: 'Gallery > 2026', value: 'gallery/2026' },
+        { label: 'Gallery > 2027', value: 'gallery/2027' },
+        { label: 'Teams > President', value: 'teams/president' },
+        { label: 'Teams > Coordinators', value: 'teams/coordinators' },
+        { label: 'Teams > Members', value: 'teams/members' },
+        { label: 'Projects', value: 'projects' },
+        { label: 'Certificates', value: 'certificates' },
+        { label: 'Profiles', value: 'profiles' },
+        { label: 'Submissions', value: 'submissions' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Destination folder in Cloudinary (under codingclub/)',
+      },
+    },
     {
       name: 'alt',
       type: 'text',
-      //required: true,
     },
     {
       name: 'caption',
@@ -39,9 +138,12 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
+    // Media is persisted remotely to Cloudinary CDN
     staticDir: path.resolve(dirname, '../../public/media'),
-    adminThumbnail: 'thumbnail',
+    disableLocalStorage: true,
+    adminThumbnail: ({ doc }) => {
+      return (doc?.thumbnailURL || doc?.url || null) as string | null
+    },
     focalPoint: true,
     imageSizes: [
       {

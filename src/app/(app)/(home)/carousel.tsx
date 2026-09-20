@@ -12,14 +12,15 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import Image from "next/image";
+import { CLOUDINARY_CAROUSEL_SLIDES } from "@/lib/cloudinary-gallery";
 
 export function CarouselPlugin() {
   const plugin = React.useRef(
     Autoplay({
-        delay: 2000,
-        stopOnInteraction: false,
-        stopOnMouseEnter: true
-      })
+      delay: 3000,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+    })
   )
 
   return (
@@ -30,18 +31,18 @@ export function CarouselPlugin() {
       onMouseLeave={plugin.current.reset}
     >
       <CarouselContent>
-        {[{href:"/cuh/sunilsir.jpeg"},{href:"/cuh/vcsir.jpeg"},{href:"/cuh/groupphoto.jpeg"},{href:"/cuh/danikbhashak.jpeg"}].map((item, index) => (
+        {CLOUDINARY_CAROUSEL_SLIDES.map((item, index) => (
           <CarouselItem key={index}>
             <div className="relative z-40">
-              <Card>
-                <CardContent className="flex items-center justify-center">
-                  
-                   <Image
-                    className="bg-background  relative bg-cover bg-center"
+              <Card className="border-0 bg-transparent shadow-none">
+                <CardContent className="flex items-center justify-center p-0 overflow-hidden rounded-xl">
+                  <Image
+                    className="w-full h-auto object-cover max-h-[520px] rounded-xl"
                     src={item.href}
-                    alt="app screen"
-                    width="2700"
-                    height="1440"
+                    alt={item.title}
+                    width={2700}
+                    height={1440}
+                    priority={index === 0}
                   />
                 </CardContent>
               </Card>

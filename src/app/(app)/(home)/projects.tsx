@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getPayload } from "payload";
 import configPromise from "@payload-config";
 import { ExternalLink, Github } from "lucide-react";
+import { SectionHeading } from "@/components/ui/section-heading";
 
 export default async function ProjectsSection() {
   try {
@@ -17,49 +18,62 @@ export default async function ProjectsSection() {
     if (projects.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-20 bg-zinc-50 dark:bg-zinc-900/50">
+    <section className="py-12 md:py-20 bg-muted/20">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold font-handjet tracking-wider">Student Projects</h2>
-          <p className="mt-4 text-zinc-600 dark:text-zinc-400">Discover what our community has built.</p>
-        </div>
+        <SectionHeading 
+          title="Student Projects" 
+          subtitle="Discover what our community has built." 
+          badge="Showcase" 
+        />
         
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2 mt-12">
           {projects.map((project) => (
-            <div key={project.id} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group">
-              <div className="aspect-[16/10] w-full bg-zinc-100 relative overflow-hidden">
+            <div key={project.id} className="bg-card border-border rounded-2xl overflow-hidden glow-hover gradient-border transition-all duration-300 group">
+              <div className="aspect-[16/10] w-full bg-muted relative overflow-hidden">
                 {project.screenshot && typeof project.screenshot === 'object' && project.screenshot.url && (
                   <Image 
                     src={project.screenshot.url} 
                     alt={project.name} 
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                 )}
+                {/* Dark overlay on hover for better focus */}
+                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-2xl">{project.name}</h3>
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="font-bold text-2xl text-foreground">{project.name}</h3>
                   <div className="flex gap-2">
                     {project.github && (
-                      <Link href={project.github} target="_blank" className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                      <Link href={project.github} target="_blank" className="p-2 bg-muted rounded-full hover:bg-secondary text-foreground transition-colors">
                         <Github className="w-4 h-4" />
                       </Link>
                     )}
                     {project.liveDemo && (
-                      <Link href={project.liveDemo} target="_blank" className="p-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-full hover:opacity-90 transition-opacity">
+                      <Link href={project.liveDemo} target="_blank" className="p-2 bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity">
                         <ExternalLink className="w-4 h-4" />
                       </Link>
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 font-mono">{project.techStack}</p>
-                <p className="text-zinc-600 dark:text-zinc-300 mb-4 line-clamp-3">
+                
+                {project.techStack && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.techStack.split(',').map((tech, i) => (
+                      <span key={i} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground font-medium border border-border">
+                        {tech.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                
+                <p className="text-muted-foreground mb-4 line-clamp-3 text-sm">
                   {project.description}
                 </p>
-                <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                  <p className="text-sm text-zinc-500">
-                    <span className="font-medium text-zinc-900 dark:text-zinc-100">Built by:</span> {project.members}
+                <div className="pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Built by:</span> {project.members}
                   </p>
                 </div>
               </div>

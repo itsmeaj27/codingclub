@@ -4,17 +4,28 @@ import { useState } from "react";
 import Image from "next/image";
 import { Maximize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Gallery } from "@/payload-types";
 
-export default function GalleryClient({ photos }: { photos: Gallery[] }) {
+interface PhotoItem {
+  id: string | number;
+  caption?: string | null;
+  category?: string | null;
+  image?: {
+    url?: string | null;
+    width?: number | null;
+    height?: number | null;
+  } | null;
+}
+
+export default function GalleryClient({ photos }: { photos: PhotoItem[] }) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [selectedImage, setSelectedImage] = useState<Gallery | null>(null);
+  const [selectedImage, setSelectedImage] = useState<PhotoItem | null>(null);
 
   const categories = [
     { id: "all", label: "All Photos" },
-    { id: "events", label: "Events" },
+    { id: "events", label: "Events & Hackathons" },
     { id: "workshops", label: "Workshops" },
-    { id: "team", label: "Team" },
+    { id: "classes", label: "Coding Classes" },
+    { id: "team", label: "Team & Community" },
   ];
 
   const filteredPhotos = activeCategory === "all" 
@@ -29,10 +40,10 @@ export default function GalleryClient({ photos }: { photos: Gallery[] }) {
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               activeCategory === cat.id 
-                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900" 
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                ? "bg-primary text-primary-foreground shadow-sm" 
+                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
             }`}
           >
             {cat.label}
@@ -45,7 +56,7 @@ export default function GalleryClient({ photos }: { photos: Gallery[] }) {
         {filteredPhotos.map((photo) => (
           <div 
             key={photo.id} 
-            className="relative group rounded-xl overflow-hidden cursor-pointer bg-zinc-100 dark:bg-zinc-900 break-inside-avoid"
+            className="relative group rounded-xl overflow-hidden cursor-pointer bg-muted border border-border break-inside-avoid glow-hover transition-all"
             onClick={() => setSelectedImage(photo)}
           >
             {photo.image && typeof photo.image === 'object' && photo.image.url && (
@@ -58,46 +69,59 @@ export default function GalleryClient({ photos }: { photos: Gallery[] }) {
               />
             )}
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-              <div className="text-white text-center p-4">
-                <Maximize2 className="w-8 h-8 mx-auto mb-2 opacity-75" />
-                <p className="font-medium text-sm">{photo.caption}</p>
+              <div className="text-center p-4">
+                <Maximize2 className="w-8 h-8 text-white mx-auto mb-2 opacity-80" />
+                <p className="text-white text-sm font-medium">{photo.caption}</p>
+                {photo.category && (
+                  <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary text-white capitalize">
+                    {photo.category}
+                  </span>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-12 text-center">
-        <Button variant="outline" className="rounded-full px-8">
-          View All Gallery
-        </Button>
-      </div>
-
-      {/* Lightbox */}
+      {/* Lightbox Modal */}
       {selectedImage && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 sm:p-8 backdrop-blur-md">
-          <button 
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-md"
+          onClick={() => setSelectedImage(null)}
+        >
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full"
             onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 sm:top-8 sm:right-8 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
           >
             <X className="w-6 h-6" />
-          </button>
+          </Button>
           
-          <div className="relative w-full max-w-5xl aspect-video rounded-lg overflow-hidden">
-             {selectedImage.image && typeof selectedImage.image === 'object' && selectedImage.image.url && (
+          <div 
+            className="max-w-4xl max-h-[90vh] flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {selectedImage.image && typeof selectedImage.image === 'object' && selectedImage.image.url && (
               <Image 
                 src={selectedImage.image.url} 
                 alt={selectedImage.caption || "Gallery image"}
-                fill
-                className="object-contain"
+                width={1200}
+                height={800}
+                className="max-h-[75vh] w-auto object-contain rounded-lg shadow-2xl"
               />
-             )}
+            )}
+            {selectedImage.caption && (
+              <div className="mt-4 text-center">
+                <p className="text-white text-base font-medium">{selectedImage.caption}</p>
+                {selectedImage.category && (
+                  <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-primary/80 text-white capitalize">
+                    {selectedImage.category}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-          {selectedImage.caption && (
-            <p className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white font-medium bg-black/50 px-6 py-2 rounded-full backdrop-blur-md">
-              {selectedImage.caption}
-            </p>
-          )}
         </div>
       )}
     </div>

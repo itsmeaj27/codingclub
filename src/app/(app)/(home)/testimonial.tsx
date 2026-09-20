@@ -1,5 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
+import { SectionHeading } from '@/components/ui/section-heading'
+import { Quote } from 'lucide-react'
 
 type Testimonial = {
     name: string
@@ -27,39 +29,38 @@ export default function WallOfLoveSection() {
     if (testimonials.length === 0) return null; // Hide section until real testimonials are added
 
     return (
-        <section>
-            <div className="py-10 md:py-15">
-                <div className="mx-auto max-w-6xl px-6">
-                    <div className="text-center">
-                        <h2 className="text-title text-3xl font-semibold">Loved by the Community</h2>
-                        <p className="text-body mt-6">Hear what our students and alumni have to say about the Coding Club CUH.</p>
-                    </div>
-                    <div className="mt-8 grid gap-3 sm:grid-cols-2 md:mt-12 lg:grid-cols-3">
-                        {testimonialChunks.map((chunk, chunkIndex) => (
-                            <div key={chunkIndex} className="space-y-3">
-                                {chunk.map(({ name, role, quote, image }, index) => (
-                                    <Card key={index}>
-                                        <CardContent className="grid grid-cols-[auto_1fr] gap-3 pt-6">
-                                            <Avatar className="size-9">
+        <section className="py-16 md:py-24">
+            <div className="mx-auto max-w-6xl px-6">
+                <SectionHeading
+                    title="Loved by the Community"
+                    subtitle="Hear what our students and alumni have to say about the Coding Club CUH."
+                    badge="Testimonials"
+                />
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {testimonialChunks.map((chunk, chunkIndex) => (
+                        <div key={chunkIndex} className="space-y-4">
+                            {chunk.map(({ name, role, quote, image }, index) => (
+                                <Card key={index} className="bg-card border-border glow-hover transition-all">
+                                    <CardContent className="p-6">
+                                        <Quote className="w-8 h-8 text-primary/20 mb-4" />
+                                        <blockquote className="mb-6">
+                                            <p className="text-foreground leading-relaxed">{quote}</p>
+                                        </blockquote>
+                                        <div className="flex items-center gap-3 pt-4 border-t border-border">
+                                            <Avatar className="size-10 ring-2 ring-primary/10">
                                                 <AvatarImage alt={name} src={image} loading="lazy" width="120" height="120" />
-                                                <AvatarFallback>CUH</AvatarFallback>
+                                                <AvatarFallback className="bg-primary/10 text-primary">CUH</AvatarFallback>
                                             </Avatar>
-
                                             <div>
-                                                <h3 className="font-medium">{name}</h3>
-
-                                                <span className="text-muted-foreground block text-sm tracking-wide">{role}</span>
-
-                                                <blockquote className="mt-3">
-                                                    <p className="text-gray-700 dark:text-gray-300">{quote}</p>
-                                                </blockquote>
+                                                <h3 className="font-semibold text-sm">{name}</h3>
+                                                <span className="text-muted-foreground text-xs">{role}</span>
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>

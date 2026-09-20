@@ -2,6 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -13,6 +14,7 @@ const Navbar = () => {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [user, setUser] = React.useState<Record<string, unknown> | null>(null);
+  const pathname = usePathname();
 
   React.useEffect(() => {
     setIsScrolled(window.scrollY > 2);
@@ -34,124 +36,141 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const allLinks = [...menuLinks, { name: "Verify Certificate", href: "/verify" }];
+
   return (
-    <div className="border border-grid">
-      <header className="relative z-50 w-full h-[8vh] md:h-[10vh] container-wrapper ">
-        <nav
-          data-state={menuState && "active"}
-          className="fixed w-full px-2 z-50 "
-        >
-          <div
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300">
+        <div className={cn("mx-auto transition-all duration-300", isScrolled ? "pt-4 px-4 max-w-5xl" : "pt-0 px-0 max-w-full")}>
+          <nav
             className={cn(
-              "mx-auto mt-2 max-w-[1400px] px-6 transition-all duration-300 lg:px-12",
-              isScrolled &&
-                "bg-background/50 max-w-7xl rounded-2xl border backdrop-blur-lg lg:px-5",
+              "flex items-center justify-between transition-all duration-300",
+              isScrolled
+                ? "glass-card px-6 py-3 rounded-full border border-border shadow-lg shadow-black/5"
+                : "bg-background/80 backdrop-blur-md border-b border-border px-6 py-4 lg:px-12"
             )}
           >
-            <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
-              <div className="flex w-full justify-between lg:w-auto">
-                <Link
-                  href="/"
-                  aria-label="home"
-                  className="flex items-center space-x-2"
-                >
-                  <Logo />
-                </Link>
+            <Link
+              href="/"
+              aria-label="home"
+              className="flex items-center space-x-2 z-50"
+              onClick={() => setMenuState(false)}
+            >
+              <Logo />
+            </Link>
 
-                <button
-                  onClick={() => setMenuState(!menuState)}
-                  aria-label={menuState === true ? "Close Menu" : "Open Menu"}
-                  className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden"
-                >
-                  <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
-                  <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
-                </button>
-              </div>
-
-              <div className="hidden flex-1 justify-center lg:flex px-2 xl:px-4">
-                <ul className="flex gap-4 xl:gap-8 text-sm whitespace-nowrap">
-                  {menuLinks.map((item) => (
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center gap-8">
+              <ul className="flex items-center gap-6 text-sm font-medium">
+                {allLinks.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        className="text-muted-foreground hover:text-accent-foreground block duration-150"
+                        className={cn(
+                          "relative py-1 text-muted-foreground hover:text-foreground transition-colors duration-200",
+                          isActive && "text-foreground font-semibold"
+                        )}
                       >
-                        <span>{item.name}</span>
+                        {item.name}
+                        {isActive && (
+                          <span className="absolute left-0 bottom-0 w-full h-[2px] bg-primary rounded-full" />
+                        )}
                       </Link>
                     </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
-                <div className="lg:hidden">
-                  <ul className="space-y-6 text-base">
-                    {menuLinks.map((item) => (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className="text-muted-foreground hover:text-accent-foreground block duration-150"
-                        >
-                          <span>{item.name}</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className={cn(isScrolled && "lg:hidden")}
-                  >
-                    <Link href="/admin">
-                      <span>Admin</span>
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href="/verify">
-                      <span>Verify Certificate</span>
-                    </Link>
-                  </Button>
-                  {user ? (
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Link href="/student">
-                        <span>Dashboard</span>
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Link href="/auth/login">
-                        <span>Sign In</span>
-                      </Link>
-                    </Button>
-                  )}
-                  
-                  <Button
-                    asChild
-                    size="sm"
-                  >
-                    <Link href="/auth/signup">
-                      <span>Join Club</span>
-                    </Link>
-                  </Button>
-                  <ModeToggle />
-                </div>
-              </div>
+                  );
+                })}
+              </ul>
             </div>
-          </div>
-        </nav>
+
+            {/* Desktop CTAs */}
+            <div className="hidden lg:flex items-center gap-4">
+              <ModeToggle />
+              {user ? (
+                <Button asChild variant="ghost" size="sm" className="hover:bg-primary/10">
+                  <Link href="/student">Dashboard</Link>
+                </Button>
+              ) : (
+                <Button asChild variant="ghost" size="sm" className="hover:bg-primary/10">
+                  <Link href="/auth/login">Sign In</Link>
+                </Button>
+              )}
+              <Button
+                asChild
+                size="sm"
+                className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90 transition-opacity glow-hover border-0"
+              >
+                <Link href="/auth/signup">Join Club</Link>
+              </Button>
+            </div>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMenuState(!menuState)}
+              aria-label={menuState ? "Close Menu" : "Open Menu"}
+              className="relative z-50 block p-2 text-foreground lg:hidden"
+            >
+              {menuState ? <X className="size-6" /> : <Menu className="size-6" />}
+            </button>
+          </nav>
+        </div>
       </header>
-    </div>
+
+      {/* Mobile Menu Overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-background/95 backdrop-blur-xl transition-transform duration-500 ease-in-out lg:hidden",
+          menuState ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <div className="flex flex-col h-full pt-32 pb-8 px-8">
+          <ul className="flex flex-col gap-6 text-xl font-medium mb-auto">
+            {allLinks.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setMenuState(false)}
+                    className={cn(
+                      "block transition-colors",
+                      isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="flex flex-col gap-4 mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-muted-foreground">Theme</span>
+              <ModeToggle />
+            </div>
+            
+            {user ? (
+              <Button asChild variant="outline" className="w-full justify-center">
+                <Link href="/student" onClick={() => setMenuState(false)}>Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline" className="w-full justify-center">
+                <Link href="/auth/login" onClick={() => setMenuState(false)}>Sign In</Link>
+              </Button>
+            )}
+            
+            <Button
+              asChild
+              className="w-full justify-center bg-gradient-to-r from-blue-500 to-violet-500 text-white border-0"
+            >
+              <Link href="/auth/signup" onClick={() => setMenuState(false)}>Join Club</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

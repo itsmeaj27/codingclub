@@ -4,6 +4,7 @@ import { getPayload } from "payload";
 import configPromise from "@payload-config";
 import { ArrowRight, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SectionHeading } from "@/components/ui/section-heading";
 
 export default async function EventsSection() {
   try {
@@ -19,13 +20,15 @@ export default async function EventsSection() {
     if (events.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-20">
+    <section className="py-12 md:py-20 bg-background">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="flex justify-between items-end mb-12">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold font-handjet tracking-wider">Events & Workshops</h2>
-            <p className="mt-4 text-zinc-600 dark:text-zinc-400">Join our upcoming sessions and learn with peers.</p>
-          </div>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-6">
+          <SectionHeading 
+            title="Events & Workshops" 
+            subtitle="Join our upcoming sessions and learn with peers." 
+            badge="Events" 
+            align="left" 
+          />
           <Button asChild variant="outline" className="hidden sm:flex rounded-full">
             <Link href="/events">
               View All <ArrowRight className="w-4 h-4 ml-2" />
@@ -37,8 +40,8 @@ export default async function EventsSection() {
           {events.map((event) => {
             const date = new Date(event.date);
             return (
-              <div key={event.id} className="group relative bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
-                <div className="aspect-video w-full bg-zinc-100 overflow-hidden relative">
+              <div key={event.id} className="group relative bg-card border border-border rounded-2xl overflow-hidden glow-hover transition-all">
+                <div className="aspect-video w-full overflow-hidden relative">
                   {event.coverPhoto && typeof event.coverPhoto === 'object' && event.coverPhoto.url && (
                     <Image 
                       src={event.coverPhoto.url} 
@@ -47,23 +50,30 @@ export default async function EventsSection() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   )}
-                  <div className="absolute top-4 right-4 bg-white/90 dark:bg-black/90 backdrop-blur-sm px-3 py-1 text-xs font-semibold rounded-full border border-zinc-200 dark:border-zinc-800">
+                  {/* Subtle gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent opacity-80" />
+                  
+                  <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-semibold rounded-full border shadow-sm ${
+                    event.status === 'upcoming' 
+                      ? 'bg-gradient-to-r from-primary to-[#8b5cf6] text-white border-transparent' 
+                      : 'bg-muted text-muted-foreground border-border'
+                  }`}>
                     {event.status === 'upcoming' ? 'Upcoming' : 'Past'}
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="font-semibold text-xl mb-2 line-clamp-1">{event.title}</h3>
-                  <div className="flex flex-col gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+                <div className="p-6 relative z-10 -mt-6">
+                  <h3 className="font-semibold text-xl mb-2 line-clamp-1 text-foreground">{event.title}</h3>
+                  <div className="flex flex-col gap-2 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="w-4 h-4 text-primary" />
                       <span>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                      <MapPin className="w-4 h-4 text-primary" />
                       <span className="line-clamp-1">{event.location}</span>
                     </div>
                   </div>
-                  <p className="text-zinc-600 dark:text-zinc-300 text-sm line-clamp-2 mb-6">
+                  <p className="text-muted-foreground text-sm line-clamp-2 mb-6">
                     {event.shortDescription}
                   </p>
                 </div>
