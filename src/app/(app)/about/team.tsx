@@ -6,22 +6,28 @@ import { User } from "lucide-react";
 import { CLOUDINARY_TEAM_MEMBERS } from "@/lib/cloudinary-teams";
 
 export default async function TeamSection() {
-  const payload = await getPayload({ config: configPromise });
-
-  const teamReq = await payload.find({
-    collection: "teams",
-    where: {
-      category: {
-        equals: "faculty",
-      },
-    },
-    limit: 10,
-  });
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let facultyMembers: any[] = teamReq.docs || [];
+  let facultyMembers: any[] = [];
 
-  // Fallback to Cloudinary faculty members if CMS has none
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const teamReq = await payload.find({
+      collection: "teams",
+      where: {
+        category: {
+          equals: "faculty",
+        },
+      },
+      limit: 10,
+    });
+
+    facultyMembers = teamReq.docs || [];
+  } catch (err) {
+    console.error("Error fetching faculty members from CMS:", err);
+  }
+
+  // Fallback to Cloudinary faculty members if CMS has none or on query failure
   if (facultyMembers.length === 0) {
     facultyMembers = CLOUDINARY_TEAM_MEMBERS.filter((m) => m.category === "faculty");
   }

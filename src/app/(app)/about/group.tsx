@@ -4,20 +4,28 @@ import { getPayload } from "payload";
 import configPromise from "@payload-config";
 
 export default async function ContentSection() {
-  const payload = await getPayload({ config: configPromise });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let teamGroupPhoto: any = null;
 
-  const galleryReq = await payload.find({
-    collection: "gallery",
-    where: {
-      category: {
-        equals: "team",
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const galleryReq = await payload.find({
+      collection: "gallery",
+      where: {
+        category: {
+          equals: "team",
+        },
       },
-    },
-    limit: 1,
-    sort: "-createdAt",
-  });
+      limit: 1,
+      sort: "-createdAt",
+    });
 
-  const teamGroupPhoto = galleryReq.docs?.[0];
+    teamGroupPhoto = galleryReq.docs?.[0];
+  } catch (err) {
+    console.error("Error fetching group photo from CMS:", err);
+  }
+
   const photoUrl =
     teamGroupPhoto?.image &&
     typeof teamGroupPhoto.image === "object" &&

@@ -7,17 +7,23 @@ import { Github, Linkedin, User } from "lucide-react";
 import { CLOUDINARY_TEAM_MEMBERS } from "@/lib/cloudinary-teams";
 
 export default async function TeamPage() {
-  const payload = await getPayload({ config: configPromise });
-
-  const teamReq = await payload.find({
-    collection: "teams",
-    limit: 100,
-  });
-  
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let teams: any[] = teamReq.docs || [];
+  let teams: any[] = [];
 
-  // Fallback to Cloudinary team dataset if CMS is empty
+  try {
+    const payload = await getPayload({ config: configPromise });
+
+    const teamReq = await payload.find({
+      collection: "teams",
+      limit: 100,
+    });
+    
+    teams = teamReq.docs || [];
+  } catch (err) {
+    console.error("Error fetching teams from CMS:", err);
+  }
+
+  // Fallback to Cloudinary team dataset if CMS is empty or query fails
   if (teams.length === 0) {
     teams = CLOUDINARY_TEAM_MEMBERS;
   }

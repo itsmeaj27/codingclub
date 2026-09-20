@@ -12,7 +12,7 @@ export const Teams: CollectionConfig<'teams'> = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'position', 'category', 'order'],
+    defaultColumns: ['name', 'position', 'category'],
     description: 'Manage Coding Club Core Committee, Technical Team, and Faculty Coordinators.',
   },
   fields: [
@@ -47,14 +47,6 @@ export const Teams: CollectionConfig<'teams'> = {
       },
     },
     {
-      name: 'order',
-      type: 'number',
-      defaultValue: 10,
-      admin: {
-        description: 'Sort order within the category (lower numbers appear first, e.g. 1, 2, 3...)',
-      },
-    },
-    {
       name: 'courseYear',
       type: 'text',
       label: 'Course & Year / Department',
@@ -64,16 +56,9 @@ export const Teams: CollectionConfig<'teams'> = {
       name: 'photo',
       type: 'upload',
       relationTo: 'media',
+      required: true,
       admin: {
         description: 'Upload member photo (automatically uploaded and organized in Cloudinary)',
-      },
-    },
-    {
-      name: 'photoUrl',
-      type: 'text',
-      label: 'Photo Direct URL (Cloudinary / Web URL)',
-      admin: {
-        description: 'Direct Cloudinary or image link (used if no media upload is attached)',
       },
     },
     {
