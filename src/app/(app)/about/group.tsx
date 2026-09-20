@@ -19,7 +19,9 @@ export default async function ContentSection() {
 
   const teamGroupPhoto = galleryReq.docs?.[0];
   const photoUrl =
-    teamGroupPhoto?.image && typeof teamGroupPhoto.image === "object" && teamGroupPhoto.image.url
+    teamGroupPhoto?.image &&
+    typeof teamGroupPhoto.image === "object" &&
+    teamGroupPhoto.image.url
       ? teamGroupPhoto.image.url
       : "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg";
 
@@ -31,11 +33,14 @@ export default async function ContentSection() {
         </span>
         <div className="gap-4 sm:grid sm:grid-cols-2">
           <div className="sm:w-2/5">
-            <h2 className="text-3xl font-bold sm:text-4xl text-foreground font-handjet tracking-wider">CCC Members</h2>
+            <h2 className="text-3xl font-bold sm:text-4xl text-foreground font-handjet tracking-wider">
+              CCC Members 2025
+            </h2>
           </div>
           <div className="mt-6 sm:mt-0 text-xl">
             <p className="text-muted-foreground">
-              {teamGroupPhoto?.caption || "A vibrant team of members to manage the coding club efficiently and effectively."}
+              {teamGroupPhoto?.caption ||
+                "A vibrant team of members to manage the coding club efficiently and effectively."}
             </p>
           </div>
         </div>

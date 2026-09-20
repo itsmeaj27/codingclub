@@ -18,7 +18,7 @@ export default async function ProjectsSection() {
     if (projects.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-20 bg-muted/20">
+    <section className="py-12 md:py-20 bg-background">
       <div className="mx-auto max-w-6xl px-6">
         <SectionHeading 
           title="Student Projects" 

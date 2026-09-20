@@ -33,7 +33,8 @@ export default async function TeamPage() {
   const categoryOrder = ["faculty", "core", "technical", "design", "outreach"];
 
   const groupedTeams = categoryOrder.reduce((acc, cat) => {
-    acc[cat] = teams.filter((m) => m.category === cat);
+    const list = teams.filter((m) => m.category === cat);
+    acc[cat] = list.sort((a, b) => (a.order ?? 10) - (b.order ?? 10));
     return acc;
   }, {} as Record<string, typeof teams>);
 
@@ -64,7 +65,7 @@ export default async function TeamPage() {
                     const photoUrl =
                       member.photo && typeof member.photo === "object" && member.photo.url
                         ? member.photo.url
-                        : null;
+                        : (typeof member.photo === "string" ? member.photo : member.photoUrl || null);
 
                     return (
                       <div

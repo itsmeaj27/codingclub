@@ -15,7 +15,46 @@ export default async function EventsPage() {
     limit: 50,
     sort: "-date",
   });
-  const events = eventsReq.docs || [];
+  const cmsEvents = eventsReq.docs || [];
+
+  const fallbackEvents = [
+    {
+      id: 'c_python_class',
+      title: 'C & Python Programming Masterclass',
+      date: '2026-04-05T10:00:00.000Z',
+      location: 'Lab 3, Dept of CSE, CUH',
+      shortDescription: 'Comprehensive hands-on coding session covering foundational concepts in C and practical problem solving with Python.',
+      status: 'upcoming',
+      coverPhoto: {
+        url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/coding-class/c_python_masterclass.jpg',
+      },
+    },
+    {
+      id: 'fullstack_web_dev',
+      title: 'Full-Stack Web Development Workshop',
+      date: '2026-04-18T14:00:00.000Z',
+      location: 'Seminar Hall, Academic Block 1, CUH',
+      shortDescription: 'Learn modern web engineering with Next.js, Tailwind CSS, and APIs from student mentors.',
+      status: 'upcoming',
+      coverPhoto: {
+        url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/workshops/fullstack_web_dev.jpg',
+      },
+    },
+    {
+      id: 'annual_hackathon',
+      title: 'CUH Hackathon & Code Sprint',
+      date: '2026-05-12T09:00:00.000Z',
+      location: 'Central University of Haryana',
+      shortDescription: 'Campus-wide hackathon where students build innovative software solutions and win awards.',
+      status: 'upcoming',
+      coverPhoto: {
+        url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927159/codingclub/gallery/2026/hackathon_session_1.jpg',
+      },
+    },
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const events: any[] = cmsEvents.length > 0 ? cmsEvents : fallbackEvents;
 
   const timelineData = events.map((event) => {
     const date = new Date(event.date);
@@ -28,7 +67,7 @@ export default async function EventsPage() {
     const coverUrl =
       event.coverPhoto && typeof event.coverPhoto === "object" && event.coverPhoto.url
         ? event.coverPhoto.url
-        : null;
+        : (typeof event.coverPhoto === "string" ? event.coverPhoto : event.coverPhotoUrl || null);
 
     return {
       title: event.title,

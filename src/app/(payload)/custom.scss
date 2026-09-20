@@ -1,0 +1,206 @@
+// Custom Admin Panel Theme for Coding Club CUH
+
+:root {
+  --theme-bg: #000000;
+  --theme-text: #f8fafc;
+  --theme-input-bg: #0e0e12;
+  --theme-elevation-0: #000000;
+  --theme-elevation-50: #08080a;
+  --theme-elevation-100: #0e0e12;
+  --theme-elevation-150: #141418;
+  --theme-elevation-200: #1a1a20;
+  --theme-elevation-250: #22222a;
+  --theme-elevation-300: #2b2b35;
+  --theme-border-color: rgba(255, 255, 255, 0.08);
+  --theme-success-500: #10b981;
+  --theme-warning-500: #f59e0b;
+  --theme-error-500: #ef4444;
+}
+
+[data-theme='dark'],
+[data-theme='light'] {
+  --theme-bg: #000000;
+  --theme-elevation-0: #000000;
+  --theme-elevation-50: #08080a;
+  --theme-elevation-100: #0e0e12;
+  --theme-elevation-150: #141418;
+  --theme-elevation-200: #1a1a20;
+  --theme-border-color: rgba(255, 255, 255, 0.09);
+}
+
+// Global Body & Admin Container
+body.payload-default-template,
+.template-default,
+.template-minimal {
+  background-color: #000000 !important;
+  color: #f1f5f9 !important;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+// Authentication / Login Screen Styling
+.template-minimal {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000 !important;
+  background-image: 
+    radial-gradient(ellipse 60% 40% at 50% 15%, rgba(59, 130, 246, 0.18), transparent 70%),
+    radial-gradient(ellipse 50% 30% at 50% 85%, rgba(139, 92, 246, 0.12), transparent 70%) !important;
+
+  // The login form container card
+  .template-minimal__wrap {
+    background: rgba(14, 14, 18, 0.88) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
+    padding: 36px 40px !important;
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.85),
+      0 0 40px -10px rgba(59, 130, 246, 0.15) !important;
+    max-width: 440px !important;
+    width: 100% !important;
+    margin: 20px auto !important;
+
+    // Header logo area
+    .template-minimal__header {
+      margin-bottom: 20px !important;
+      display: flex !important;
+      justify-content: center !important;
+    }
+
+    // Input Labels
+    .field-label {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #cbd5e1 !important;
+      margin-bottom: 6px !important;
+      letter-spacing: 0.01em !important;
+    }
+
+    // Inputs
+    input[type='text'],
+    input[type='email'],
+    input[type='password'] {
+      background-color: #16161d !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 12px !important;
+      padding: 12px 16px !important;
+      color: #ffffff !important;
+      font-size: 14px !important;
+      transition: all 0.2s ease !important;
+
+      &:focus {
+        border-color: #3b82f6 !important;
+        background-color: #1a1a24 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+        outline: none !important;
+      }
+
+      &::placeholder {
+        color: #64748b !important;
+      }
+    }
+
+    // Submit Button
+    .btn,
+    button[type='submit'],
+    .form-submit button {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+      border: none !important;
+      border-radius: 12px !important;
+      padding: 12px 24px !important;
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: #ffffff !important;
+      cursor: pointer !important;
+      box-shadow: 0 4px 16px -2px rgba(59, 130, 246, 0.45) !important;
+      transition: all 0.25s ease !important;
+      width: 100% !important;
+      margin-top: 10px !important;
+
+      &:hover {
+        opacity: 0.95 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.6) !important;
+      }
+
+      &:active {
+        transform: translateY(0) !important;
+      }
+    }
+
+    // Links (Forgot password, etc.)
+    a {
+      color: #60a5fa !important;
+      font-weight: 500 !important;
+      font-size: 13px !important;
+      text-decoration: none !important;
+      transition: color 0.2s ease !important;
+
+      &:hover {
+        color: #93c5fd !important;
+        text-decoration: underline !important;
+      }
+    }
+  }
+}
+
+// Admin Navigation Sidebar
+.nav {
+  background-color: #050507 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+
+  .nav__link {
+    border-radius: 10px !important;
+    margin: 2px 8px !important;
+    transition: all 0.15s ease !important;
+
+    &:hover {
+      background-color: rgba(59, 130, 246, 0.1) !important;
+      color: #60a5fa !important;
+    }
+
+    &--active {
+      background-color: rgba(59, 130, 246, 0.15) !important;
+      color: #60a5fa !important;
+      font-weight: 600 !important;
+    }
+  }
+}
+
+// App Header in Admin Dashboard
+.app-header {
+  background-color: rgba(5, 5, 7, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+// Collection Cards on Dashboard
+.card {
+  background-color: #0e0e12 !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 14px !important;
+  transition: all 0.2s ease !important;
+
+  &:hover {
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-2px) !important;
+  }
+}
+
+// Table rows in collection list views
+.table {
+  background-color: transparent !important;
+
+  tbody tr {
+    transition: background-color 0.15s ease !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.03) !important;
+    }
+  }
+}

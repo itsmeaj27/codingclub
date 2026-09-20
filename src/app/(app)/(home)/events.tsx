@@ -15,9 +15,45 @@ export default async function EventsSection() {
       limit: 3,
       sort: '-date',
     });
-    const events = eventsReq.docs || [];
+    const cmsEvents = eventsReq.docs || [];
 
-    if (events.length === 0) return null;
+    const fallbackEvents = [
+      {
+        id: 'c_python_class',
+        title: 'C & Python Programming Masterclass',
+        date: '2026-04-05T10:00:00.000Z',
+        location: 'Lab 3, Dept of CSE, CUH',
+        shortDescription: 'Comprehensive hands-on coding session covering foundational concepts in C and problem solving with Python.',
+        status: 'upcoming',
+        coverPhoto: {
+          url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/coding-class/c_python_masterclass.jpg',
+        },
+      },
+      {
+        id: 'fullstack_web_dev',
+        title: 'Full-Stack Web Development Workshop',
+        date: '2026-04-18T14:00:00.000Z',
+        location: 'Seminar Hall, Academic Block 1, CUH',
+        shortDescription: 'Learn modern web engineering with Next.js, Tailwind CSS, and APIs from student mentors.',
+        status: 'upcoming',
+        coverPhoto: {
+          url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/workshops/fullstack_web_dev.jpg',
+        },
+      },
+      {
+        id: 'annual_hackathon',
+        title: 'CUH Hackathon & Code Sprint',
+        date: '2026-05-12T09:00:00.000Z',
+        location: 'Central University of Haryana',
+        shortDescription: 'Campus-wide hackathon where students build innovative software solutions and win awards.',
+        status: 'upcoming',
+        coverPhoto: {
+          url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927159/codingclub/gallery/2026/hackathon_session_1.jpg',
+        },
+      },
+    ];
+
+    const events = cmsEvents.length > 0 ? cmsEvents : fallbackEvents;
 
   return (
     <section className="py-12 md:py-20 bg-background">

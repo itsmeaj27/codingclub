@@ -20,7 +20,7 @@ export default async function RecentPostsSection() {
     if (posts.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-20 bg-muted/30">
+    <section className="py-12 md:py-20 bg-background">
       <div className="mx-auto max-w-6xl px-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-6">
           <SectionHeading 

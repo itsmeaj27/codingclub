@@ -16,21 +16,21 @@ const objectives = [
     title: "Classes By Students",
     value: "cbs",
     description: `Peer-to-peer coding sessions. Hands-on workshops on programming & tech. Web development & ML tutorials. Coding contests & hackathons. Learn by teaching & sharing knowledge.`,
-    image: "/images/hero1.jpg",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/coding-class/c_python_masterclass.jpg",
     icon: BookOpen,
   },
   {
     title: "Development Activities",
     value: "da",
     description: `Real-world project building. Open-source contributions. Campus-focused apps & websites. Tech seminars & industry talks. Networking with experts & alumni.`,
-    image: "/images/icons/python.png",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/workshops/fullstack_web_dev.jpg",
     icon: Code2,
   },
   {
     title: "Other Objectives",
     value: "oo",
     description: `Promote coding culture & innovation. Encourage participation in competitions. Strengthen skills for placements & internships. Make coding fun, practical & impactful.`,
-    image: "/images/icons/python.png",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927159/codingclub/gallery/2026/hackathon_session_1.jpg",
     icon: Rocket,
   },
 ];
@@ -41,7 +41,7 @@ export default function Faq() {
   return (
     <section className="relative py-16 md:py-24 lg:py-32">
       {/* Background */}
-      <div className="absolute inset-0 -z-10 bg-muted/30" />
+      <div className="absolute inset-0 -z-10 bg-background" />
 
       <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16 lg:space-y-20">
         <div className="relative z-10 mx-auto max-w-2xl space-y-6 text-center">

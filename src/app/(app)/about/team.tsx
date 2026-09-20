@@ -27,7 +27,7 @@ export default async function TeamSection() {
   }
 
   return (
-    <section className="bg-muted/30 py-16 md:py-32">
+    <section className="bg-background py-16 md:py-32">
       <div className="mx-auto max-w-5xl border-t border-border px-6">
         <span className="text-sm font-medium -ml-6 -mt-3.5 block w-max bg-background px-6 text-muted-foreground">
           Faculty Coordinators
@@ -48,7 +48,7 @@ export default async function TeamSection() {
               const photoUrl =
                 member.photo && typeof member.photo === "object" && member.photo.url
                   ? member.photo.url
-                  : null;
+                  : (typeof member.photo === "string" ? member.photo : member.photoUrl || null);
 
               return (
                 <div key={member.id} className="group overflow-hidden rounded-xl bg-card border border-border p-3 glass-card glow-hover hover:border-primary/30 transition-all">

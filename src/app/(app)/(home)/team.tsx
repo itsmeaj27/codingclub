@@ -53,7 +53,7 @@ export default async function TeamSection() {
     });
 
     return (
-      <section className="py-12 md:py-20 bg-muted/30">
+      <section className="py-12 md:py-20 bg-background">
         <div className="mx-auto max-w-6xl px-6">
           <SectionHeading 
             title="Meet the Team" 
@@ -62,19 +62,25 @@ export default async function TeamSection() {
           />
           
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-12">
-            {sortedTeams.map((member) => (
-              <div key={member.id} className="bg-card border-border rounded-2xl p-6 flex flex-col items-center text-center shadow-sm hover:shadow-lg transition-all group glass-card">
-                <div className="w-24 h-24 mb-4 rounded-full overflow-hidden bg-muted transition-all group-hover:ring-2 group-hover:ring-primary/20">
-                  {member.photo && typeof member.photo === 'object' && member.photo.url && (
-                    <Image 
-                      src={member.photo.url} 
-                      alt={member.name} 
-                      width={96} 
-                      height={96} 
-                      className="object-cover w-full h-full"
-                    />
-                  )}
-                </div>
+            {sortedTeams.map((member) => {
+              const photoUrl =
+                member.photo && typeof member.photo === 'object' && member.photo.url
+                  ? member.photo.url
+                  : (typeof member.photo === 'string' ? member.photo : member.photoUrl || null);
+
+              return (
+                <div key={member.id} className="bg-card border-border rounded-2xl p-6 flex flex-col items-center text-center shadow-sm hover:shadow-lg transition-all group glass-card">
+                  <div className="w-24 h-24 mb-4 rounded-full overflow-hidden bg-muted transition-all group-hover:ring-2 group-hover:ring-primary/20">
+                    {photoUrl && (
+                      <Image 
+                        src={photoUrl} 
+                        alt={member.name} 
+                        width={96} 
+                        height={96} 
+                        className="object-cover w-full h-full"
+                      />
+                    )}
+                  </div>
                 <h3 className="font-semibold text-lg text-foreground">{member.name}</h3>
                 <p className="text-sm font-medium text-gradient mb-1">{member.position}</p>
                 {member.courseYear && <p className="text-xs text-muted-foreground mb-4">{member.courseYear}</p>}
@@ -92,7 +98,8 @@ export default async function TeamSection() {
                   )}
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
         </div>
       </section>
