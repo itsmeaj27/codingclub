@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 import configPromise from '@payload-config'
 
 export async function POST(req: Request) {
@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     const payload = await getPayload({ config: configPromise })
     const isEmail = identifier.includes('@')
 
-    // Find user by email or username/roll number
-    const whereQuery = isEmail
+    // Explicitly type whereQuery as Where to satisfy Payload's find parameter
+    const whereQuery: Where = isEmail
       ? { email: { equals: identifier.toLowerCase() } }
       : { username: { equals: identifier.toLowerCase() } }
 
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const user = userQuery.docs?.[0]
 
     // Fail silently to prevent user enumeration attacks
-    if (!user) {
+    if (!user || !user.email) {
       return NextResponse.json({
         success: true,
         message:
@@ -39,11 +39,11 @@ export async function POST(req: Request) {
       })
     }
 
-    const forgotData = user.email ? { email: user.email } : { username: user.username }
-
     const token = await payload.forgotPassword({
       collection: 'users',
-      data: forgotData,
+      data: {
+        email: user.email,
+      },
     })
 
     payload.logger.info(`Password reset requested for user: ${user.email || user.username}`)
