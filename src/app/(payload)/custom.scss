@@ -150,57 +150,196 @@ body.payload-default-template,
 
 // Admin Navigation Sidebar
 .nav {
-  background-color: #050507 !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+  background-color: #060609 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
 
-  .nav__link {
+  .nav__link,
+  a.nav__link {
     border-radius: 10px !important;
-    margin: 2px 8px !important;
-    transition: all 0.15s ease !important;
+    margin: 3px 10px !important;
+    padding: 8px 14px !important;
+    color: #94a3b8 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
 
     &:hover {
-      background-color: rgba(59, 130, 246, 0.1) !important;
+      background-color: rgba(59, 130, 246, 0.12) !important;
       color: #60a5fa !important;
+      transform: translateX(2px) !important;
     }
 
-    &--active {
-      background-color: rgba(59, 130, 246, 0.15) !important;
-      color: #60a5fa !important;
+    &--active,
+    &.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.15)) !important;
+      border: 1px solid rgba(59, 130, 246, 0.3) !important;
+      color: #93c5fd !important;
       font-weight: 600 !important;
+      box-shadow: 0 0 16px -4px rgba(59, 130, 246, 0.3) !important;
     }
+  }
+
+  .nav-group__toggle {
+    color: #64748b !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    font-weight: 700 !important;
   }
 }
 
 // App Header in Admin Dashboard
 .app-header {
-  background-color: rgba(5, 5, 7, 0.85) !important;
-  backdrop-filter: blur(12px) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  background-color: rgba(6, 6, 9, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+// Buttons in Admin Panel
+.btn--style-primary,
+button.btn--style-primary,
+a.btn--style-primary {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  padding: 8px 20px !important;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35) !important;
+  transition: all 0.2s ease !important;
+
+  &:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5) !important;
+    opacity: 0.95 !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+}
+
+.btn--style-secondary,
+button.btn--style-secondary,
+a.btn--style-secondary {
+  background-color: #121218 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 9999px !important;
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+
+  &:hover {
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    background-color: #1a1a24 !important;
+    color: #60a5fa !important;
+  }
+}
+
+// List Header & Search Bar
+.list-header {
+  margin-bottom: 24px !important;
+
+  h1 {
+    font-weight: 800 !important;
+    font-size: 32px !important;
+    letter-spacing: -0.02em !important;
+    background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+// Search and Filter Bar
+.search-filter {
+  input[type='text'] {
+    background-color: #0c0c10 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    color: #ffffff !important;
+    padding: 10px 16px !important;
+    transition: all 0.2s ease !important;
+
+    &:focus {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+      background-color: #12121a !important;
+    }
+  }
 }
 
 // Collection Cards on Dashboard
 .card {
-  background-color: #0e0e12 !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 14px !important;
+  background-color: #0c0c10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
   transition: all 0.2s ease !important;
 
   &:hover {
-    border-color: rgba(59, 130, 246, 0.3) !important;
-    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
+    box-shadow: 0 8px 28px -6px rgba(0, 0, 0, 0.6), 0 0 16px rgba(59, 130, 246, 0.1) !important;
     transform: translateY(-2px) !important;
   }
 }
 
-// Table rows in collection list views
+// Table in List View
 .table {
   background-color: transparent !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+
+  thead th {
+    background-color: #0c0c10 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 14px 18px !important;
+  }
 
   tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
     transition: background-color 0.15s ease !important;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.03) !important;
+      background-color: rgba(59, 130, 246, 0.04) !important;
     }
+
+    td {
+      padding: 14px 18px !important;
+      color: #e2e8f0 !important;
+      font-size: 14px !important;
+    }
+  }
+}
+
+// Media Thumbnail Styling
+.thumbnail,
+.file-details__thumbnail,
+.upload__thumbnail {
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  overflow: hidden !important;
+  transition: transform 0.2s ease !important;
+
+  &:hover {
+    transform: scale(1.05) !important;
+    border-color: #3b82f6 !important;
+  }
+}
+
+// Empty / No Results State
+.collection-list__no-results {
+  background: rgba(12, 12, 16, 0.6) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  padding: 48px 24px !important;
+  text-align: center !important;
+
+  h4, p {
+    color: #94a3b8 !important;
   }
 }

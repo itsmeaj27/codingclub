@@ -24,6 +24,11 @@ export const Media: CollectionConfig = {
     read: anyone,
     update: authenticated,
   },
+  admin: {
+    useAsTitle: 'alt',
+    defaultColumns: ['filename', 'alt', 'folder', 'updatedAt'],
+    description: 'Cloudinary Media library for Coding Club CUH.',
+  },
   hooks: {
     beforeChange: [
       async ({ data, req }) => {
