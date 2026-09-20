@@ -28,6 +28,18 @@ import { Certificates } from './payload/collections/Certificates'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const getDatabaseURI = (): string => {
+  let uri =
+    process.env.DATABASE_URI ||
+    'postgresql://postgres.awtneocokxlaunyxajzr:Codingclubcuh%4022@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres'
+
+  // If using Supabase connection pooler on session port 5432, automatically switch to transaction pooler port 6543
+  if (uri.includes('.pooler.supabase.com:5432')) {
+    uri = uri.replace('.pooler.supabase.com:5432', '.pooler.supabase.com:6543')
+  }
+  return uri
+}
+
 export default buildConfig({
   admin: {
     meta: {
@@ -98,9 +110,10 @@ export default buildConfig({
   editor: defaultLexical,
   db: postgresAdapter({
     pool: {
-      connectionString:
-        process.env.DATABASE_URI ||
-        'postgresql://postgres.awtneocokxlaunyxajzr:Codingclubcuh%4022@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres',
+      connectionString: getDatabaseURI(),
+      max: process.env.NODE_ENV === 'production' ? 4 : 10,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 10000,
     },
     push: false,
   }),
