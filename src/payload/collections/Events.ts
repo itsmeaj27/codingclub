@@ -60,6 +60,20 @@ export const Events: CollectionConfig = {
       admin: { position: 'sidebar' }
     },
     {
+      name: 'imageOrientation',
+      type: 'select',
+      defaultValue: 'landscape',
+      options: [
+        { label: 'Landscape (16:9 Banner)', value: 'landscape' },
+        { label: 'Portrait (Flyer / Poster)', value: 'portrait' },
+        { label: 'Square (1:1)', value: 'square' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Choose layout: Portrait for flyers/posters, Landscape for banners',
+      },
+    },
+    {
       name: 'date',
       type: 'date',
       required: true,

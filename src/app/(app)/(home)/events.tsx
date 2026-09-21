@@ -101,13 +101,19 @@ export default async function EventsSection() {
 
             return (
               <div key={event.id} className="group relative bg-card border border-border rounded-2xl overflow-hidden glow-hover transition-all flex flex-col">
-                <div className="aspect-video w-full overflow-hidden relative">
+                <div className={`w-full overflow-hidden relative ${
+                  event.imageOrientation === 'portrait' ? 'aspect-[4/5] bg-black/40' : 'aspect-video'
+                }`}>
                   {coverUrl && (
                     <Image 
                       src={coverUrl} 
                       alt={event.title} 
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className={`${
+                        event.imageOrientation === 'portrait'
+                          ? 'object-contain p-1'
+                          : 'object-cover group-hover:scale-105'
+                      } transition-transform duration-500`}
                     />
                   )}
                   {/* Subtle gradient overlay */}

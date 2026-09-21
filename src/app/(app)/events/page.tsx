@@ -128,12 +128,25 @@ export default async function EventsPage() {
           </p>
 
           {coverUrl && (
-            <div className="relative aspect-video w-full max-w-lg rounded-xl overflow-hidden shadow-sm border border-border">
+            <div
+              className={`relative w-full rounded-2xl overflow-hidden shadow-md border border-border/80 ${
+                event.imageOrientation === "portrait"
+                  ? "aspect-[2/3] max-w-sm sm:max-w-md bg-black/40"
+                  : event.imageOrientation === "square"
+                  ? "aspect-square max-w-md"
+                  : "aspect-video max-w-lg"
+              }`}
+            >
               <Image
                 src={coverUrl}
                 alt={event.title}
                 fill
-                className="object-cover"
+                className={
+                  event.imageOrientation === "portrait"
+                    ? "object-contain p-1"
+                    : "object-cover"
+                }
+                sizes="(max-width: 768px) 100vw, 500px"
               />
             </div>
           )}
