@@ -11,6 +11,9 @@ import RecentPostsSection from "./recent-posts";
 import WallOfLoveSection from "./testimonial";
 import Faq from "./faq";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function Home() {
   return (
     <div className="overflow-hidden">

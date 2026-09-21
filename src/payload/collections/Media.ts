@@ -34,26 +34,42 @@ export const Media: CollectionConfig = {
       async ({ data, req }) => {
         try {
           let fileBuffer: Buffer | null = null
-          const file = req.file
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const reqAny = req as any
+          const fileObj =
+            req.file ||
+            (reqAny.files && (reqAny.files.file ? (Array.isArray(reqAny.files.file) ? reqAny.files.file[0] : reqAny.files.file) : Object.values(reqAny.files)[0]))
 
-          if (file?.data && file.data.length > 0) {
-            fileBuffer = file.data
-          } else if (file?.tempFilePath) {
-            fileBuffer = await fs.readFile(file.tempFilePath)
+          if (fileObj) {
+            if (fileObj.data && fileObj.data.length > 0) {
+              fileBuffer = Buffer.isBuffer(fileObj.data) ? fileObj.data : Buffer.from(fileObj.data)
+            } else if (typeof fileObj.arrayBuffer === 'function') {
+              const ab = await fileObj.arrayBuffer()
+              fileBuffer = Buffer.from(ab)
+            } else if (fileObj.tempFilePath) {
+              try {
+                fileBuffer = await fs.readFile(fileObj.tempFilePath)
+              } catch (e) {
+                req.payload.logger.warn(`Could not read tempFilePath: ${e}`)
+              }
+            }
           }
 
-          if (fileBuffer && file) {
+          const fileName = fileObj?.name || (data.filename as string) || 'upload'
+          const mimeType = fileObj?.mimetype || (data.mimeType as string) || 'application/octet-stream'
+
+          if (fileBuffer) {
             // Determine target Cloudinary folder based on user selection or default
             const subfolder = (data.folder as string) || 'gallery/2026'
             const targetFolder = `codingclub/${subfolder}`
 
             req.payload.logger.info(
-              `Uploading file "${file.name}" to Cloudinary under "${targetFolder}"...`,
+              `Uploading file "${fileName}" to Cloudinary under "${targetFolder}"...`,
             )
             const uploadResult = await uploadToCloudinary(
               fileBuffer,
-              file.name,
-              file.mimetype || 'application/octet-stream',
+              fileName,
+              mimeType,
               targetFolder,
             )
 
@@ -63,7 +79,7 @@ export const Media: CollectionConfig = {
             if (uploadResult.height) data.height = uploadResult.height
             if (uploadResult.format) data.mimeType = `image/${uploadResult.format}`
             if (!data.filename) {
-              data.filename = `${uploadResult.public_id}.${uploadResult.format || 'jpg'}`
+              data.filename = `${uploadResult.public_id.split('/').pop()}.${uploadResult.format || 'jpg'}`
             }
 
             // Populate on-the-fly Cloudinary transformation URLs for image sizes

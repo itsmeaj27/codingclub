@@ -1,11 +1,33 @@
 import type { CollectionConfig } from 'payload'
 import { slugField } from '@/payload/fields/slug'
+import { anyone } from '../access/anyone'
+import { authenticated } from '../access/authenticated'
+import { revalidateEvent, revalidateEventDelete } from './Events/hooks/revalidateEvent'
+import { getEffectiveEventStatus } from '../utilities/eventStatus'
 
-export const Events: CollectionConfig<'events'> = {
+export const Events: CollectionConfig = {
   slug: 'events',
+  access: {
+    create: authenticated,
+    delete: authenticated,
+    read: anyone,
+    update: authenticated,
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'date', 'location', 'status'],
+  },
+  hooks: {
+    afterChange: [revalidateEvent],
+    afterDelete: [revalidateEventDelete],
+    afterRead: [
+      ({ doc }) => {
+        if (doc && doc.date) {
+          doc.status = getEffectiveEventStatus(doc);
+        }
+        return doc;
+      },
+    ],
   },
   fields: [
     {

@@ -4,8 +4,12 @@ import PageHeader from "@/components/page-header";
 import { getPayload } from "payload";
 import configPromise from "@payload-config";
 import Link from "next/link";
-import { Calendar, MapPin, ExternalLink } from "lucide-react";
+import { Calendar, MapPin, ExternalLink, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getEffectiveEventStatus, sortEvents } from "@/payload/utilities/eventStatus";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function EventsPage() {
   const payload = await getPayload({ config: configPromise });
@@ -24,7 +28,7 @@ export default async function EventsPage() {
       date: '2026-04-05T10:00:00.000Z',
       location: 'Lab 3, Dept of CSE, CUH',
       shortDescription: 'Comprehensive hands-on coding session covering foundational concepts in C and practical problem solving with Python.',
-      status: 'upcoming',
+      status: 'completed',
       coverPhoto: {
         url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/coding-class/c_python_masterclass.jpg',
       },
@@ -35,7 +39,7 @@ export default async function EventsPage() {
       date: '2026-04-18T14:00:00.000Z',
       location: 'Seminar Hall, Academic Block 1, CUH',
       shortDescription: 'Learn modern web engineering with Next.js, Tailwind CSS, and APIs from student mentors.',
-      status: 'upcoming',
+      status: 'completed',
       coverPhoto: {
         url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927154/codingclub/events/workshops/fullstack_web_dev.jpg',
       },
@@ -46,7 +50,7 @@ export default async function EventsPage() {
       date: '2026-05-12T09:00:00.000Z',
       location: 'Central University of Haryana',
       shortDescription: 'Campus-wide hackathon where students build innovative software solutions and win awards.',
-      status: 'upcoming',
+      status: 'completed',
       coverPhoto: {
         url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927159/codingclub/gallery/2026/hackathon_session_1.jpg',
       },
@@ -54,7 +58,8 @@ export default async function EventsPage() {
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const events: any[] = cmsEvents.length > 0 ? cmsEvents : fallbackEvents;
+  const rawEvents: any[] = cmsEvents.length > 0 ? cmsEvents : fallbackEvents;
+  const events = sortEvents(rawEvents);
 
   const timelineData = events.map((event) => {
     const date = new Date(event.date);
@@ -64,10 +69,21 @@ export default async function EventsPage() {
       year: "numeric",
     });
 
-    const coverUrl =
-      event.coverPhoto && typeof event.coverPhoto === "object" && event.coverPhoto.url
-        ? event.coverPhoto.url
-        : (typeof event.coverPhoto === "string" ? event.coverPhoto : event.coverPhotoUrl || null);
+    const effectiveStatus = getEffectiveEventStatus(event);
+
+    let coverUrl: string | null = null;
+    if (event.coverPhoto && typeof event.coverPhoto === "object" && event.coverPhoto.url) {
+      coverUrl = event.coverPhoto.url;
+    } else if (typeof event.coverPhoto === "string") {
+      coverUrl = event.coverPhoto;
+    } else if (event.coverPhotoUrl) {
+      coverUrl = event.coverPhotoUrl;
+    }
+
+    // If the coverUrl points to an invalid local api file that doesn't exist on disk, fallback to standard event image
+    if (!coverUrl || (coverUrl.startsWith('/api/media/file/') && !coverUrl.includes('res.cloudinary.com'))) {
+      coverUrl = 'https://res.cloudinary.com/azzisskq/image/upload/v1789927159/codingclub/gallery/2026/hackathon_session_1.jpg';
+    }
 
     return {
       title: event.title,
@@ -78,22 +94,32 @@ export default async function EventsPage() {
               <Calendar className="w-4 h-4 text-primary" />
               {formattedDate}
             </span>
+            {event.startTime && (
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-primary" />
+                {event.startTime} {event.endTime ? `- ${event.endTime}` : ''}
+              </span>
+            )}
             {event.location && (
               <span className="inline-flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-accent" />
                 {event.location}
               </span>
             )}
-            <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full uppercase tracking-wider border ${
-              event.status === "upcoming" 
-                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" 
-                : "bg-muted text-muted-foreground border-border"
-            }`}>
-              {event.status}
+            <span
+              className={`px-2.5 py-0.5 text-xs font-semibold rounded-full uppercase tracking-wider border ${
+                effectiveStatus === "upcoming"
+                  ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                  : effectiveStatus === "ongoing"
+                  ? "bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse"
+                  : "bg-muted text-muted-foreground border-border"
+              }`}
+            >
+              {effectiveStatus}
             </span>
           </div>
 
-          <p className="text-foreground text-sm md:text-base leading-relaxed">
+          <p className="text-foreground text-sm md:text-base leading-relaxed whitespace-pre-line">
             {event.shortDescription}
           </p>
 
@@ -108,7 +134,7 @@ export default async function EventsPage() {
             </div>
           )}
 
-          {event.registrationLink && event.status === "upcoming" && (
+          {event.registrationLink && effectiveStatus === "upcoming" && (
             <div className="pt-2">
               <Button asChild size="sm" className="rounded-full bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity">
                 <Link href={event.registrationLink} target="_blank">
