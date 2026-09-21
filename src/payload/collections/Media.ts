@@ -11,7 +11,7 @@ import {
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
-import { getCloudinaryTransformUrl, uploadToCloudinary } from '../utilities/cloudinary'
+import { CLOUDINARY_CLOUD_NAME, getCloudinaryTransformUrl, uploadToCloudinary } from '../utilities/cloudinary'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -113,8 +113,14 @@ export const Media: CollectionConfig = {
     ],
     afterRead: [
       ({ doc }) => {
-        if (doc?.url && typeof doc.url === 'string' && doc.url.includes('res.cloudinary.com')) {
-          doc.thumbnailURL = getCloudinaryTransformUrl(doc.url, 'w_300,c_limit')
+        if (doc?.url && typeof doc.url === 'string') {
+          if (doc.url.startsWith('/api/media/file/') && doc.filename) {
+            const folder = doc.folder || 'gallery/2026'
+            doc.url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/codingclub/${folder}/${doc.filename}`
+          }
+          if (doc.url.includes('res.cloudinary.com')) {
+            doc.thumbnailURL = getCloudinaryTransformUrl(doc.url, 'w_300,c_limit')
+          }
         }
         return doc
       },

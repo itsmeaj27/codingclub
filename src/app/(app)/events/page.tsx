@@ -72,16 +72,20 @@ export default async function EventsPage() {
     const effectiveStatus = getEffectiveEventStatus(event);
 
     let coverUrl: string | null = null;
-    if (event.coverPhoto && typeof event.coverPhoto === "object" && event.coverPhoto.url) {
-      coverUrl = event.coverPhoto.url;
+    if (event.coverPhoto && typeof event.coverPhoto === "object") {
+      coverUrl = event.coverPhoto.url || null;
+      if (coverUrl && coverUrl.startsWith('/api/media/file/') && event.coverPhoto.filename) {
+        const folder = event.coverPhoto.folder || 'events/hackathon';
+        coverUrl = `https://res.cloudinary.com/azzisskq/image/upload/codingclub/${folder}/${event.coverPhoto.filename}`;
+      }
     } else if (typeof event.coverPhoto === "string") {
       coverUrl = event.coverPhoto;
     } else if (event.coverPhotoUrl) {
       coverUrl = event.coverPhotoUrl;
     }
 
-    // If the coverUrl points to an invalid local api file that doesn't exist on disk, fallback to standard event image
-    if (!coverUrl || (coverUrl.startsWith('/api/media/file/') && !coverUrl.includes('res.cloudinary.com'))) {
+    // Only fallback if no image URL could be resolved
+    if (!coverUrl) {
       coverUrl = 'https://res.cloudinary.com/azzisskq/image/upload/v1789927159/codingclub/gallery/2026/hackathon_session_1.jpg';
     }
 

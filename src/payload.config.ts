@@ -41,6 +41,7 @@ const getDatabaseURI = (): string => {
 };
 
 export default buildConfig({
+  serverURL: getServerSideURL(),
   admin: {
     theme: "dark",
     meta: {
