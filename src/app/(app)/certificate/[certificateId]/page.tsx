@@ -148,16 +148,16 @@ export default function CertificateView() {
       ctx.fillRect(0, 0, W, H);
     }
 
-    // 1b. "CERTIFICATE OF COMPLETION" (Emerald Green & Charcoal - Bigger Font)
+    // 1b. "CERTIFICATE OF COMPLETION" (Emerald Green & Charcoal - Prominent Large Font)
     ctx.textAlign = "center";
     ctx.fillStyle = "#137558";
-    ctx.font = "800 82px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
-    ctx.letterSpacing = "2.5px";
-    ctx.fillText("CERTIFICATE", W / 2, 465);
+    ctx.font = "900 126px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
+    ctx.letterSpacing = "3px";
+    ctx.fillText("CERTIFICATE", W / 2, 455);
 
     ctx.fillStyle = "#222222";
-    ctx.font = "600 36px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
-    ctx.letterSpacing = "5px";
+    ctx.font = "700 46px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
+    ctx.letterSpacing = "6px";
     ctx.fillText("OF COMPLETION", W / 2, 525);
 
     // 2. Programme Name (in Royal Navy Serif - Bigger Font)
@@ -517,11 +517,11 @@ export default function CertificateView() {
                   boxSizing: "border-box",
                 }}
               >
-                {/* ── "CERTIFICATE OF COMPLETION" (Bigger Font) ── */}
+                {/* ── "CERTIFICATE OF COMPLETION" (Prominent Large Font) ── */}
                 <div
                   style={{
                     position: "absolute",
-                    top: "210px",
+                    top: "196px",
                     left: 0,
                     width: "100%",
                     textAlign: "center",
@@ -530,12 +530,12 @@ export default function CertificateView() {
                 >
                   <h2
                     style={{
-                      fontSize: "41px",
-                      fontWeight: "800",
+                      fontSize: "63px",
+                      fontWeight: "900",
                       color: "#137558",
                       letterSpacing: "1.5px",
                       margin: 0,
-                      lineHeight: 1.1,
+                      lineHeight: 1.05,
                       fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
                     }}
                   >
@@ -543,11 +543,11 @@ export default function CertificateView() {
                   </h2>
                   <p
                     style={{
-                      fontSize: "18px",
-                      fontWeight: "600",
+                      fontSize: "23px",
+                      fontWeight: "700",
                       color: "#222222",
-                      letterSpacing: "2.5px",
-                      margin: "3px 0 0 0",
+                      letterSpacing: "3px",
+                      margin: "4px 0 0 0",
                       fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
                     }}
                   >
