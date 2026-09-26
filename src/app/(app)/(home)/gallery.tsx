@@ -10,14 +10,49 @@ export default async function GallerySection() {
     
     const galleryReq = await payload.find({
       collection: "gallery",
-      limit: 30,
-      sort: '-createdAt',
+      where: {
+        showOnWebsite: {
+          not_equals: false,
+        },
+      },
+      limit: 50,
+      sort: "order",
     });
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let photos: any[] = galleryReq.docs || [];
+    let docs: any[] = galleryReq.docs || [];
 
-    // Fallback seamlessly to the organized Cloudinary Gallery if CMS has no entries yet
+    // Map docs so image url can come from uploaded media OR direct imageUrl
+    let photos = docs
+      .map((p) => {
+        let url: string | null = null;
+        let width = 800;
+        let height = 600;
+
+        if (p.image && typeof p.image === "object" && p.image.url) {
+          url = p.image.url;
+          width = p.image.width || 800;
+          height = p.image.height || 600;
+        } else if (p.imageUrl) {
+          url = p.imageUrl;
+        }
+
+        if (!url) return null;
+
+        return {
+          id: p.id,
+          caption: p.caption,
+          category: p.category,
+          image: {
+            url,
+            width,
+            height,
+          },
+        };
+      })
+      .filter(Boolean);
+
+    // Fallback seamlessly to the organized Cloudinary Gallery if CMS has no active entries yet
     if (photos.length === 0) {
       photos = CLOUDINARY_GALLERY_PHOTOS.map((p) => ({
         id: p.id,
@@ -37,9 +72,10 @@ export default async function GallerySection() {
           <SectionHeading
             title="Club Gallery"
             subtitle="Explore moments from our workshops, hackathons, and community activities."
-            badge="Cloudinary Gallery"
+            badge="Club Moments"
           />
-          <GalleryClient photos={photos} />
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <GalleryClient photos={photos as any[]} />
         </div>
       </section>
     );
@@ -64,7 +100,7 @@ export default async function GallerySection() {
           <SectionHeading
             title="Club Gallery"
             subtitle="Explore moments from our workshops, hackathons, and community activities."
-            badge="Cloudinary Gallery"
+            badge="Club Moments"
           />
           <GalleryClient photos={fallbackPhotos} />
         </div>

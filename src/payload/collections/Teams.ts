@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { revalidatePath } from 'next/cache'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 
@@ -12,8 +13,33 @@ export const Teams: CollectionConfig<'teams'> = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'position', 'category'],
+    defaultColumns: ['name', 'position', 'category', 'showOnHome', 'order'],
     description: 'Manage Coding Club Core Committee, Technical Team, and Faculty Coordinators.',
+    group: 'Club Core',
+  },
+  hooks: {
+    afterChange: [
+      ({ req: { payload } }) => {
+        try {
+          revalidatePath('/team')
+          revalidatePath('/')
+          revalidatePath('/about')
+        } catch (e) {
+          payload.logger.warn(`Revalidate team error: ${e}`)
+        }
+      },
+    ],
+    afterDelete: [
+      ({ req: { payload } }) => {
+        try {
+          revalidatePath('/team')
+          revalidatePath('/')
+          revalidatePath('/about')
+        } catch (e) {
+          payload.logger.warn(`Revalidate team delete error: ${e}`)
+        }
+      },
+    ],
   },
   fields: [
     {
@@ -21,14 +47,14 @@ export const Teams: CollectionConfig<'teams'> = {
       type: 'text',
       required: true,
       admin: {
-        description: 'Full name of the team member or committee group',
+        description: 'Full name of the team member (e.g. John Doe)',
       },
     },
     {
       name: 'position',
       type: 'text',
       required: true,
-      admin: { description: 'Role or designation, e.g. Core Lead, Full-Stack Developer, Workshop Lead' },
+      admin: { description: 'Role or designation, e.g. Core Lead, Full-Stack Developer, CP Lead' },
     },
     {
       name: 'category',
@@ -47,6 +73,25 @@ export const Teams: CollectionConfig<'teams'> = {
       },
     },
     {
+      name: 'showOnHome',
+      type: 'checkbox',
+      label: 'Show on Home Page (Tick mark to display)',
+      defaultValue: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Tick to feature this member in the "Meet the Team" section on the home page',
+      },
+    },
+    {
+      name: 'order',
+      type: 'number',
+      defaultValue: 10,
+      admin: {
+        position: 'sidebar',
+        description: 'Display order (1 = first, 2 = second, etc.)',
+      },
+    },
+    {
       name: 'courseYear',
       type: 'text',
       label: 'Course & Year / Department',
@@ -56,9 +101,17 @@ export const Teams: CollectionConfig<'teams'> = {
       name: 'photo',
       type: 'upload',
       relationTo: 'media',
-      required: true,
+      required: false,
       admin: {
         description: 'Upload member photo (automatically uploaded and organized in Cloudinary)',
+      },
+    },
+    {
+      name: 'photoUrl',
+      type: 'text',
+      label: 'Photo URL (Direct Link)',
+      admin: {
+        description: 'Optional direct Cloudinary or image URL if not uploading a media file',
       },
     },
     {

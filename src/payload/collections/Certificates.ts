@@ -6,6 +6,7 @@ export const Certificates: CollectionConfig = {
   admin: {
     useAsTitle: 'studentName',
     defaultColumns: ['studentName', 'certificateId', 'internship', 'isIssued'],
+    group: 'Club Core',
   },
   access: {
     read: anyone,
@@ -53,6 +54,16 @@ export const Certificates: CollectionConfig = {
       },
     },
     {
+      name: 'courseRef',
+      label: 'Linked Course',
+      type: 'relationship',
+      relationTo: 'courses',
+      admin: {
+        position: 'sidebar',
+        description: 'Associated course if issued as part of a club course offering.',
+      },
+    },
+    {
       name: 'studentName',
       type: 'text',
       required: true,
@@ -94,6 +105,7 @@ export const Certificates: CollectionConfig = {
         { label: '1st Year', value: '1st Year' },
         { label: '2nd Year', value: '2nd Year' },
         { label: '3rd Year', value: '3rd Year' },
+        { label: 'Completed', value: 'Completed' },
       ],
       required: true,
     },

@@ -24,6 +24,8 @@ import { Header } from "./payload/Header/config";
 import { Footer } from "./payload/Footer/config";
 import { Courses } from "./payload/collections/Courses";
 import { Certificates } from "./payload/collections/Certificates";
+import { Objectives } from "./payload/collections/Objectives";
+import { Enrollments } from "./payload/collections/Enrollments";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -121,6 +123,7 @@ export default buildConfig({
   }),
   collections: [
     Courses,
+    Enrollments,
     Pages,
     Posts,
     Media,
@@ -132,6 +135,7 @@ export default buildConfig({
     Gallery,
     Achievements,
     Certificates,
+    Objectives,
   ],
   cors: [
     getServerSideURL(),
@@ -158,6 +162,72 @@ export default buildConfig({
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
+  },
+  onInit: async (payload) => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pool = (payload.db as any)?.pool;
+      if (pool?.query) {
+        await pool.query(`
+          ALTER TABLE "events" ADD COLUMN IF NOT EXISTS "is_registration_open" boolean DEFAULT true;
+          ALTER TABLE "events" ADD COLUMN IF NOT EXISTS "registration_closed_message" varchar;
+          ALTER TABLE "teams" ADD COLUMN IF NOT EXISTS "order" numeric DEFAULT 10;
+          ALTER TABLE "teams" ADD COLUMN IF NOT EXISTS "photo_url" varchar;
+          ALTER TABLE "teams" ADD COLUMN IF NOT EXISTS "show_on_home" boolean DEFAULT true;
+          ALTER TABLE "gallery" ADD COLUMN IF NOT EXISTS "show_on_website" boolean DEFAULT true;
+          ALTER TABLE "gallery" ADD COLUMN IF NOT EXISTS "image_url" varchar;
+          ALTER TABLE "gallery" ADD COLUMN IF NOT EXISTS "order" numeric DEFAULT 10;
+          ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "show_on_home" boolean DEFAULT true;
+          ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "objectives_id" integer;
+          CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_objectives_id_idx" ON "payload_locked_documents_rels" ("objectives_id");
+          CREATE TABLE IF NOT EXISTS "objectives" (
+            "id" serial PRIMARY KEY,
+            "title" varchar NOT NULL,
+            "description" text NOT NULL,
+            "icon" varchar DEFAULT 'BookOpen',
+            "image_id" integer,
+            "image_url" varchar,
+            "show_on_website" boolean DEFAULT true,
+            "order" numeric DEFAULT 10,
+            "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+            "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+          );
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "slug" varchar;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "slug_lock" boolean DEFAULT true;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "status" varchar DEFAULT 'upcoming';
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "is_enrollment_open" boolean DEFAULT true;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "description" text;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "price" varchar DEFAULT 'Free';
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "instructor_name" varchar;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "instructor_email" varchar;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "department" varchar DEFAULT 'Computer Science and IT';
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "starting_date" timestamp(3) with time zone;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "completion_date" timestamp(3) with time zone;
+          ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "cover_image_id" integer;
+          ALTER TABLE "certificates" ADD COLUMN IF NOT EXISTS "course_ref_id" integer;
+          ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "enrollments_id" integer;
+          CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_enrollments_id_idx" ON "payload_locked_documents_rels" ("enrollments_id");
+          CREATE TABLE IF NOT EXISTS "enrollments" (
+            "id" serial PRIMARY KEY,
+            "student_id" integer NOT NULL,
+            "course_id" integer NOT NULL,
+            "status" varchar DEFAULT 'enrolled' NOT NULL,
+            "selected_for_certificate" boolean DEFAULT false,
+            "certificate_id" integer,
+            "certificate_sent" boolean DEFAULT false,
+            "certificate_sent_at" timestamp(3) with time zone,
+            "enrolled_at" timestamp(3) with time zone DEFAULT now(),
+            "remarks" varchar,
+            "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+            "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+          );
+          CREATE INDEX IF NOT EXISTS "enrollments_student_idx" ON "enrollments" ("student_id");
+          CREATE INDEX IF NOT EXISTS "enrollments_course_idx" ON "enrollments" ("course_id");
+        `);
+      }
+    } catch (err) {
+      payload.logger.warn(`Notice on database columns check: ${err}`);
+    }
   },
   jobs: {
     access: {

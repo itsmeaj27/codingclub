@@ -48,7 +48,7 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'slug', 'showOnHome', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) => {
         const path = generatePreviewPath({
@@ -67,6 +67,7 @@ export const Posts: CollectionConfig<'posts'> = {
         req,
       }),
     useAsTitle: 'title',
+    group: 'Content & Media',
   },
   fields: [
     {
@@ -183,6 +184,16 @@ export const Posts: CollectionConfig<'posts'> = {
             return value
           },
         ],
+      },
+    },
+    {
+      name: 'showOnHome',
+      type: 'checkbox',
+      label: 'Feature on Home Page (Tick mark to display)',
+      defaultValue: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Tick to show this post in the "Latest from our Blog" section on the home page',
       },
     },
     {

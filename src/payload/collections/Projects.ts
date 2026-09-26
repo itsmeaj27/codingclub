@@ -5,6 +5,7 @@ export const Projects: CollectionConfig<'projects'> = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'techStack', 'github'],
+    group: 'Content & Media',
   },
   fields: [
     {

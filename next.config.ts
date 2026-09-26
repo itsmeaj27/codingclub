@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     staticGenerationMaxConcurrency: 4,
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

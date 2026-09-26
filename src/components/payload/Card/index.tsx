@@ -35,7 +35,7 @@ export const Card: React.FC<{
     categories && Array.isArray(categories) && categories.length > 0;
   const titleToUse = titleFromProps || title;
   const sanitizedDescription = description?.replace(/\s/g, " ");
-  const href = `/${relationTo}/${slug}`;
+  const href = slug ? `/${relationTo}/${slug}` : `/${relationTo || 'posts'}`;
   return (
     <article
       className={cn(

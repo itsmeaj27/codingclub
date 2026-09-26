@@ -6,6 +6,9 @@ import configPromise from "@payload-config";
 import { Github, Linkedin, User } from "lucide-react";
 import { CLOUDINARY_TEAM_MEMBERS } from "@/lib/cloudinary-teams";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function TeamPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let teams: any[] = [];
@@ -40,7 +43,7 @@ export default async function TeamPage() {
 
   const groupedTeams = categoryOrder.reduce((acc, cat) => {
     const list = teams.filter((m) => m.category === cat);
-    acc[cat] = list.sort((a, b) => (a.order ?? 10) - (b.order ?? 10));
+    acc[cat] = list.sort((a, b) => Number(a.order ?? 10) - Number(b.order ?? 10));
     return acc;
   }, {} as Record<string, typeof teams>);
 
@@ -68,10 +71,20 @@ export default async function TeamPage() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                   {members.map((member) => {
-                    const photoUrl =
-                      member.photo && typeof member.photo === "object" && member.photo.url
-                        ? member.photo.url
-                        : (typeof member.photo === "string" ? member.photo : member.photoUrl || null);
+                    let photoUrl: string | null = null;
+                    if (member.photo && typeof member.photo === "object") {
+                      photoUrl = member.photo.url || null;
+                      if (photoUrl && photoUrl.startsWith('/api/media/file/') && member.photo.filename) {
+                        const folder = member.photo.folder || 'teams/members';
+                        photoUrl = `https://res.cloudinary.com/azzisskq/image/upload/codingclub/${folder}/${member.photo.filename}`;
+                      }
+                    } else if (typeof member.photo === "string") {
+                      photoUrl = member.photo;
+                    } else if (member.photoUrl || member.photo_url) {
+                      photoUrl = member.photoUrl || member.photo_url;
+                    }
+
+                    const courseYear = member.courseYear || member.course_year;
 
                     return (
                       <div
@@ -96,8 +109,8 @@ export default async function TeamPage() {
                         <span className="text-xs text-primary font-medium mt-0.5 text-gradient">
                           {member.position}
                         </span>
-                        {member.courseYear && (
-                          <span className="text-[11px] text-muted-foreground mt-1">{member.courseYear}</span>
+                        {courseYear && (
+                          <span className="text-[11px] text-muted-foreground mt-1 line-clamp-2">{courseYear}</span>
                         )}
                         <div className="flex gap-2 mt-3">
                           {member.github && (

@@ -70,7 +70,7 @@ export default function ContactSection() {
                   <Input
                     type="text"
                     id="name"
-                    placeholder="John Doe"
+                    placeholder="Your Name"
                     required
                     className="focus:ring-primary/50 focus:border-primary bg-background border-border"
                   />
@@ -82,7 +82,7 @@ export default function ContactSection() {
                   <Input
                     type="email"
                     id="email"
-                    placeholder="john@example.com"
+                    placeholder="Your Email"
                     required
                     className="focus:ring-primary/50 focus:border-primary bg-background border-border"
                   />

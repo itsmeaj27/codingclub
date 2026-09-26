@@ -119,6 +119,17 @@ export default async function EventsSection() {
                   {/* Subtle gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent opacity-80" />
                   
+                  {effectiveStatus === 'upcoming' && event.isRegistrationOpen === false ? (
+                    <div className="absolute top-4 left-4 px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-500/90 text-white shadow-sm backdrop-blur-sm">
+                      Reg. Closed
+                    </div>
+                  ) : effectiveStatus === 'upcoming' && event.registrationLink && event.isRegistrationOpen !== false ? (
+                    <div className="absolute top-4 left-4 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-500/90 text-white shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      Reg. Open
+                    </div>
+                  ) : null}
+
                   <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-semibold rounded-full border shadow-sm ${
                     effectiveStatus === 'upcoming' 
                       ? 'bg-gradient-to-r from-primary to-[#8b5cf6] text-white border-transparent' 

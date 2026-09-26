@@ -5,6 +5,7 @@ export const Achievements: CollectionConfig<'achievements'> = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'date'],
+    group: 'Club Core',
   },
   fields: [
     {

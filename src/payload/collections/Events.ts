@@ -15,7 +15,8 @@ export const Events: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'date', 'location', 'status'],
+    defaultColumns: ['title', 'date', 'location', 'status', 'isRegistrationOpen'],
+    group: 'Club Core',
   },
   hooks: {
     afterChange: [revalidateEvent],
@@ -109,6 +110,24 @@ export const Events: CollectionConfig = {
       name: 'registrationLink',
       type: 'text',
       admin: { description: 'Google Form or other registration link' }
+    },
+    {
+      name: 'isRegistrationOpen',
+      type: 'checkbox',
+      defaultValue: true,
+      label: 'Registration Open (ON = Open, OFF = Closed)',
+      admin: {
+        description: 'Turn ON to enable "Register Now". Turn OFF when registrations are closed/full to show "Registrations Closed".',
+      },
+    },
+    {
+      name: 'registrationClosedMessage',
+      type: 'text',
+      label: 'Closed Notice / Reason',
+      admin: {
+        description: 'Optional message shown to users when registration is closed (e.g. "Registrations closed: capacity reached").',
+        condition: (data) => data?.isRegistrationOpen === false,
+      },
     },
     {
       name: 'speakers',

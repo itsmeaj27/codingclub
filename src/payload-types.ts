@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     courses: Course;
+    enrollments: Enrollment;
     pages: Page;
     posts: Post;
     media: Media;
@@ -79,10 +80,12 @@ export interface Config {
     gallery: Gallery;
     achievements: Achievement;
     certificates: Certificate;
+    objectives: Objective;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
     search: Search;
+    'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -91,6 +94,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    enrollments: EnrollmentsSelect<false> | EnrollmentsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -102,10 +106,12 @@ export interface Config {
     gallery: GallerySelect<false> | GallerySelect<true>;
     achievements: AchievementsSelect<false> | AchievementsSelect<true>;
     certificates: CertificatesSelect<false> | CertificatesSelect<true>;
+    objectives: ObjectivesSelect<false> | ObjectivesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -114,6 +120,7 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
+  fallbackLocale: null;
   globals: {
     header: Header;
     footer: Footer;
@@ -123,9 +130,10 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
+  widgets: {
+    collections: CollectionsWidget;
   };
+  user: User;
   jobs: {
     tasks: {
       schedulePublish: TaskSchedulePublish;
@@ -168,143 +176,74 @@ export interface UserAuthOperations {
       };
 }
 /**
+ * Manage educational courses and workshops conducted by Coding Club CUH.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "courses".
  */
 export interface Course {
   id: number;
   title: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  /**
+   * Set to "Completed" when the course concludes to issue certificates to selected students.
+   */
+  status: 'upcoming' | 'active' | 'completed';
+  isEnrollmentOpen?: boolean | null;
+  /**
+   * Set 0 for free courses.
+   */
   price: number;
+  /**
+   * Course banner or thumbnail image
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * Brief description of topics covered, prerequisites, and learning outcomes.
+   */
+  description?: string | null;
   instructorName: string;
+  instructorEmail?: string | null;
+  department?: ('Computer Science and IT' | 'Computer Science' | 'Information Technology' | 'Other') | null;
   startingDate: string;
+  completionDate?: string | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
-  id: number;
-  title: string;
-  hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
-    richText?: {
-      root: {
-        type: string;
-        children: {
-          type: string;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    links?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: number | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: number | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-            /**
-             * Choose how the link should be rendered.
-             */
-            appearance?: ('default' | 'outline') | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    media?: (number | null) | Media;
-  };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  authors?: (number | User)[] | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
+ * Cloudinary Media library for Coding Club CUH.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
+  /**
+   * Destination folder in Cloudinary (under codingclub/)
+   */
+  folder?:
+    | (
+        | 'events/coding-class'
+        | 'events/hackathon'
+        | 'events/workshops'
+        | 'gallery/2026'
+        | 'gallery/2027'
+        | 'teams/president'
+        | 'teams/coordinators'
+        | 'teams/members'
+        | 'projects'
+        | 'certificates'
+        | 'profiles'
+        | 'submissions'
+      )
+    | null;
   alt?: string | null;
   caption?: {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -386,23 +325,40 @@ export interface Media {
   };
 }
 /**
+ * Track student course registrations and select eligible students for certificate issuance and emailing.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
+ * via the `definition` "enrollments".
  */
-export interface Category {
+export interface Enrollment {
   id: number;
-  title: string;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  /**
+   * The enrolled student user account.
+   */
+  student: number | User;
+  /**
+   * The course the student is enrolled in.
+   */
+  course: number | Course;
+  status: 'enrolled' | 'active' | 'completed' | 'dropped';
+  /**
+   * Check to select this student for certificate issuance upon course completion.
+   */
+  selectedForCertificate?: boolean | null;
+  /**
+   * Automatically linked when certificate is generated and issued.
+   */
+  certificate?: (number | null) | Certificate;
+  /**
+   * Indicates whether the certificate notification was emailed from cuhcodingclub@gmail.com.
+   */
+  certificateSent?: boolean | null;
+  certificateSentAt?: string | null;
+  enrolledAt?: string | null;
+  /**
+   * Optional admin notes (e.g. Excellent Capstone Project, Top 5 Performer).
+   */
+  remarks?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -435,6 +391,186 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "certificates".
+ */
+export interface Certificate {
+  id: number;
+  isIssued?: boolean | null;
+  /**
+   * Leave empty to auto-generate (e.g. CCCUH-INT-2026-XXXX)
+   */
+  certificateId: string;
+  /**
+   * Link this certificate to the student's login account so they can see it in their dashboard.
+   */
+  student?: (number | null) | User;
+  /**
+   * Associated course if issued as part of a club course offering.
+   */
+  courseRef?: (number | null) | Course;
+  studentName: string;
+  department: 'Computer Science and IT' | 'Computer Science' | 'Information Technology' | 'Other';
+  course: 'MCA' | 'BCA' | 'B.Tech' | 'M.Tech' | 'Other';
+  semester:
+    | '1st Semester'
+    | '2nd Semester'
+    | '3rd Semester'
+    | '4th Semester'
+    | '1st Year'
+    | '2nd Year'
+    | '3rd Year'
+    | 'Completed';
+  internship: string;
+  startDate: string;
+  endDate: string;
+  issueDate?: string | null;
+  signatureInstructor?: (number | null) | Media;
+  signatureCoordinator?: (number | null) | Media;
+  signatureStudentCoordinator?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  hero: {
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    richText?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    links?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+            /**
+             * Choose how the link should be rendered.
+             */
+            appearance?: ('default' | 'outline') | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    media?: (number | null) | Media;
+  };
+  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  /**
+   * Tick to show this post in the "Latest from our Blog" section on the home page
+   */
+  showOnHome?: boolean | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -445,7 +581,7 @@ export interface CallToActionBlock {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -496,7 +632,7 @@ export interface ContentBlock {
           root: {
             type: string;
             children: {
-              type: string;
+              type: any;
               version: number;
               [k: string]: unknown;
             }[];
@@ -553,7 +689,7 @@ export interface ArchiveBlock {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -589,7 +725,7 @@ export interface FormBlock {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -646,7 +782,7 @@ export interface Form {
               root: {
                 type: string;
                 children: {
-                  type: string;
+                  type: any;
                   version: number;
                   [k: string]: unknown;
                 }[];
@@ -721,15 +857,12 @@ export interface Form {
       )[]
     | null;
   submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
   confirmationType?: ('message' | 'redirect') | null;
   confirmationMessage?: {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -743,9 +876,6 @@ export interface Form {
   redirect?: {
     url: string;
   };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
   emails?:
     | {
         emailTo?: string | null;
@@ -754,14 +884,11 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
         message?: {
           root: {
             type: string;
             children: {
-              type: string;
+              type: any;
               version: number;
               [k: string]: unknown;
             }[];
@@ -787,6 +914,10 @@ export interface Event {
   title: string;
   status: 'upcoming' | 'ongoing' | 'completed';
   category?: ('workshop' | 'hackathon' | 'competition' | 'seminar' | 'other') | null;
+  /**
+   * Choose layout: Portrait for flyers/posters, Landscape for banners
+   */
+  imageOrientation?: ('landscape' | 'portrait' | 'square') | null;
   date: string;
   /**
    * E.g. 10:00 AM
@@ -802,7 +933,7 @@ export interface Event {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -817,6 +948,14 @@ export interface Event {
    * Google Form or other registration link
    */
   registrationLink?: string | null;
+  /**
+   * Turn ON to enable "Register Now". Turn OFF when registrations are closed/full to show "Registrations Closed".
+   */
+  isRegistrationOpen?: boolean | null;
+  /**
+   * Optional message shown to users when registration is closed (e.g. "Registrations closed: capacity reached").
+   */
+  registrationClosedMessage?: string | null;
   /**
    * E.g. John Doe, Jane Smith
    */
@@ -838,28 +977,51 @@ export interface Event {
   createdAt: string;
 }
 /**
+ * Manage Coding Club Core Committee, Technical Team, and Faculty Coordinators.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "teams".
  */
 export interface Team {
   id: number;
+  /**
+   * Full name of the team member (e.g. John Doe)
+   */
   name: string;
   /**
-   * E.g. President, Developer, etc.
+   * Role or designation, e.g. Core Lead, Full-Stack Developer, CP Lead
    */
   position: string;
-  category: 'faculty' | 'core' | 'technical' | 'design' | 'outreach';
   /**
-   * E.g. B.Tech CSE, 3rd Year
+   * Category determines which section on the Team page this member appears under
+   */
+  category: 'core' | 'technical' | 'faculty' | 'design' | 'outreach';
+  /**
+   * Tick to feature this member in the "Meet the Team" section on the home page
+   */
+  showOnHome?: boolean | null;
+  /**
+   * Display order (1 = first, 2 = second, etc.)
+   */
+  order?: number | null;
+  /**
+   * E.g. B.Tech Computer Science & Engineering, 3rd Year
    */
   courseYear?: string | null;
-  photo: number | Media;
   /**
-   * LinkedIn Profile URL
+   * Upload member photo (automatically uploaded and organized in Cloudinary)
+   */
+  photo?: (number | null) | Media;
+  /**
+   * Optional direct Cloudinary or image URL if not uploading a media file
+   */
+  photoUrl?: string | null;
+  /**
+   * https://linkedin.com/in/username
    */
   linkedin?: string | null;
   /**
-   * GitHub Profile URL
+   * https://github.com/username
    */
   github?: string | null;
   updatedAt: string;
@@ -896,17 +1058,34 @@ export interface Project {
   createdAt: string;
 }
 /**
+ * Manage Club Gallery photos shown on the website.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "gallery".
  */
 export interface Gallery {
   id: number;
-  image: number | Media;
   /**
-   * Brief description of the photo
+   * Brief description/title of the photo
    */
   caption: string;
+  /**
+   * Upload image from Media library
+   */
+  image?: (number | null) | Media;
+  /**
+   * Direct Cloudinary or hosted image URL if not selecting from Media
+   */
+  imageUrl?: string | null;
   category: 'events' | 'workshops' | 'interaction' | 'classes' | 'team' | 'activities';
+  /**
+   * Tick to display this photo in the Club Gallery on the website
+   */
+  showOnWebsite?: boolean | null;
+  /**
+   * Display order (1 = first, 2 = second, etc.)
+   */
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -929,31 +1108,41 @@ export interface Achievement {
   createdAt: string;
 }
 /**
+ * Manage Key Objectives of Coding Club displayed on the home page.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "certificates".
+ * via the `definition` "objectives".
  */
-export interface Certificate {
+export interface Objective {
   id: number;
-  isIssued?: boolean | null;
   /**
-   * Leave empty to auto-generate (e.g. CCCUH-INT-2026-XXXX)
+   * Objective title (e.g. Classes By Students, Development Activities)
    */
-  certificateId: string;
+  title: string;
   /**
-   * Link this certificate to the student's login account so they can see it in their dashboard.
+   * Details and bullet points explaining this objective
    */
-  student?: (number | null) | User;
-  studentName: string;
-  department: 'Computer Science and IT' | 'Computer Science' | 'Information Technology' | 'Other';
-  course: 'MCA' | 'BCA' | 'B.Tech' | 'M.Tech' | 'Other';
-  semester: '1st Semester' | '2nd Semester' | '3rd Semester' | '4th Semester' | '1st Year' | '2nd Year' | '3rd Year';
-  internship: string;
-  startDate: string;
-  endDate: string;
-  issueDate?: string | null;
-  signatureInstructor?: (number | null) | Media;
-  signatureCoordinator?: (number | null) | Media;
-  signatureStudentCoordinator?: (number | null) | Media;
+  description: string;
+  /**
+   * Icon displayed next to the objective
+   */
+  icon?: ('BookOpen' | 'Code2' | 'Rocket' | 'Users' | 'Globe' | 'Cpu' | 'Lightbulb' | 'Layout') | null;
+  /**
+   * Upload an illustration or photo for this objective
+   */
+  image?: (number | null) | Media;
+  /**
+   * Direct Cloudinary or image URL if not uploading via media collection
+   */
+  imageUrl?: string | null;
+  /**
+   * Tick to display this objective in the Key Objectives section
+   */
+  showOnWebsite?: boolean | null;
+  /**
+   * Display order (1 = first, 2 = second, etc.)
+   */
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1030,6 +1219,23 @@ export interface Search {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: number;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1135,6 +1341,10 @@ export interface PayloadLockedDocument {
         value: number | Course;
       } | null)
     | ({
+        relationTo: 'enrollments';
+        value: number | Enrollment;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
@@ -1179,6 +1389,10 @@ export interface PayloadLockedDocument {
         value: number | Certificate;
       } | null)
     | ({
+        relationTo: 'objectives';
+        value: number | Objective;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -1193,10 +1407,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'search';
         value: number | Search;
-      } | null)
-    | ({
-        relationTo: 'payload-jobs';
-        value: number | PayloadJob;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1246,9 +1456,35 @@ export interface PayloadMigration {
  */
 export interface CoursesSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
+  slugLock?: T;
+  status?: T;
+  isEnrollmentOpen?: T;
   price?: T;
+  coverImage?: T;
+  description?: T;
   instructorName?: T;
+  instructorEmail?: T;
+  department?: T;
   startingDate?: T;
+  completionDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enrollments_select".
+ */
+export interface EnrollmentsSelect<T extends boolean = true> {
+  student?: T;
+  course?: T;
+  status?: T;
+  selectedForCertificate?: T;
+  certificate?: T;
+  certificateSent?: T;
+  certificateSentAt?: T;
+  enrolledAt?: T;
+  remarks?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1405,6 +1641,7 @@ export interface PostsSelect<T extends boolean = true> {
         description?: T;
       };
   publishedAt?: T;
+  showOnHome?: T;
   authors?: T;
   populatedAuthors?:
     | T
@@ -1423,6 +1660,7 @@ export interface PostsSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  folder?: T;
   alt?: T;
   caption?: T;
   updatedAt?: T;
@@ -1564,6 +1802,7 @@ export interface EventsSelect<T extends boolean = true> {
   title?: T;
   status?: T;
   category?: T;
+  imageOrientation?: T;
   date?: T;
   startTime?: T;
   endTime?: T;
@@ -1571,6 +1810,8 @@ export interface EventsSelect<T extends boolean = true> {
   shortDescription?: T;
   fullDescription?: T;
   registrationLink?: T;
+  isRegistrationOpen?: T;
+  registrationClosedMessage?: T;
   speakers?: T;
   coverPhoto?: T;
   gallery?:
@@ -1593,8 +1834,11 @@ export interface TeamsSelect<T extends boolean = true> {
   name?: T;
   position?: T;
   category?: T;
+  showOnHome?: T;
+  order?: T;
   courseYear?: T;
   photo?: T;
+  photoUrl?: T;
   linkedin?: T;
   github?: T;
   updatedAt?: T;
@@ -1622,9 +1866,12 @@ export interface ProjectsSelect<T extends boolean = true> {
  * via the `definition` "gallery_select".
  */
 export interface GallerySelect<T extends boolean = true> {
-  image?: T;
   caption?: T;
+  image?: T;
+  imageUrl?: T;
   category?: T;
+  showOnWebsite?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1650,6 +1897,7 @@ export interface CertificatesSelect<T extends boolean = true> {
   isIssued?: T;
   certificateId?: T;
   student?: T;
+  courseRef?: T;
   studentName?: T;
   department?: T;
   course?: T;
@@ -1661,6 +1909,21 @@ export interface CertificatesSelect<T extends boolean = true> {
   signatureInstructor?: T;
   signatureCoordinator?: T;
   signatureStudentCoordinator?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectives_select".
+ */
+export interface ObjectivesSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  icon?: T;
+  image?: T;
+  imageUrl?: T;
+  showOnWebsite?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1858,6 +2121,14 @@ export interface SearchSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
@@ -2025,6 +2296,16 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskSchedulePublish".
  */
 export interface TaskSchedulePublish {
@@ -2055,7 +2336,7 @@ export interface BannerBlock {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];

@@ -57,6 +57,7 @@ export const Pages: CollectionConfig<'pages'> = {
         req,
       }),
     useAsTitle: 'title',
+    group: 'Content & Media',
   },
   fields: [
     {

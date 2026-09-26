@@ -47,6 +47,18 @@ export default async function StudentDashboard() {
     }
   })
 
+  // Fetch enrollments linked to this user account
+  const userEnrollments = await payload.find({
+    collection: 'enrollments',
+    where: {
+      student: {
+        equals: user.id
+      }
+    },
+    depth: 2,
+    sort: '-enrolledAt',
+  })
+
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -170,14 +182,90 @@ export default async function StudentDashboard() {
         {/* Courses and Events Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">
-            <h3 className="text-lg font-bold text-zinc-900 mb-4 flex items-center gap-2">
-              <span className="text-xl">📚</span>
-              Enrolled Courses
-            </h3>
-            <div className="flex flex-col items-center justify-center h-32 text-zinc-400 border-2 border-dashed border-zinc-100 rounded-xl">
-              <p className="font-medium text-zinc-500">No active courses.</p>
-              <p className="text-sm text-zinc-400">Enroll in upcoming courses to see your progress!</p>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+                <span className="text-xl">📚</span>
+                Enrolled Courses
+              </h3>
+              <Link
+                href="/courses"
+                className="text-xs font-semibold text-[#1a365d] hover:underline"
+              >
+                Browse All Courses &rarr;
+              </Link>
             </div>
+
+            {userEnrollments.docs && userEnrollments.docs.length > 0 ? (
+              <div className="space-y-3">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {userEnrollments.docs.map((enrollment: any) => {
+                  const courseObj = typeof enrollment.course === 'object' ? enrollment.course : null
+                  const certObj = typeof enrollment.certificate === 'object' ? enrollment.certificate : null
+                  const certId = certObj?.certificateId
+
+                  return (
+                    <div
+                      key={enrollment.id}
+                      className="border border-zinc-100 rounded-xl p-3.5 bg-zinc-50/50 hover:bg-white hover:border-zinc-300 transition-all"
+                    >
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-zinc-900 text-sm truncate">
+                            {courseObj?.title || 'Course'}
+                          </h4>
+                          <p className="text-xs text-zinc-500 mt-0.5">
+                            Instructor: {courseObj?.instructorName || 'Coding Club Mentor'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 capitalize">
+                              {enrollment.status === 'completed'
+                                ? 'Cohort Completed'
+                                : enrollment.status === 'active'
+                                ? 'In Progress'
+                                : 'Enrolled'}
+                            </span>
+                            {enrollment.selectedForCertificate && (
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                🌟 Selected for Certificate
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {certId ? (
+                          <Link
+                            href={`/certificate/${certId}`}
+                            className="text-xs font-bold bg-[#137558] hover:bg-[#0e5641] text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                          >
+                            🎓 Get Certificate
+                          </Link>
+                        ) : (
+                          <Link
+                            href={`/courses/${courseObj?.slug || courseObj?.id}`}
+                            className="text-xs font-medium text-zinc-500 hover:text-zinc-800 border border-zinc-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                          >
+                            Details
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-36 text-zinc-400 border-2 border-dashed border-zinc-100 rounded-xl p-4 text-center">
+                <p className="font-medium text-zinc-500 text-sm">No active course enrollments.</p>
+                <p className="text-xs text-zinc-400 mt-1 mb-3">
+                  Enroll in upcoming hands-on workshops to earn certificates!
+                </p>
+                <Link
+                  href="/courses"
+                  className="text-xs font-bold bg-[#1a365d] text-white px-4 py-1.5 rounded-lg hover:bg-[#2a4d7d] transition-colors"
+                >
+                  Explore Courses
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">

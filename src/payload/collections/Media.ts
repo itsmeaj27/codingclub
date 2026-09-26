@@ -28,6 +28,7 @@ export const Media: CollectionConfig = {
     useAsTitle: 'alt',
     defaultColumns: ['filename', 'alt', 'folder', 'updatedAt'],
     description: 'Cloudinary Media library for Coding Club CUH.',
+    group: 'Content & Media',
   },
   hooks: {
     beforeChange: [

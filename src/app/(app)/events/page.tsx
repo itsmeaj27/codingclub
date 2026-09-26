@@ -14,12 +14,18 @@ export const revalidate = 0;
 export default async function EventsPage() {
   const payload = await getPayload({ config: configPromise });
 
-  const eventsReq = await payload.find({
-    collection: "events",
-    limit: 50,
-    sort: "-date",
-  });
-  const cmsEvents = eventsReq.docs || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let cmsEvents: any[] = [];
+  try {
+    const eventsReq = await payload.find({
+      collection: "events",
+      limit: 50,
+      sort: "-date",
+    });
+    cmsEvents = eventsReq.docs || [];
+  } catch (error) {
+    console.error("Error loading events from CMS:", error);
+  }
 
   const fallbackEvents = [
     {
@@ -151,15 +157,40 @@ export default async function EventsPage() {
             </div>
           )}
 
-          {event.registrationLink && effectiveStatus === "upcoming" && (
+          {/* Registration Button & Status */}
+          {effectiveStatus === "completed" ? (
             <div className="pt-2">
-              <Button asChild size="sm" className="rounded-full bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity">
-                <Link href={event.registrationLink} target="_blank">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border">
+                Event Concluded
+              </span>
+            </div>
+          ) : event.isRegistrationOpen === false ? (
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-2.5">
+              <Button
+                disabled
+                size="sm"
+                variant="outline"
+                className="rounded-full bg-muted/60 text-muted-foreground border-border cursor-not-allowed font-medium w-fit opacity-90"
+              >
+                Registrations Closed
+              </Button>
+              <span className="text-xs text-muted-foreground italic">
+                {event.registrationClosedMessage || "Registration for this event has ended."}
+              </span>
+            </div>
+          ) : event.registrationLink ? (
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <Button asChild size="sm" className="rounded-full bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity shadow-sm">
+                <Link href={event.registrationLink} target="_blank" rel="noopener noreferrer">
                   Register Now <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
                 </Link>
               </Button>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Registration Open
+              </span>
             </div>
-          )}
+          ) : null}
         </div>
       ),
     };

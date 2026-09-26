@@ -5,6 +5,7 @@ import { PayloadRedirects } from "@/components/payload/PayloadRedirects";
 import configPromise from "@payload-config";
 import { getPayload } from "payload";
 import { draftMode } from "next/headers";
+import { notFound } from "next/navigation";
 import React, { cache } from "react";
 import RichText from "@/components/payload/RichText";
 
@@ -47,6 +48,11 @@ export default async function Post({
 }) {
   const { isEnabled: draft } = await draftMode();
   const { slug = "" } = await params;
+
+  if (!slug || slug === "null" || slug === "undefined") {
+    notFound();
+  }
+
   const url = "/posts/" + slug;
   const post = await queryPostBySlug({ slug });
 
@@ -91,12 +97,19 @@ export async function generateMetadata({ params }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug = '' } = await params
+  if (!slug || slug === "null" || slug === "undefined") {
+    return {}
+  }
   const post = await queryPostBySlug({ slug })
 
   return generateMeta({ doc: post })
 }
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
+  if (!slug || slug === "null" || slug === "undefined") {
+    return null;
+  }
+
   try {
     const { isEnabled: draft } = await draftMode();
 
