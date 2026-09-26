@@ -11,6 +11,49 @@ export const Certificates: CollectionConfig = {
   access: {
     read: anyone,
   },
+  hooks: {
+    beforeChange: [
+      async ({ data, req: { payload }, operation }) => {
+        if (!data.issueDate) {
+          data.issueDate = new Date().toISOString();
+        }
+
+        if (operation === 'create') {
+          try {
+            const settings = await payload.findGlobal({
+              slug: 'certificate-settings',
+            });
+            if (settings) {
+              if (!data.signatureInstructor && settings.signatureInstructor) {
+                const sId = typeof settings.signatureInstructor === 'object'
+                  ? (settings.signatureInstructor as { id: number | string }).id
+                  : settings.signatureInstructor;
+                if (sId) data.signatureInstructor = Number(sId);
+              }
+              if (!data.signatureCoordinator && settings.signatureCoordinator) {
+                const sId = typeof settings.signatureCoordinator === 'object'
+                  ? (settings.signatureCoordinator as { id: number | string }).id
+                  : settings.signatureCoordinator;
+                if (sId) data.signatureCoordinator = Number(sId);
+              }
+              if (
+                !data.signatureStudentCoordinator &&
+                settings.signatureStudentCoordinator
+              ) {
+                const sId = typeof settings.signatureStudentCoordinator === 'object'
+                  ? (settings.signatureStudentCoordinator as { id: number | string }).id
+                  : settings.signatureStudentCoordinator;
+                if (sId) data.signatureStudentCoordinator = Number(sId);
+              }
+            }
+          } catch {
+            // Ignore if settings global not initialized yet
+          }
+        }
+        return data;
+      },
+    ],
+  },
   fields: [
     {
       name: 'isIssued',

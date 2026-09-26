@@ -22,6 +22,7 @@ import { getServerSideURL } from "./payload/utilities/getURL";
 import { plugins } from "./payload/plugins";
 import { Header } from "./payload/Header/config";
 import { Footer } from "./payload/Footer/config";
+import { CertificateSettings } from "./payload/globals/CertificateSettings";
 import { Courses } from "./payload/collections/Courses";
 import { Certificates } from "./payload/collections/Certificates";
 import { Objectives } from "./payload/collections/Objectives";
@@ -116,8 +117,8 @@ export default buildConfig({
     pool: {
       connectionString: getDatabaseURI(),
       max: process.env.NODE_ENV === "production" ? 4 : 10,
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 10000,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 30000,
     },
     push: false,
   }),
@@ -155,7 +156,7 @@ export default buildConfig({
     "http://localhost:3001",
     process.env.NEXT_PUBLIC_SERVER_URL || "",
   ].filter(Boolean),
-  globals: [Header, Footer],
+  globals: [Header, Footer, CertificateSettings],
   plugins: [...plugins],
   secret:
     process.env.PAYLOAD_SECRET || "development-secret-key-for-local-testing",
@@ -166,9 +167,8 @@ export default buildConfig({
   onInit: async (payload) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pool = (payload.db as any)?.pool;
-      if (pool?.query) {
-        await pool.query(`
+      const db = payload.db as any;
+      const schemaSql = `
           ALTER TABLE "events" ADD COLUMN IF NOT EXISTS "is_registration_open" boolean DEFAULT true;
           ALTER TABLE "events" ADD COLUMN IF NOT EXISTS "registration_closed_message" varchar;
           ALTER TABLE "teams" ADD COLUMN IF NOT EXISTS "order" numeric DEFAULT 10;
@@ -223,7 +223,23 @@ export default buildConfig({
           );
           CREATE INDEX IF NOT EXISTS "enrollments_student_idx" ON "enrollments" ("student_id");
           CREATE INDEX IF NOT EXISTS "enrollments_course_idx" ON "enrollments" ("course_id");
-        `);
+
+          CREATE TABLE IF NOT EXISTS "certificate_settings" (
+            "id" serial PRIMARY KEY,
+            "signature_instructor_id" integer,
+            "signature_coordinator_id" integer,
+            "signature_student_coordinator_id" integer,
+            "sender_email" varchar DEFAULT 'cuhcodingclub@gmail.com',
+            "auto_send_email_on_issue" boolean DEFAULT true,
+            "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+            "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+          );
+        `;
+      if (db?.pool?.query) {
+        await db.pool.query(schemaSql);
+      } else if (db?.drizzle?.execute) {
+        const { sql } = await import('@payloadcms/db-postgres/drizzle');
+        await db.drizzle.execute(sql.raw(schemaSql));
       }
     } catch (err) {
       payload.logger.warn(`Notice on database columns check: ${err}`);

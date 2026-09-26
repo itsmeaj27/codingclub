@@ -66,11 +66,18 @@ export default function BeforeDashboard() {
 
   const quickShortcuts = [
     {
-      label: "Issue Certificate",
+      label: "Course Certificate Hub",
       icon: "🎓",
-      href: "/admin/collections/certificates/create",
+      href: "/admin/certificate-hub",
+      color: "#10b981",
+      tag: "AUTOMATED",
+    },
+    {
+      label: "Upload Signatures",
+      icon: "✍️",
+      href: "/admin/globals/certificate-settings",
       color: "#f59e0b",
-      tag: "+ CREATE",
+      tag: "ONE-TIME",
     },
     {
       label: "Create Event",
@@ -301,13 +308,13 @@ export default function BeforeDashboard() {
       {/* 2. TACTILE CLICKABLE ACTION DOCK                                         */}
       {/* ========================================================================= */}
       <div
-        style={{
-          background: "rgba(18, 20, 29, 0.8)",
-          borderRadius: "18px",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
-          padding: "16px 20px",
-        }}
-      >
+            style={{
+              background: "rgba(18, 20, 29, 0.8)",
+              borderRadius: "18px",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              padding: "16px 20px",
+            }}
+          >
         <div
           style={{
             display: "flex",
@@ -455,3 +462,5 @@ export default function BeforeDashboard() {
     </div>
   );
 }
+
+

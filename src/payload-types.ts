@@ -124,10 +124,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'certificate-settings': CertificateSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'certificate-settings': CertificateSettingsSelect<false> | CertificateSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -2249,6 +2251,34 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Manage course batches, student rosters, 1-click certificate generation, and upload global signatures.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "certificate-settings".
+ */
+export interface CertificateSetting {
+  id: number;
+  /**
+   * Digital signature image for Program Instructor (PNG with transparent background recommended).
+   */
+  signatureInstructor?: (number | null) | Media;
+  /**
+   * Digital signature image for Program Co-ordinator.
+   */
+  signatureCoordinator?: (number | null) | Media;
+  /**
+   * Digital signature image for Student Co-ordinator.
+   */
+  signatureStudentCoordinator?: (number | null) | Media;
+  /**
+   * Email address shown as sender for certificate notifications.
+   */
+  senderEmail?: string | null;
+  autoSendEmailOnIssue?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -2290,6 +2320,20 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "certificate-settings_select".
+ */
+export interface CertificateSettingsSelect<T extends boolean = true> {
+  signatureInstructor?: T;
+  signatureCoordinator?: T;
+  signatureStudentCoordinator?: T;
+  senderEmail?: T;
+  autoSendEmailOnIssue?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

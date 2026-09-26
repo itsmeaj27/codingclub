@@ -33,6 +33,7 @@ import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloa
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { RowLabel as RowLabel_ef1777998f20cb87d581e9fb460d55bb } from '@/payload/Header/RowLabel'
 import { RowLabel as RowLabel_b1d02ac03d11f7b38650c3919ff7a625 } from '@/payload/Footer/RowLabel'
+import { default as default_63506a7b74f17979b081400a743b05a4 } from '@/components/payload-admin/CertificateHub'
 import { default as default_298f8f715285c5596d95d0a0d15a182b } from '@/components/payload-admin/GraphicsIcon'
 import { default as default_0885c076401d3d65068f2979e4d0e01e } from '@/components/payload-admin/GraphicsLogo'
 import { default as default_b1113cd267685e4983b6a86ee5747b18 } from '@/components/payload-admin/Actions/Action'
@@ -77,6 +78,7 @@ export const importMap = {
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@/payload/Header/RowLabel#RowLabel": RowLabel_ef1777998f20cb87d581e9fb460d55bb,
   "@/payload/Footer/RowLabel#RowLabel": RowLabel_b1d02ac03d11f7b38650c3919ff7a625,
+  "@/components/payload-admin/CertificateHub#default": default_63506a7b74f17979b081400a743b05a4,
   "@/components/payload-admin/GraphicsIcon#default": default_298f8f715285c5596d95d0a0d15a182b,
   "@/components/payload-admin/GraphicsLogo#default": default_0885c076401d3d65068f2979e4d0e01e,
   "@/components/payload-admin/Actions/Action#default": default_b1113cd267685e4983b6a86ee5747b18,
