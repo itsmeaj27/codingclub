@@ -233,6 +233,12 @@ export default buildConfig({
           ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "completion_date" timestamp(3) with time zone;
           ALTER TABLE "courses" ADD COLUMN IF NOT EXISTS "cover_image_id" integer;
           ALTER TABLE "certificates" ADD COLUMN IF NOT EXISTS "course_ref_id" integer;
+          DO $$
+          BEGIN
+            ALTER TYPE "public"."enum_certificates_semester" ADD VALUE IF NOT EXISTS 'Completed';
+          EXCEPTION
+            WHEN duplicate_object THEN null;
+          END $$;
           ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "enrollments_id" integer;
           CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_enrollments_id_idx" ON "payload_locked_documents_rels" ("enrollments_id");
           CREATE TABLE IF NOT EXISTS "enrollments" (
