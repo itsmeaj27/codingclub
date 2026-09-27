@@ -20,6 +20,7 @@ export default async function TeamSection() {
         },
       },
       limit: 10,
+      sort: "order",
     });
 
     facultyMembers = teamReq.docs || [];
@@ -31,6 +32,21 @@ export default async function TeamSection() {
   if (facultyMembers.length === 0) {
     facultyMembers = CLOUDINARY_TEAM_MEMBERS.filter((m) => m.category === "faculty");
   }
+
+  // Ensure Chief Patron / VC always appears first (_01), followed by Faculty Coordinator (_02)
+  const getFacultyWeight = (pos: string) => {
+    const p = (pos || "").toLowerCase();
+    if (p.includes("patron") || p.includes("chancellor") || p.includes("vc")) return 1;
+    if (p.includes("coordinator") || p.includes("mentor")) return 2;
+    return 10;
+  };
+
+  facultyMembers.sort((a, b) => {
+    const orderA = a.order ?? getFacultyWeight(a.position);
+    const orderB = b.order ?? getFacultyWeight(b.position);
+    if (orderA !== orderB) return orderA - orderB;
+    return getFacultyWeight(a.position) - getFacultyWeight(b.position);
+  });
 
   return (
     <section className="bg-background py-16 md:py-32">

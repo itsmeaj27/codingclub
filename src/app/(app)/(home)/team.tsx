@@ -17,16 +17,30 @@ export default async function TeamSection() {
         showOnHome: {
           not_equals: false,
         },
+        category: {
+          not_equals: "teachers",
+        },
       },
       limit: 50,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let teams: any[] = teamReq.docs || [];
+    let teams: any[] = (teamReq.docs || []).filter(
+      (m) => {
+        const mem = m as Record<string, unknown>;
+        return (
+          mem.category !== "teachers" &&
+          !mem.isTeacher &&
+          !(typeof mem.position === "string" && mem.position.trim().toLowerCase() === "teacher")
+        );
+      }
+    );
 
     // Seamless fallback to Cloudinary Team if CMS has no entries yet
     if (teams.length === 0) {
-      teams = CLOUDINARY_TEAM_MEMBERS;
+      teams = CLOUDINARY_TEAM_MEMBERS.filter(
+        (m) => m.category !== "teachers" && !m.isTeacher
+      );
     }
 
     // Sorting logic based on hierarchy

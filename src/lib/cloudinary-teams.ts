@@ -2,8 +2,11 @@ export interface CloudinaryTeamMember {
   id: string
   name: string
   position: string
-  category: 'faculty' | 'core' | 'technical' | 'design' | 'outreach'
+  category: 'faculty' | 'core' | 'technical' | 'design' | 'outreach' | 'teachers'
   courseYear: string
+  order?: number
+  isTeacher?: boolean
+  teachingSubject?: string
   photo: {
     url: string
     width?: number
@@ -16,30 +19,32 @@ export interface CloudinaryTeamMember {
 
 export const CLOUDINARY_TEAM_MEMBERS: CloudinaryTeamMember[] = [
   {
-    id: 'dr_sunil_kumar',
-    name: 'Dr. Sunil Kumar',
-    position: 'Faculty Coordinator',
-    category: 'faculty',
-    courseYear: 'Department of Computer Science & Engineering',
-    folder: 'codingclub/teams/coordinators',
-    photo: {
-      url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927151/codingclub/teams/coordinators/dr_sunil_kumar.jpg',
-      width: 1068,
-      height: 611,
-    },
-    linkedin: 'https://www.linkedin.com/school/central-university-of-haryana/',
-  },
-  {
     id: 'prof_tankeshwar',
     name: 'Prof. Tankeshwar Kumar',
     position: 'Chief Patron & Vice Chancellor',
     category: 'faculty',
+    order: 1,
     courseYear: 'Central University of Haryana',
     folder: 'codingclub/teams/coordinators',
     photo: {
       url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927151/codingclub/teams/coordinators/vice_chancellor.jpg',
       width: 1205,
       height: 904,
+    },
+    linkedin: 'https://www.linkedin.com/school/central-university-of-haryana/',
+  },
+  {
+    id: 'dr_sunil_kumar',
+    name: 'Dr. Sunil Kumar',
+    position: 'Faculty Coordinator',
+    category: 'faculty',
+    order: 2,
+    courseYear: 'Department of Computer Science & Engineering',
+    folder: 'codingclub/teams/coordinators',
+    photo: {
+      url: 'https://res.cloudinary.com/azzisskq/image/upload/v1789927151/codingclub/teams/coordinators/dr_sunil_kumar.jpg',
+      width: 1068,
+      height: 611,
     },
     linkedin: 'https://www.linkedin.com/school/central-university-of-haryana/',
   },

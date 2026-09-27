@@ -67,9 +67,27 @@ export const Teams: CollectionConfig<'teams'> = {
         { label: 'Faculty Coordinator & Leadership', value: 'faculty' },
         { label: 'Design & Media', value: 'design' },
         { label: 'Event & Outreach', value: 'outreach' },
+        { label: 'Club Instructor & Teacher', value: 'teachers' },
       ],
       admin: {
-        description: 'Category determines which section on the Team page this member appears under',
+        description: 'Category determines which section on the Team or Teachers page this member appears under',
+      },
+    },
+    {
+      name: 'isTeacher',
+      type: 'checkbox',
+      label: 'Is Student Instructor / Teacher',
+      defaultValue: false,
+      admin: {
+        description: 'Check if this person is a teacher/instructor (will show in Teacher section instead of Meet the Team)',
+      },
+    },
+    {
+      name: 'teachingSubject',
+      type: 'text',
+      label: 'Subjects / Courses Taught (For Teachers/Instructors)',
+      admin: {
+        description: 'E.g. C Programming, Full-Stack Web Development, Python & DSA',
       },
     },
     {

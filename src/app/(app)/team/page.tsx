@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPayload } from "payload";
 import configPromise from "@payload-config";
-import { Github, Linkedin, User } from "lucide-react";
+import { BookOpen, Github, Linkedin, User } from "lucide-react";
 import { CLOUDINARY_TEAM_MEMBERS } from "@/lib/cloudinary-teams";
 
 export const dynamic = "force-dynamic";
@@ -12,16 +12,28 @@ export const revalidate = 0;
 export default async function TeamPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let teams: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let teachers: any[] = [];
 
   try {
     const payload = await getPayload({ config: configPromise });
 
-    const teamReq = await payload.find({
-      collection: "teams",
-      limit: 100,
-    });
-    
+    const [teamReq, teachersReq] = await Promise.all([
+      payload.find({
+        collection: "teams",
+        limit: 100,
+      }),
+      payload
+        .find({
+          collection: "teachers",
+          limit: 50,
+          sort: "order",
+        })
+        .catch(() => ({ docs: [] })),
+    ]);
+
     teams = teamReq.docs || [];
+    teachers = teachersReq.docs || [];
   } catch (err) {
     console.error("Error fetching teams from CMS:", err);
   }
@@ -34,15 +46,37 @@ export default async function TeamPage() {
   const categoryLabels: Record<string, string> = {
     faculty: "Faculty Coordinators & Leadership",
     core: "Core Committee",
+    teachers: "Club Instructors & Student Mentors",
     technical: "Technical Team",
     design: "Design & Media",
     outreach: "Event & Outreach",
   };
 
-  const categoryOrder = ["faculty", "core", "technical", "design", "outreach"];
+  const categoryOrder = ["faculty", "core", "teachers", "technical", "design", "outreach"];
 
   const groupedTeams = categoryOrder.reduce((acc, cat) => {
-    const list = teams.filter((m) => m.category === cat);
+    let list: typeof teams = [];
+    if (cat === "teachers") {
+      const fromTeams = teams.filter(
+        (m) => m.category === "teachers" || m.isTeacher || (m.position && m.position.trim().toLowerCase() === "teacher")
+      );
+      const combined = [...fromTeams, ...teachers];
+      const seen = new Set<string>();
+      list = combined.filter((m) => {
+        const key = m.name ? String(m.name).toLowerCase().trim() : String(m.id);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    } else {
+      list = teams.filter(
+        (m) =>
+          m.category === cat &&
+          m.category !== "teachers" &&
+          !m.isTeacher &&
+          !(m.position && m.position.trim().toLowerCase() === "teacher")
+      );
+    }
     acc[cat] = list.sort((a, b) => Number(a.order ?? 10) - Number(b.order ?? 10));
     return acc;
   }, {} as Record<string, typeof teams>);
@@ -111,6 +145,12 @@ export default async function TeamPage() {
                         </span>
                         {courseYear && (
                           <span className="text-[11px] text-muted-foreground mt-1 line-clamp-2">{courseYear}</span>
+                        )}
+                        {(member.subjectsTaught || member.subjects_taught || member.teachingSubject || member.teaching_subject) && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 mt-1.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 text-center">
+                            <BookOpen className="w-2.5 h-2.5 flex-shrink-0" />
+                            <span className="line-clamp-1">{member.subjectsTaught || member.subjects_taught || member.teachingSubject || member.teaching_subject}</span>
+                          </span>
                         )}
                         <div className="flex gap-2 mt-3">
                           {member.github && (

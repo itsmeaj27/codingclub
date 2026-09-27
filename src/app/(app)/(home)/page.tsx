@@ -6,6 +6,7 @@ import EventsSection from "./events";
 import ProjectsSection from "./projects";
 import AchievementsSection from "./achievements";
 import TeamSection from "./team";
+import TeachersSection from "./teachers";
 import GallerySection from "./gallery";
 import RecentPostsSection from "./recent-posts";
 import WallOfLoveSection from "./testimonial";
@@ -42,6 +43,9 @@ export default function Home() {
 
       <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <TeamSection />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <TeachersSection />
 
       <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <GallerySection />

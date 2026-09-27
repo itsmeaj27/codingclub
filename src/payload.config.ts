@@ -13,6 +13,7 @@ import { Users } from "./payload/collections/Users";
 import { Categories } from "./payload/collections/Categories";
 import { Events } from "./payload/collections/Events";
 import { Teams } from "./payload/collections/Teams";
+import { Teachers } from "./payload/collections/Teachers";
 import { Projects } from "./payload/collections/Projects";
 import { Gallery } from "./payload/collections/Gallery";
 import { Achievements } from "./payload/collections/Achievements";
@@ -132,6 +133,7 @@ export default buildConfig({
     Users,
     Events,
     Teams,
+    Teachers,
     Projects,
     Gallery,
     Achievements,

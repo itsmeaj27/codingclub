@@ -95,6 +95,13 @@ export default function BeforeDashboard() {
       tag: "+ CREATE",
     },
     {
+      label: "Add Teacher",
+      icon: "👨‍🏫",
+      href: "/admin/collections/teachers/create",
+      color: "#f97316",
+      tag: "+ TEACHER",
+    },
+    {
       label: "Upload Media",
       icon: "☁️",
       href: "/admin/collections/media/create",

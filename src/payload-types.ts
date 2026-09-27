@@ -76,6 +76,7 @@ export interface Config {
     users: User;
     events: Event;
     teams: Team;
+    teachers: Teacher;
     projects: Project;
     gallery: Gallery;
     achievements: Achievement;
@@ -102,6 +103,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     teams: TeamsSelect<false> | TeamsSelect<true>;
+    teachers: TeachersSelect<false> | TeachersSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     gallery: GallerySelect<false> | GallerySelect<true>;
     achievements: AchievementsSelect<false> | AchievementsSelect<true>;
@@ -995,9 +997,17 @@ export interface Team {
    */
   position: string;
   /**
-   * Category determines which section on the Team page this member appears under
+   * Category determines which section on the Team or Teachers page this member appears under
    */
-  category: 'core' | 'technical' | 'faculty' | 'design' | 'outreach';
+  category: 'core' | 'technical' | 'faculty' | 'design' | 'outreach' | 'teachers';
+  /**
+   * Check if this person is a teacher/instructor (will show in Teacher section instead of Meet the Team)
+   */
+  isTeacher?: boolean | null;
+  /**
+   * E.g. C Programming, Full-Stack Web Development, Python & DSA
+   */
+  teachingSubject?: string | null;
   /**
    * Tick to feature this member in the "Meet the Team" section on the home page
    */
@@ -1018,6 +1028,57 @@ export interface Team {
    * Optional direct Cloudinary or image URL if not uploading a media file
    */
   photoUrl?: string | null;
+  /**
+   * https://linkedin.com/in/username
+   */
+  linkedin?: string | null;
+  /**
+   * https://github.com/username
+   */
+  github?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage Coding Club student instructors and teachers who teach courses, workshops, and bootcamps.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teachers".
+ */
+export interface Teacher {
+  id: number;
+  /**
+   * Full name of the instructor / teacher (e.g. Ajay Sharma)
+   */
+  name: string;
+  /**
+   * E.g. Lead Instructor, Web Development Mentor, Python & DSA Instructor
+   */
+  position: string;
+  /**
+   * E.g. C Programming, Full-Stack Web Development, Python & DSA
+   */
+  subjectsTaught: string;
+  /**
+   * E.g. B.Tech Computer Science & Engineering, 3rd Year
+   */
+  courseYear?: string | null;
+  /**
+   * Upload instructor photo (stored and organized in Cloudinary)
+   */
+  photo?: (number | null) | Media;
+  /**
+   * Optional direct Cloudinary or image URL if not uploading a media file
+   */
+  photoUrl?: string | null;
+  /**
+   * Tick to feature in the "Meet Our Student Instructors" section on the home page
+   */
+  showOnHome?: boolean | null;
+  /**
+   * Display order (1 = first, 2 = second, etc.)
+   */
+  order?: number | null;
   /**
    * https://linkedin.com/in/username
    */
@@ -1373,6 +1434,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'teams';
         value: number | Team;
+      } | null)
+    | ({
+        relationTo: 'teachers';
+        value: number | Teacher;
       } | null)
     | ({
         relationTo: 'projects';
@@ -1836,11 +1901,31 @@ export interface TeamsSelect<T extends boolean = true> {
   name?: T;
   position?: T;
   category?: T;
+  isTeacher?: T;
+  teachingSubject?: T;
   showOnHome?: T;
   order?: T;
   courseYear?: T;
   photo?: T;
   photoUrl?: T;
+  linkedin?: T;
+  github?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teachers_select".
+ */
+export interface TeachersSelect<T extends boolean = true> {
+  name?: T;
+  position?: T;
+  subjectsTaught?: T;
+  courseYear?: T;
+  photo?: T;
+  photoUrl?: T;
+  showOnHome?: T;
+  order?: T;
   linkedin?: T;
   github?: T;
   updatedAt?: T;
