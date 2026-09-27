@@ -72,7 +72,7 @@ export const CertificateSettings: GlobalConfig = {
             },
             {
               type: 'collapsible',
-              label: 'Issuance & Email Defaults',
+              label: 'Issuance & Email Server (SMTP) Settings',
               admin: {
                 initCollapsed: false,
               },
@@ -94,6 +94,45 @@ export const CertificateSettings: GlobalConfig = {
                       label: 'Automatically email certificate link upon generation',
                       type: 'checkbox',
                       defaultValue: true,
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'smtpUser',
+                      label: 'SMTP Username / Sender Account',
+                      type: 'email',
+                      defaultValue: 'cuhcodingclub@gmail.com',
+                      admin: {
+                        description: 'Google account email (e.g. cuhcodingclub@gmail.com). Can also be set as SMTP_USER in .env.',
+                      },
+                    },
+                    {
+                      name: 'smtpPass',
+                      label: 'SMTP / Gmail App Password',
+                      type: 'text',
+                      admin: {
+                        description: '16-character Google App Password (e.g. abcd efgh ijkl mnop). Required to send real emails to students. Can also be set as SMTP_PASS in .env.',
+                      },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'smtpHost',
+                      label: 'SMTP Server Host',
+                      type: 'text',
+                      defaultValue: 'smtp.gmail.com',
+                    },
+                    {
+                      name: 'smtpPort',
+                      label: 'SMTP Port',
+                      type: 'number',
+                      defaultValue: 465,
                     },
                   ],
                 },

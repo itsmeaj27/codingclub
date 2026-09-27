@@ -374,6 +374,18 @@ export interface User {
   id: number;
   role: 'admin' | 'student';
   name?: string | null;
+  /**
+   * e.g. MCA, BCA, B.Tech CSE, M.Tech, etc.
+   */
+  course?: string | null;
+  /**
+   * e.g. 1st Semester, 4th Semester, 2nd Year, Completed, etc.
+   */
+  semester?: string | null;
+  /**
+   * e.g. Computer Science and IT, Mathematics, etc.
+   */
+  department?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -417,17 +429,9 @@ export interface Certificate {
    */
   courseRef?: (number | null) | Course;
   studentName: string;
-  department: 'Computer Science and IT' | 'Computer Science' | 'Information Technology' | 'Other';
-  course: 'MCA' | 'BCA' | 'B.Tech' | 'M.Tech' | 'Other';
-  semester:
-    | '1st Semester'
-    | '2nd Semester'
-    | '3rd Semester'
-    | '4th Semester'
-    | '1st Year'
-    | '2nd Year'
-    | '3rd Year'
-    | 'Completed';
+  department: string;
+  course: string;
+  semester: string;
   internship: string;
   startDate: string;
   endDate: string;
@@ -1843,6 +1847,9 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
   name?: T;
+  course?: T;
+  semester?: T;
+  department?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -2360,6 +2367,16 @@ export interface CertificateSetting {
    */
   senderEmail?: string | null;
   autoSendEmailOnIssue?: boolean | null;
+  /**
+   * Google account email (e.g. cuhcodingclub@gmail.com). Can also be set as SMTP_USER in .env.
+   */
+  smtpUser?: string | null;
+  /**
+   * 16-character Google App Password (e.g. abcd efgh ijkl mnop). Required to send real emails to students. Can also be set as SMTP_PASS in .env.
+   */
+  smtpPass?: string | null;
+  smtpHost?: string | null;
+  smtpPort?: number | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2419,6 +2436,10 @@ export interface CertificateSettingsSelect<T extends boolean = true> {
   signatureStudentCoordinator?: T;
   senderEmail?: T;
   autoSendEmailOnIssue?: T;
+  smtpUser?: T;
+  smtpPass?: T;
+  smtpHost?: T;
+  smtpPort?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

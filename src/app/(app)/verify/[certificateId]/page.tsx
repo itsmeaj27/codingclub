@@ -29,14 +29,31 @@ export default function CertificateVerificationPage() {
   useEffect(() => {
     async function verifyCertificate() {
       try {
-        const res = await fetch(`/api/certificates?where[certificateId][equals]=${certificateId}`);
+        const res = await fetch(`/api/certificates?where[certificateId][equals]=${certificateId}&depth=1`);
         const data = await res.json();
         
         if (data.docs && data.docs.length > 0) {
           const cert = data.docs[0];
           // Only verified if isIssued is true
           if (cert.isIssued) {
-            setCertData(cert);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const studentObj: any = typeof cert.student === 'object' ? cert.student : null;
+            const finalCourse = (cert.course && cert.course !== 'Other')
+              ? cert.course
+              : (studentObj?.course || cert.course || 'Other');
+            const finalSemester = (cert.semester && cert.semester !== 'Completed')
+              ? cert.semester
+              : (studentObj?.semester || cert.semester || 'Completed');
+            const finalDept = cert.department || studentObj?.department || 'Computer Science and IT';
+            const finalStudentName = cert.studentName || studentObj?.name || 'Student';
+
+            setCertData({
+              ...cert,
+              studentName: finalStudentName,
+              department: finalDept,
+              course: finalCourse,
+              semester: finalSemester,
+            });
           }
         }
       } catch (e) {
@@ -121,7 +138,7 @@ export default function CertificateVerificationPage() {
                       
                       <div className="p-4 sm:p-5 hover:bg-slate-50 transition-colors border-t border-slate-100">
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Course / Semester</p>
-                        <p className="text-slate-800 font-medium">{certData.course}, {certData.semester}</p>
+                        <p className="text-slate-800 font-medium">{[certData.course, certData.semester].filter(Boolean).join(', ')}</p>
                       </div>
                       
                       <div className="p-4 sm:p-5 hover:bg-slate-50 transition-colors border-t border-slate-100">

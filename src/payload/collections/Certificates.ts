@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { anyone } from '../access/anyone'
+import { sendCertificateEmail } from '@/lib/email'
 
 export const Certificates: CollectionConfig = {
   slug: 'certificates',
@@ -51,6 +52,111 @@ export const Certificates: CollectionConfig = {
           }
         }
         return data;
+      },
+    ],
+    afterChange: [
+      async ({ doc, req, previousDoc, operation }) => {
+        // Prevent duplicate sending if called from issue-certificates route
+        if (req?.context?.skipEmailHook || req?.context?.fromIssueRoute) {
+          return
+        }
+
+        // Automatically email certificate link to student when issued
+        const isNowIssued = Boolean(doc.isIssued)
+        const wasIssued = Boolean(previousDoc?.isIssued)
+
+        if (isNowIssued && (!wasIssued || operation === 'create')) {
+          try {
+            // Check global setting
+            let autoSendEmail = true
+            try {
+              const settings = await req.payload.findGlobal({
+                slug: 'certificate-settings',
+              })
+              if (settings && typeof settings.autoSendEmailOnIssue === 'boolean') {
+                autoSendEmail = settings.autoSendEmailOnIssue
+              }
+            } catch {
+              // Ignore if settings global not initialized yet
+            }
+
+            if (!autoSendEmail) {
+              return
+            }
+
+            let studentEmail = ''
+            let studentName = doc.studentName || 'Student'
+
+            if (doc.student) {
+              const studentId = typeof doc.student === 'object' ? doc.student.id : doc.student
+              if (studentId) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const studentUser: any = await req.payload.findByID({
+                  collection: 'users',
+                  id: studentId,
+                })
+                if (studentUser?.email) {
+                  studentEmail = studentUser.email
+                  if (!doc.studentName && studentUser.name) {
+                    studentName = studentUser.name
+                  }
+                }
+              }
+            }
+
+            if (studentEmail) {
+              const emailResult = await sendCertificateEmail({
+                to: studentEmail,
+                studentName,
+                courseTitle: doc.internship || 'Course',
+                certificateId: doc.certificateId,
+                issueDate: doc.issueDate
+                  ? new Date(doc.issueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+                  : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+                serverUrl: process.env.NEXT_PUBLIC_SERVER_URL || 'https://codingclubcuh.online',
+              })
+
+              if (emailResult.success && !emailResult.simulated) {
+                req.payload.logger.info(`[CERTIFICATE EMAIL] Successfully emailed ${doc.certificateId} to ${studentEmail}`)
+                // Also update enrollment record if linked
+                if (doc.courseRef && doc.student) {
+                  const studentId = typeof doc.student === 'object' ? doc.student.id : doc.student
+                  const courseId = typeof doc.courseRef === 'object' ? doc.courseRef.id : doc.courseRef
+                  try {
+                    const enrollments = await req.payload.find({
+                      collection: 'enrollments',
+                      where: {
+                        and: [
+                          { student: { equals: studentId } },
+                          { course: { equals: courseId } },
+                        ],
+                      },
+                      limit: 1,
+                    })
+                    if (enrollments.docs.length > 0) {
+                      await req.payload.update({
+                        collection: 'enrollments',
+                        id: enrollments.docs[0].id,
+                        data: {
+                          certificateSent: true,
+                          certificateSentAt: new Date().toISOString(),
+                        },
+                      })
+                    }
+                  } catch (enrollErr) {
+                    req.payload.logger.error(`[CERTIFICATE ENROLLMENT UPDATE ERROR] ${enrollErr}`)
+                  }
+                }
+              } else if (emailResult.simulated) {
+                req.payload.logger.warn(`[CERTIFICATE EMAIL] Simulated email for ${doc.certificateId} to ${studentEmail} (Configure SMTP_PASS to deliver)`)
+              } else {
+                req.payload.logger.error(`[CERTIFICATE EMAIL ERROR] Failed to email ${studentEmail}: ${emailResult.error}`)
+              }
+            }
+          } catch (err) {
+            req.payload.logger.error(`[CERTIFICATE EMAIL ERROR] Failed to dispatch email for certificate ${doc.id}: ${err}`)
+          }
+        }
       },
     ],
   },
@@ -113,43 +219,23 @@ export const Certificates: CollectionConfig = {
     },
     {
       name: 'department',
-      type: 'select',
+      type: 'text',
+      label: 'Department',
       defaultValue: 'Computer Science and IT',
-      options: [
-        { label: 'Computer Science and IT', value: 'Computer Science and IT' },
-        { label: 'Computer Science', value: 'Computer Science' },
-        { label: 'Information Technology', value: 'Information Technology' },
-        { label: 'Other', value: 'Other' },
-      ],
       required: true,
     },
     {
       name: 'course',
-      type: 'select',
+      type: 'text',
+      label: 'Course',
       defaultValue: 'MCA',
-      options: [
-        { label: 'MCA', value: 'MCA' },
-        { label: 'BCA', value: 'BCA' },
-        { label: 'B.Tech', value: 'B.Tech' },
-        { label: 'M.Tech', value: 'M.Tech' },
-        { label: 'Other', value: 'Other' },
-      ],
       required: true,
     },
     {
       name: 'semester',
-      type: 'select',
+      type: 'text',
+      label: 'Semester',
       defaultValue: '1st Semester',
-      options: [
-        { label: '1st Semester', value: '1st Semester' },
-        { label: '2nd Semester', value: '2nd Semester' },
-        { label: '3rd Semester', value: '3rd Semester' },
-        { label: '4th Semester', value: '4th Semester' },
-        { label: '1st Year', value: '1st Year' },
-        { label: '2nd Year', value: '2nd Year' },
-        { label: '3rd Year', value: '3rd Year' },
-        { label: 'Completed', value: 'Completed' },
-      ],
       required: true,
     },
     {

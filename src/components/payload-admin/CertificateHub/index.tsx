@@ -545,7 +545,7 @@ export default function CertificateHub() {
       if (data.success) {
         setActionMessage({
           type: "success",
-          text: `Certificate generated & emailed successfully!`,
+          text: data.message || `Certificate generated successfully!`,
         });
         if (selectedCourseId) selectCourse(selectedCourseId);
         fetchCourses();

@@ -50,7 +50,7 @@ export default function SignupPage() {
         });
 
         if (loginRes.ok) {
-          router.push("/student");
+          router.push("/student/details?registered=true");
           router.refresh();
         } else {
           router.push("/auth/login");

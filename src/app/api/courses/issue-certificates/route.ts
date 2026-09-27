@@ -71,6 +71,8 @@ export async function GET(req: Request) {
           studentName: studentUser?.name || studentUser?.username || 'Student',
           studentEmail: studentUser?.email || '',
           department: studentUser?.department || course.department || 'Computer Science and IT',
+          course: studentUser?.course || 'Other',
+          semester: studentUser?.semester || 'Completed',
           enrolledAt: doc.enrolledAt,
           status: doc.status,
           selectedForCertificate: Boolean(doc.selectedForCertificate),
@@ -83,8 +85,21 @@ export async function GET(req: Request) {
         }
       })
 
-      const totalEnrolled = students.length
-      const issuedCount = students.filter((s) => s.hasCertificate).length
+      // Deduplicate students by studentId in case duplicate enrollments exist
+      const studentMap = new Map<string | number, (typeof students)[0]>()
+      for (const s of students) {
+        if (!s.studentId) continue
+        const existing = studentMap.get(s.studentId)
+        if (!existing) {
+          studentMap.set(s.studentId, s)
+        } else if (!existing.hasCertificate && s.hasCertificate) {
+          studentMap.set(s.studentId, s)
+        }
+      }
+      const uniqueStudents = Array.from(studentMap.values())
+
+      const totalEnrolled = uniqueStudents.length
+      const issuedCount = uniqueStudents.filter((s) => s.hasCertificate).length
       const pendingCount = totalEnrolled - issuedCount
 
       return NextResponse.json({
@@ -107,7 +122,7 @@ export async function GET(req: Request) {
           issuedCount,
           pendingCount,
         },
-        students,
+        students: uniqueStudents,
       })
     }
 
@@ -152,8 +167,19 @@ export async function GET(req: Request) {
         return String(cId) === String(course.id)
       })
 
-      const totalEnrolled = courseEnrollments.length
-      const issuedCount = courseEnrollments.filter((e) => Boolean(e.certificate)).length
+      const uniqueStudentIds = new Set<string | number>()
+      let issuedCount = 0
+      for (const e of courseEnrollments) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sId = typeof e.student === 'object' ? (e.student as any)?.id : e.student
+        if (sId && !uniqueStudentIds.has(sId)) {
+          uniqueStudentIds.add(sId)
+          if (e.certificate) {
+            issuedCount++
+          }
+        }
+      }
+      const totalEnrolled = uniqueStudentIds.size
       const pendingCount = totalEnrolled - issuedCount
 
       return {
@@ -311,7 +337,7 @@ export async function POST(req: Request) {
         serverUrl,
       })
 
-      if (emailResult.success) {
+      if (emailResult.success && !emailResult.simulated) {
         await payload.update({
           collection: 'enrollments',
           id: enrollment.id,
@@ -323,9 +349,18 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
           success: true,
-          message: `Certificate email successfully resent to ${emailTo}.`,
-          simulated: emailResult.simulated,
+          message: `Certificate email successfully sent to ${emailTo}.`,
+          simulated: false,
         })
+      } else if (emailResult.simulated) {
+        return NextResponse.json(
+          {
+            error:
+              'Email could not be delivered: SMTP password is not configured. Please set SMTP_PASS in .env or configure in Payload Admin under Certificate Settings > Signatures & Email Settings.',
+            simulated: true,
+          },
+          { status: 400 }
+        )
       } else {
         return NextResponse.json(
           { error: `Failed to dispatch email: ${emailResult.error}` },
@@ -369,6 +404,7 @@ export async function POST(req: Request) {
       certificatesCreated: 0,
       certificatesUpdated: 0,
       emailsSent: 0,
+      simulatedEmails: 0,
       errors: [] as string[],
       details: [] as Array<{
         enrollmentId: string | number
@@ -425,14 +461,15 @@ export async function POST(req: Request) {
           // Build certificate document with auto-extracted details, today's issue date, and global signatures
           certDoc = await payload.create({
             collection: 'certificates',
+            context: { fromIssueRoute: true },
             data: {
               student: studentObj.id,
               studentName,
-              department: (courseObj.department === 'Computer Science' || courseObj.department === 'Information Technology' || courseObj.department === 'Other')
+              department: studentObj.department || ((courseObj.department === 'Computer Science' || courseObj.department === 'Information Technology' || courseObj.department === 'Other')
                 ? courseObj.department
-                : 'Computer Science and IT',
-              course: 'Other',
-              semester: 'Completed',
+                : 'Computer Science and IT'),
+              course: studentObj.course || 'Other',
+              semester: studentObj.semester || 'Completed',
               internship: courseTitle,
               startDate: courseObj.startingDate || new Date().toISOString(),
               endDate: courseObj.completionDate || new Date().toISOString(),
@@ -465,9 +502,11 @@ export async function POST(req: Request) {
             serverUrl,
           })
 
-          if (emailResult.success) {
+          if (emailResult.success && !emailResult.simulated) {
             emailDispatched = true
             results.emailsSent++
+          } else if (emailResult.simulated) {
+            results.simulatedEmails++
           }
         }
 
@@ -497,9 +536,13 @@ export async function POST(req: Request) {
       }
     }
 
+    const simulatedNote = results.simulatedEmails > 0
+      ? ` (${results.simulatedEmails} email(s) pending SMTP configuration: please set Google App Password in .env or Certificate Settings)`
+      : ''
+
     return NextResponse.json({
       success: true,
-      message: `Processed ${results.totalRequested} student(s): ${results.certificatesCreated} certificate(s) generated, ${results.emailsSent} email(s) dispatched.`,
+      message: `Processed ${results.totalRequested} student(s): ${results.certificatesCreated} certificate(s) generated, ${results.emailsSent} email(s) dispatched.${simulatedNote}`,
       results,
     })
   } catch (error) {

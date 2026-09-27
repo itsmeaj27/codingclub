@@ -268,6 +268,23 @@ export default buildConfig({
             "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
             "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
           );
+
+          ALTER TABLE "certificate_settings" ADD COLUMN IF NOT EXISTS "smtp_user" varchar DEFAULT 'cuhcodingclub@gmail.com';
+          ALTER TABLE "certificate_settings" ADD COLUMN IF NOT EXISTS "smtp_pass" varchar;
+          ALTER TABLE "certificate_settings" ADD COLUMN IF NOT EXISTS "smtp_host" varchar DEFAULT 'smtp.gmail.com';
+          ALTER TABLE "certificate_settings" ADD COLUMN IF NOT EXISTS "smtp_port" numeric DEFAULT 465;
+
+          ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "department" varchar;
+          ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "course" varchar;
+          ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "semester" varchar;
+          DO $$
+          BEGIN
+            ALTER TABLE "certificates" ALTER COLUMN "department" TYPE varchar USING "department"::varchar;
+            ALTER TABLE "certificates" ALTER COLUMN "course" TYPE varchar USING "course"::varchar;
+            ALTER TABLE "certificates" ALTER COLUMN "semester" TYPE varchar USING "semester"::varchar;
+          EXCEPTION
+            WHEN others THEN null;
+          END $$;
         `;
       if (db?.pool?.query) {
         await db.pool.query(schemaSql);

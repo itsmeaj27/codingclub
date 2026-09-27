@@ -20,9 +20,50 @@ export const Users: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    defaultColumns: ['name', 'email', 'role'],
+    defaultColumns: ['name', 'username', 'course', 'semester', 'department', 'role'],
     useAsTitle: 'name',
     group: 'Administration',
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, req: { payload }, previousDoc, operation }) => {
+        // If course, semester, department, or name changed, sync all linked certificates
+        if (
+          operation === 'update' &&
+          (doc.course !== previousDoc?.course ||
+            doc.semester !== previousDoc?.semester ||
+            doc.department !== previousDoc?.department ||
+            doc.name !== previousDoc?.name)
+        ) {
+          try {
+            const certs = await payload.find({
+              collection: 'certificates',
+              where: {
+                student: {
+                  equals: doc.id,
+                },
+              },
+              limit: 200,
+            })
+
+            for (const cert of certs.docs) {
+              await payload.update({
+                collection: 'certificates',
+                id: cert.id,
+                data: {
+                  ...(doc.course ? { course: doc.course } : {}),
+                  ...(doc.semester ? { semester: doc.semester } : {}),
+                  ...(doc.department ? { department: doc.department } : {}),
+                  ...(doc.name ? { studentName: doc.name } : {}),
+                },
+              })
+            }
+          } catch (err) {
+            payload.logger.error(`Failed to sync certificates after user update: ${err}`)
+          }
+        }
+      },
+    ],
   },
   auth: {
     loginWithUsername: {
@@ -110,6 +151,30 @@ export const Users: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
+    },
+    {
+      name: 'course',
+      type: 'text',
+      label: 'Course / Degree',
+      admin: {
+        description: 'e.g. MCA, BCA, B.Tech CSE, M.Tech, etc.',
+      },
+    },
+    {
+      name: 'semester',
+      type: 'text',
+      label: 'Semester / Year',
+      admin: {
+        description: 'e.g. 1st Semester, 4th Semester, 2nd Year, Completed, etc.',
+      },
+    },
+    {
+      name: 'department',
+      type: 'text',
+      label: 'Department',
+      admin: {
+        description: 'e.g. Computer Science and IT, Mathematics, etc.',
+      },
     },
   ],
   timestamps: true,

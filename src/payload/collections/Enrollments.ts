@@ -16,6 +16,32 @@ export const Enrollments: CollectionConfig = {
     update: authenticated,
   },
   hooks: {
+    beforeValidate: [
+      async ({ data, req, operation }) => {
+        if (operation === 'create' && data?.student && data?.course) {
+          const studentId = typeof data.student === 'object' ? data.student.id : data.student
+          const courseId = typeof data.course === 'object' ? data.course.id : data.course
+
+          if (studentId && courseId) {
+            const existing = await req.payload.find({
+              collection: 'enrollments',
+              where: {
+                and: [
+                  { student: { equals: studentId } },
+                  { course: { equals: courseId } },
+                ],
+              },
+              limit: 1,
+            })
+
+            if (existing.docs.length > 0) {
+              throw new Error('This student is already enrolled in this course.')
+            }
+          }
+        }
+        return data
+      },
+    ],
     afterChange: [
       async ({ doc, req: { payload } }) => {
         // If admin selected the student for a certificate and a certificate hasn't been generated yet
@@ -49,9 +75,12 @@ export const Enrollments: CollectionConfig = {
               data: {
                 student: student.id,
                 studentName,
-                department: (course.department === 'Computer Science' || course.department === 'Information Technology' || course.department === 'Other') ? course.department : 'Computer Science and IT',
-                course: 'Other',
-                semester: 'Completed',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                department: (student as any).department || ((course.department === 'Computer Science' || course.department === 'Information Technology' || course.department === 'Other') ? course.department : 'Computer Science and IT'),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                course: (student as any).course || 'Other',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                semester: (student as any).semester || 'Completed',
                 internship: course.title,
                 startDate: course.startingDate,
                 endDate: course.completionDate || new Date().toISOString(),
