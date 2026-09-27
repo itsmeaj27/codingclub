@@ -51,11 +51,11 @@ export default async function TeachersSection() {
           .catch(() => ({ docs: [] })),
       ]);
 
-      const combined = [...(teamsReq.docs || []), ...(teachersReq.docs || [])];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const combined = [...(teamsReq.docs || []), ...(teachersReq.docs || [])] as unknown as Record<string, any>[];
       const seen = new Set<string>();
       teachers = combined.filter((item) => {
-        const itemRecord = item as Record<string, unknown>;
-        const key = itemRecord.name ? String(itemRecord.name).toLowerCase().trim() : String(itemRecord.id);
+        const key = item.name ? String(item.name).toLowerCase().trim() : String(item.id);
         if (seen.has(key)) return false;
         seen.add(key);
         return true;

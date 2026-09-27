@@ -25,15 +25,11 @@ export default async function TeamSection() {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let teams: any[] = (teamReq.docs || []).filter(
-      (m) => {
-        const mem = m as Record<string, unknown>;
-        return (
-          mem.category !== "teachers" &&
-          !mem.isTeacher &&
-          !(typeof mem.position === "string" && mem.position.trim().toLowerCase() === "teacher")
-        );
-      }
+    let teams: any[] = ((teamReq.docs || []) as any[]).filter(
+      (m) =>
+        m.category !== "teachers" &&
+        !m.isTeacher &&
+        !(typeof m.position === "string" && m.position.trim().toLowerCase() === "teacher")
     );
 
     // Seamless fallback to Cloudinary Team if CMS has no entries yet
