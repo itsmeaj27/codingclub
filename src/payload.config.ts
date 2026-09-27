@@ -180,6 +180,32 @@ export default buildConfig({
           ALTER TABLE "gallery" ADD COLUMN IF NOT EXISTS "image_url" varchar;
           ALTER TABLE "gallery" ADD COLUMN IF NOT EXISTS "order" numeric DEFAULT 10;
           ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "show_on_home" boolean DEFAULT true;
+          ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "teachers_id" integer;
+          CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_teachers_id_idx" ON "payload_locked_documents_rels" ("teachers_id");
+          CREATE TABLE IF NOT EXISTS "teachers" (
+            "id" serial PRIMARY KEY,
+            "name" varchar NOT NULL,
+            "position" varchar NOT NULL,
+            "subjects_taught" varchar NOT NULL,
+            "course_year" varchar,
+            "photo_id" integer,
+            "photo_url" varchar,
+            "show_on_home" boolean DEFAULT true,
+            "order" numeric DEFAULT 10,
+            "linkedin" varchar,
+            "github" varchar,
+            "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+            "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+          );
+          DO $$
+          BEGIN
+            ALTER TYPE "public"."enum_teams_category" ADD VALUE IF NOT EXISTS 'teachers';
+          EXCEPTION
+            WHEN duplicate_object THEN null;
+          END $$;
+          ALTER TABLE "teams" ADD COLUMN IF NOT EXISTS "is_teacher" boolean DEFAULT false;
+          ALTER TABLE "teams" ADD COLUMN IF NOT EXISTS "teaching_subject" varchar;
+          ALTER TABLE "teams" ALTER COLUMN "photo_id" DROP NOT NULL;
           ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "objectives_id" integer;
           CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_objectives_id_idx" ON "payload_locked_documents_rels" ("objectives_id");
           CREATE TABLE IF NOT EXISTS "objectives" (
