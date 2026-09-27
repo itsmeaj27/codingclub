@@ -44,6 +44,7 @@ export default function BeforeDashboard() {
 
   useEffect(() => {
     fetchMetrics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Quick Export Data Handler

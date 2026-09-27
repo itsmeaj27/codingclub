@@ -753,6 +753,7 @@ export default function CertificateView() {
                 >
                   <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
                     {certData.signatureInstructor?.url && (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={certData.signatureInstructor.url}
                         alt="Instructor Signature"
@@ -776,6 +777,7 @@ export default function CertificateView() {
                 >
                   <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
                     {certData.signatureCoordinator?.url && (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={certData.signatureCoordinator.url}
                         alt="Coordinator Signature"
@@ -799,6 +801,7 @@ export default function CertificateView() {
                 >
                   <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
                     {certData.signatureStudentCoordinator?.url && (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={certData.signatureStudentCoordinator.url}
                         alt="Student Coordinator Signature"

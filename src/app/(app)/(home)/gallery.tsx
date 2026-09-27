@@ -20,7 +20,7 @@ export default async function GallerySection() {
     });
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let docs: any[] = galleryReq.docs || [];
+    const docs: any[] = galleryReq.docs || [];
 
     // Map docs so image url can come from uploaded media OR direct imageUrl
     let photos = docs

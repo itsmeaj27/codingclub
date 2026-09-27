@@ -47,6 +47,7 @@ export const seed = async ({
         slug: global,
         data: {
           navItems: [],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
         depth: 0,
         context: {

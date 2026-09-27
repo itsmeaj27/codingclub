@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useDocumentInfo } from "@payloadcms/ui";
 
 export default function MyCustomAction() {
   const pathname = usePathname();
-  const router = useRouter();
   const docInfo = useDocumentInfo();
 
   // Extract collection slug and whether we are on an edit or create page

@@ -4,7 +4,7 @@ import { getPayload } from "payload";
 import configPromise from "@payload-config";
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { Calendar, User, BookOpen, Award, ArrowLeft, CheckCircle2, ShieldCheck, Mail } from "lucide-react";
+import { Calendar, User, BookOpen, Award, ArrowLeft, ShieldCheck, Mail } from "lucide-react";
 import { EnrollButton } from "./enroll-button";
 import type { Course } from "@/payload-types";
 

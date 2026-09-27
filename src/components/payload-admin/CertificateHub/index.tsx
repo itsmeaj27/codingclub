@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useTransition } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   Award,
@@ -414,7 +414,6 @@ export default function CertificateHub() {
   // Selected filters
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Selected course & enrolled students
@@ -457,6 +456,7 @@ export default function CertificateHub() {
 
   useEffect(() => {
     fetchCourses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Select course and load its student roster
@@ -480,12 +480,11 @@ export default function CertificateHub() {
     }
   };
 
-  // Filtered courses based on Year, Month, Status, Search
+  // Filtered courses based on Year, Month, Search
   const filteredCourses = useMemo(() => {
     return courses.filter((c) => {
       if (selectedYear !== "all" && String(c.yearNumber) !== selectedYear) return false;
       if (selectedMonth !== "all" && c.monthName.toLowerCase() !== selectedMonth.toLowerCase()) return false;
-      if (selectedStatus !== "all" && c.status !== selectedStatus) return false;
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         return (
@@ -496,7 +495,7 @@ export default function CertificateHub() {
       }
       return true;
     });
-  }, [courses, selectedYear, selectedMonth, selectedStatus, searchQuery]);
+  }, [courses, selectedYear, selectedMonth, searchQuery]);
 
   // Filtered students inside selected course
   const filteredStudents = useMemo(() => {
