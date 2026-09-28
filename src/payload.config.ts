@@ -183,6 +183,8 @@ export default buildConfig({
           ALTER TABLE "gallery" ADD COLUMN IF NOT EXISTS "order" numeric DEFAULT 10;
           ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "show_on_home" boolean DEFAULT true;
           ALTER TABLE "_posts_v" ADD COLUMN IF NOT EXISTS "version_show_on_home" boolean DEFAULT true;
+          ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "description" text;
+          ALTER TABLE "_posts_v" ADD COLUMN IF NOT EXISTS "version_description" text;
           ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "teachers_id" integer;
           CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_teachers_id_idx" ON "payload_locked_documents_rels" ("teachers_id");
           CREATE TABLE IF NOT EXISTS "teachers" (

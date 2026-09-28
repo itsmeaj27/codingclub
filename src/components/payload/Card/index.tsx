@@ -29,12 +29,12 @@ export const Card: React.FC<{
   } = props;
 
   const { slug, categories, meta, title, heroImage } = doc || {};
-  const { description } = meta || {};
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawDesc = (doc as any)?.description || meta?.description;
   const hasCategories =
     categories && Array.isArray(categories) && categories.length > 0;
   const titleToUse = titleFromProps || title;
-  const sanitizedDescription = description?.replace(/\s/g, " ");
+  const sanitizedDescription = rawDesc?.replace(/\s/g, " ");
   const href = slug ? `/${relationTo}/${slug}` : `/${relationTo || 'posts'}`;
   return (
     <article

@@ -62,6 +62,31 @@ interface RawCertificate {
   createdAt?: string;
 }
 
+interface ClubCourseItem {
+  id: string | number;
+  title?: string;
+  slug?: string;
+}
+
+// Normalizes degree casing (e.g. "Bba" -> "BBA")
+function formatDegree(degree?: string): string {
+  if (!degree || !degree.trim()) return "Not Specified";
+  const trimmed = degree.trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === "bba") return "BBA";
+  if (lower === "bca") return "BCA";
+  if (lower === "mca") return "MCA";
+  if (lower === "b.tech" || lower === "btech") return "B.Tech";
+  if (lower === "m.tech" || lower === "mtech") return "M.Tech";
+  if (lower.startsWith("msc") || lower.startsWith("m.sc")) {
+    return trimmed.replace(/^msc\.?/i, "M.Sc.");
+  }
+  if (lower.startsWith("ma ") || lower.startsWith("m.a.")) {
+    return trimmed.replace(/^ma\.?\s+/i, "M.A. ");
+  }
+  return trimmed;
+}
+
 const STYLES = `
   .sh-root {
     width: 100%;
@@ -78,101 +103,103 @@ const STYLES = `
     border-radius: 16px;
   }
   .sh-header-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
     padding: 24px 28px;
     margin-bottom: 24px;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
-    border: 1px solid rgba(14, 165, 233, 0.25);
-    border-radius: 20px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   }
   .sh-stat-card {
-    padding: 18px 20px;
-    border-radius: 14px;
-    background: rgba(18, 20, 32, 0.6);
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 16px 20px;
     transition: all 0.2s ease;
   }
   .sh-stat-card:hover {
-    border-color: rgba(14, 165, 233, 0.4);
+    border-color: rgba(59, 130, 246, 0.4);
+    background: rgba(59, 130, 246, 0.05);
     transform: translateY(-2px);
   }
   .sh-filter-input {
-    background: #0f1322 !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 10px !important;
-    color: #ffffff !important;
-    padding: 8px 14px !important;
-    font-size: 13.5px !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 9px 14px;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s ease;
   }
   .sh-filter-input:focus {
-    border-color: #0ea5e9 !important;
-    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.25) !important;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+  .sh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+  .sh-btn-primary {
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  }
+  .sh-btn-primary:hover {
+    background: linear-gradient(135deg, #0369a1, #1d4ed8);
+    transform: translateY(-1px);
+  }
+  .sh-btn-secondary {
+    background: rgba(255, 255, 255, 0.07);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .sh-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
   }
   .sh-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    text-align: left;
-    font-size: 13.5px;
   }
   .sh-table th {
-    padding: 14px 16px;
-    background: rgba(12, 14, 22, 0.9);
-    color: #94a3b8;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 13px 18px;
     font-size: 11.5px;
     font-weight: 700;
+    color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: left;
   }
   .sh-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 13px;
+    color: #e2e8f0;
     vertical-align: middle;
   }
   .sh-table tr:hover td {
-    background: rgba(255, 255, 255, 0.025);
+    background: rgba(56, 189, 248, 0.03);
   }
   .sh-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     padding: 3px 8px;
     border-radius: 6px;
     font-size: 11px;
     font-weight: 600;
-  }
-  .sh-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
-    text-decoration: none;
-  }
-  .sh-btn-primary {
-    background: linear-gradient(135deg, #0ea5e9, #3b82f6);
-    color: #ffffff;
-    box-shadow: 0 2px 10px rgba(14, 165, 233, 0.3);
-  }
-  .sh-btn-primary:hover {
-    box-shadow: 0 4px 16px rgba(14, 165, 233, 0.5);
-    transform: translateY(-1px);
-  }
-  .sh-btn-secondary {
-    background: rgba(255, 255, 255, 0.06);
-    color: #e2e8f0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .sh-btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.2);
   }
   .sh-modal-backdrop {
     position: fixed;
@@ -192,9 +219,11 @@ const STYLES = `
 
 export default function StudentsHub() {
   const [students, setStudents] = useState<StudentUser[]>([]);
+  const [clubCourses, setClubCourses] = useState<ClubCourseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("ALL");
+  const [selectedDegree, setSelectedDegree] = useState("ALL");
+  const [selectedClubCourse, setSelectedClubCourse] = useState("ALL");
   const [selectedSemester, setSelectedSemester] = useState("ALL");
   const [selectedYear, setSelectedYear] = useState("ALL");
   const [selectedMonth, setSelectedMonth] = useState("ALL");
@@ -216,6 +245,11 @@ export default function StudentsHub() {
       const certsRes = await fetch("/api/certificates?limit=1000&depth=1").then((r) => r.json()).catch(() => null);
       const allCerts: RawCertificate[] = certsRes?.docs || [];
 
+      // 4. Fetch Actual Club Courses
+      const coursesRes = await fetch("/api/courses?limit=100").then((r) => r.json()).catch(() => null);
+      const allClubCourses: ClubCourseItem[] = coursesRes?.docs || [];
+      setClubCourses(allClubCourses);
+
       // Filter for students (role === 'student' or all users)
       const mappedStudents: StudentUser[] = allUsers.map((u) => {
         const studentEnrollments = allEnrollments.filter((e) => {
@@ -233,7 +267,7 @@ export default function StudentsHub() {
           name: u.name || "Student",
           email: u.email || "",
           username: u.username || "",
-          course: u.course || "",
+          course: formatDegree(u.course),
           semester: u.semester || "",
           department: u.department || "",
           role: u.role || "student",
@@ -267,13 +301,19 @@ export default function StudentsHub() {
     loadData();
   }, []);
 
-  // Filter options derived from data
-  const coursesList = useMemo(() => {
-    const set = new Set<string>();
+  // Filter options derived from data (Normalized Academic Degrees)
+  const degreesList = useMemo(() => {
+    const map = new Map<string, string>();
     students.forEach((s) => {
-      if (s.course && s.course.trim()) set.add(s.course.trim());
+      const raw = s.course?.trim();
+      if (raw && raw !== "Not Specified") {
+        const lower = raw.toLowerCase();
+        if (!map.has(lower)) {
+          map.set(lower, raw);
+        }
+      }
     });
-    return Array.from(set).sort();
+    return Array.from(map.values()).sort();
   }, [students]);
 
   const semestersList = useMemo(() => {
@@ -323,8 +363,24 @@ export default function StudentsHub() {
         if (!matchesName && !matchesEmail && !matchesUsername && !matchesDept) return false;
       }
 
-      // Course filter
-      if (selectedCourse !== "ALL" && s.course?.trim() !== selectedCourse) return false;
+      // Academic Degree filter (case-insensitive normalized)
+      if (selectedDegree !== "ALL") {
+        if (s.course?.trim().toLowerCase() !== selectedDegree.toLowerCase()) return false;
+      }
+
+      // Club Course filter
+      if (selectedClubCourse !== "ALL") {
+        if (selectedClubCourse === "ENROLLED") {
+          if ((s.enrollmentsCount || 0) === 0) return false;
+        } else if (selectedClubCourse === "NOT_ENROLLED") {
+          if ((s.enrollmentsCount || 0) > 0) return false;
+        } else {
+          const match = s.enrolledCourses?.some(
+            (c) => String(c.id) === String(selectedClubCourse) || c.title === selectedClubCourse
+          );
+          if (!match) return false;
+        }
+      }
 
       // Semester / Batch filter
       if (selectedSemester !== "ALL" && s.semester?.trim() !== selectedSemester) return false;
@@ -343,11 +399,11 @@ export default function StudentsHub() {
 
       return true;
     });
-  }, [students, search, selectedCourse, selectedSemester, selectedYear, selectedMonth]);
+  }, [students, search, selectedDegree, selectedClubCourse, selectedSemester, selectedYear, selectedMonth]);
 
   // Export Filtered Students to CSV
   const handleExportCSV = () => {
-    const headers = ["ID", "Name", "Roll Number / Username", "Email", "Course", "Semester", "Department", "Role", "Enrolled Courses", "Certificates Earned", "Joined Date"];
+    const headers = ["ID", "Name", "Roll Number / Username", "Email", "Degree Program", "Semester", "Department", "Role", "Club Courses Enrolled", "Certificates Earned", "Joined Date"];
     const rows = filteredStudents.map((s) => [
       s.id,
       `"${s.name || ""}"`,
@@ -400,7 +456,7 @@ export default function StudentsHub() {
               </h1>
             </div>
             <p style={{ margin: 0, color: "#94a3b8", fontSize: "14px" }}>
-              Filter, search, and view registered students by course, semester batch, month, and year.
+              Filter, search, and view registered students by academic degree, club course enrollment, batch semester, and join date.
             </p>
           </div>
 
@@ -431,15 +487,15 @@ export default function StudentsHub() {
             </div>
           </div>
           <div className="sh-stat-card">
-            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Available Courses</div>
+            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Club Courses Available</div>
             <div style={{ fontSize: "26px", fontWeight: 800, color: "#34d399", marginTop: "4px" }}>
-              {coursesList.length || 0}
+              {clubCourses.length}
             </div>
           </div>
           <div className="sh-stat-card">
-            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Batch Semesters</div>
+            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Degree Programs</div>
             <div style={{ fontSize: "26px", fontWeight: 800, color: "#fbbf24", marginTop: "4px" }}>
-              {semestersList.length || 0}
+              {degreesList.length || 0}
             </div>
           </div>
         </div>
@@ -449,7 +505,7 @@ export default function StudentsHub() {
       <div className="sh-glass" style={{ padding: "18px 20px", marginBottom: "20px" }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
           {/* Search Box */}
-          <div style={{ position: "relative", flex: "1 1 240px" }}>
+          <div style={{ position: "relative", flex: "1 1 220px" }}>
             <Search size={16} color="#64748b" style={{ position: "absolute", left: "12px", top: "11px" }} />
             <input
               type="text"
@@ -461,32 +517,51 @@ export default function StudentsHub() {
             />
           </div>
 
-          {/* Course Dropdown */}
-          <div style={{ flex: "1 1 140px" }}>
+          {/* Club Course Dropdown */}
+          <div style={{ flex: "1 1 150px" }}>
             <select
               className="sh-filter-input"
               style={{ width: "100%" }}
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
+              value={selectedClubCourse}
+              onChange={(e) => setSelectedClubCourse(e.target.value)}
             >
-              <option value="ALL">All Courses</option>
-              {coursesList.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+              <option value="ALL">All Club Courses ({clubCourses.length})</option>
+              <option value="ENROLLED">Enrolled in Any Course</option>
+              <option value="NOT_ENROLLED">Not Enrolled</option>
+              {clubCourses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title || `Course #${c.id}`}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Academic Degree Dropdown (Normalized) */}
+          <div style={{ flex: "1 1 150px" }}>
+            <select
+              className="sh-filter-input"
+              style={{ width: "100%" }}
+              value={selectedDegree}
+              onChange={(e) => setSelectedDegree(e.target.value)}
+            >
+              <option value="ALL">All Degree Programs</option>
+              {degreesList.map((d) => (
+                <option key={d} value={d}>
+                  {d}
                 </option>
               ))}
             </select>
           </div>
 
           {/* Semester / Batch Dropdown */}
-          <div style={{ flex: "1 1 140px" }}>
+          <div style={{ flex: "1 1 130px" }}>
             <select
               className="sh-filter-input"
               style={{ width: "100%" }}
               value={selectedSemester}
               onChange={(e) => setSelectedSemester(e.target.value)}
             >
-              <option value="ALL">All Semesters / Batches</option>
+              <option value="ALL">All Semesters</option>
               {semestersList.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -496,7 +571,7 @@ export default function StudentsHub() {
           </div>
 
           {/* Year Dropdown */}
-          <div style={{ flex: "1 1 110px" }}>
+          <div style={{ flex: "1 1 100px" }}>
             <select
               className="sh-filter-input"
               style={{ width: "100%" }}
@@ -513,7 +588,7 @@ export default function StudentsHub() {
           </div>
 
           {/* Month Dropdown */}
-          <div style={{ flex: "1 1 120px" }}>
+          <div style={{ flex: "1 1 110px" }}>
             <select
               className="sh-filter-input"
               style={{ width: "100%" }}
@@ -530,11 +605,12 @@ export default function StudentsHub() {
           </div>
 
           {/* Reset Filters */}
-          {(search || selectedCourse !== "ALL" || selectedSemester !== "ALL" || selectedYear !== "ALL" || selectedMonth !== "ALL") && (
+          {(search || selectedDegree !== "ALL" || selectedClubCourse !== "ALL" || selectedSemester !== "ALL" || selectedYear !== "ALL" || selectedMonth !== "ALL") && (
             <button
               onClick={() => {
                 setSearch("");
-                setSelectedCourse("ALL");
+                setSelectedDegree("ALL");
+                setSelectedClubCourse("ALL");
                 setSelectedSemester("ALL");
                 setSelectedYear("ALL");
                 setSelectedMonth("ALL");
@@ -568,10 +644,10 @@ export default function StudentsHub() {
                 <tr>
                   <th>Student</th>
                   <th>Roll No</th>
-                  <th>Course & Semester</th>
+                  <th>Degree & Semester</th>
                   <th>Department</th>
+                  <th>Club Course Enrollment</th>
                   <th>Joined Date</th>
-                  <th>Academics</th>
                   <th style={{ textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
@@ -627,6 +703,27 @@ export default function StudentsHub() {
                       </span>
                     </td>
                     <td>
+                      {s.enrolledCourses && s.enrolledCourses.length > 0 ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          {s.enrolledCourses.map((c, i) => (
+                            <span
+                              key={i}
+                              className="sh-badge"
+                              style={{
+                                background: "rgba(16, 185, 129, 0.15)",
+                                color: "#34d399",
+                                border: "1px solid rgba(16, 185, 129, 0.3)",
+                              }}
+                            >
+                              <BookOpen size={11} /> {c.title}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: "11px", color: "#64748b" }}>Not Enrolled</span>
+                      )}
+                    </td>
+                    <td>
                       <span style={{ color: "#94a3b8", fontSize: "12px" }}>
                         {new Date(s.createdAt).toLocaleDateString("en-GB", {
                           day: "numeric",
@@ -635,40 +732,13 @@ export default function StudentsHub() {
                         })}
                       </span>
                     </td>
-                    <td>
-                      <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                        <span
-                          className="sh-badge"
-                          style={{
-                            background: "rgba(16, 185, 129, 0.15)",
-                            color: "#34d399",
-                            border: "1px solid rgba(16, 185, 129, 0.3)",
-                          }}
-                          title="Enrolled Courses"
-                        >
-                          <BookOpen size={11} /> {s.enrollmentsCount || 0}
-                        </span>
-                        <span
-                          className="sh-badge"
-                          style={{
-                            background: "rgba(245, 158, 11, 0.15)",
-                            color: "#fbbf24",
-                            border: "1px solid rgba(245, 158, 11, 0.3)",
-                          }}
-                          title="Earned Certificates"
-                        >
-                          <Award size={11} /> {s.certificatesCount || 0}
-                        </span>
-                      </div>
-                    </td>
                     <td style={{ textAlign: "right" }}>
                       <button
                         onClick={() => setSelectedStudent(s)}
                         className="sh-btn sh-btn-secondary"
-                        style={{ fontSize: "12px", padding: "5px 12px" }}
+                        style={{ padding: "5px 12px", fontSize: "12px" }}
                       >
-                        View Details
-                        <ChevronRight size={13} />
+                        View Details <ChevronRight size={14} />
                       </button>
                     </td>
                   </tr>
@@ -685,193 +755,165 @@ export default function StudentsHub() {
           <div
             className="sh-glass"
             style={{
-              maxWidth: "560px",
               width: "100%",
+              maxWidth: "600px",
               padding: "28px",
               position: "relative",
-              border: "1px solid rgba(14, 165, 233, 0.3)",
-              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
-            <button
-              onClick={() => setSelectedStudent(null)}
-              style={{
-                position: "absolute",
-                top: "18px",
-                right: "18px",
-                background: "rgba(255, 255, 255, 0.08)",
-                border: "none",
-                borderRadius: "8px",
-                padding: "6px",
-                cursor: "pointer",
-                color: "#94a3b8",
-              }}
-            >
-              <X size={18} />
-            </button>
-
             {/* Modal Header */}
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "20px" }}>
-              <div
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                <div
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "14px",
+                    background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                    fontWeight: 800,
+                    color: "#ffffff",
+                  }}
+                >
+                  {selectedStudent.name?.charAt(0)?.toUpperCase() || "S"}
+                </div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 800, color: "#ffffff" }}>
+                    {selectedStudent.name}
+                  </h2>
+                  <div style={{ fontSize: "13px", color: "#94a3b8", marginTop: "2px" }}>
+                    {selectedStudent.email}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedStudent(null)}
                 style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "16px",
-                  background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "22px",
-                  fontWeight: 800,
-                  color: "#ffffff",
-                  boxShadow: "0 0 20px rgba(14, 165, 233, 0.4)",
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "6px",
+                  cursor: "pointer",
+                  color: "#94a3b8",
                 }}
               >
-                {selectedStudent.name?.charAt(0)?.toUpperCase() || "S"}
-              </div>
-              <div>
-                <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 700, color: "#ffffff" }}>
-                  {selectedStudent.name}
-                </h2>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
-                  <span style={{ fontSize: "13px", color: "#94a3b8" }}>{selectedStudent.email}</span>
-                  <span
-                    className="sh-badge"
-                    style={{
-                      background: selectedStudent.role === "admin" ? "rgba(239, 68, 68, 0.2)" : "rgba(16, 185, 129, 0.2)",
-                      color: selectedStudent.role === "admin" ? "#fca5a5" : "#6ee7b7",
-                    }}
-                  >
-                    {selectedStudent.role.toUpperCase()}
-                  </span>
-                </div>
-              </div>
+                <X size={18} />
+              </button>
             </div>
 
-            {/* Profile Grid */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "12px",
-                marginBottom: "20px",
-                background: "rgba(10, 12, 18, 0.5)",
-                padding: "16px",
-                borderRadius: "12px",
-                border: "1px solid rgba(255, 255, 255, 0.05)",
-              }}
-            >
-              <div>
-                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: 700 }}>
-                  Roll Number
-                </div>
-                <div style={{ fontSize: "14px", color: "#e2e8f0", marginTop: "2px", fontFamily: "monospace" }}>
+            {/* Academic Info Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "24px" }}>
+              <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "10px" }}>
+                <div style={{ fontSize: "11px", color: "#94a3b8", textTransform: "uppercase", fontWeight: 700 }}>Roll Number</div>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#f8fafc", marginTop: "2px", fontFamily: "monospace" }}>
                   {selectedStudent.username || "Not assigned"}
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: 700 }}>
-                  Course / Degree
-                </div>
-                <div style={{ fontSize: "14px", color: "#e2e8f0", marginTop: "2px" }}>
-                  {selectedStudent.course || "Not set"}
+              <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "10px" }}>
+                <div style={{ fontSize: "11px", color: "#94a3b8", textTransform: "uppercase", fontWeight: 700 }}>Degree Program</div>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#f8fafc", marginTop: "2px" }}>
+                  {selectedStudent.course || "Not specified"}
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: 700 }}>
-                  Semester / Batch
-                </div>
-                <div style={{ fontSize: "14px", color: "#e2e8f0", marginTop: "2px" }}>
-                  {selectedStudent.semester || "Not set"}
+              <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "10px" }}>
+                <div style={{ fontSize: "11px", color: "#94a3b8", textTransform: "uppercase", fontWeight: 700 }}>Batch / Semester</div>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#f8fafc", marginTop: "2px" }}>
+                  {selectedStudent.semester || "Not specified"}
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: 700 }}>
-                  Department
-                </div>
-                <div style={{ fontSize: "14px", color: "#e2e8f0", marginTop: "2px" }}>
-                  {selectedStudent.department || "Not set"}
+              <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: "12px 14px", borderRadius: "10px" }}>
+                <div style={{ fontSize: "11px", color: "#94a3b8", textTransform: "uppercase", fontWeight: 700 }}>Department</div>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#f8fafc", marginTop: "2px" }}>
+                  {selectedStudent.department || "Not specified"}
                 </div>
               </div>
             </div>
 
-            {/* Enrolled Courses */}
+            {/* Club Course Enrollments */}
             <div style={{ marginBottom: "20px" }}>
-              <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: "8px" }}>
-                Enrolled Courses ({selectedStudent.enrolledCourses?.length || 0})
+              <div style={{ fontSize: "13px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
+                Club Course Enrollments ({selectedStudent.enrolledCourses?.length || 0})
               </div>
               {selectedStudent.enrolledCourses && selectedStudent.enrolledCourses.length > 0 ? (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {selectedStudent.enrolledCourses.map((c) => (
-                    <span
-                      key={c.id}
-                      className="sh-badge"
-                      style={{ background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", padding: "5px 10px" }}
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {selectedStudent.enrolledCourses.map((c, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        background: "rgba(16, 185, 129, 0.08)",
+                        border: "1px solid rgba(16, 185, 129, 0.2)",
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
                     >
-                      <BookOpen size={12} /> {c.title}
-                    </span>
+                      <span style={{ fontWeight: 600, color: "#34d399", fontSize: "13px" }}>{c.title}</span>
+                      <span style={{ fontSize: "11px", color: "#94a3b8", textTransform: "capitalize" }}>{c.status}</span>
+                    </div>
                   ))}
                 </div>
               ) : (
-                <div style={{ fontSize: "13px", color: "#64748b" }}>Not enrolled in any courses yet.</div>
+                <div style={{ fontSize: "12px", color: "#64748b", padding: "10px", background: "rgba(255, 255, 255, 0.02)", borderRadius: "8px" }}>
+                  No active club course enrollments.
+                </div>
               )}
             </div>
 
             {/* Earned Certificates */}
             <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: "8px" }}>
-                Certificates Earned ({selectedStudent.certificates?.length || 0})
+              <div style={{ fontSize: "13px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>
+                Earned Certificates ({selectedStudent.certificates?.length || 0})
               </div>
               {selectedStudent.certificates && selectedStudent.certificates.length > 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {selectedStudent.certificates.map((cert) => (
+                  {selectedStudent.certificates.map((cert, i) => (
                     <div
-                      key={cert.id}
+                      key={i}
                       style={{
+                        background: "rgba(245, 158, 11, 0.08)",
+                        border: "1px solid rgba(245, 158, 11, 0.2)",
+                        padding: "10px 14px",
+                        borderRadius: "8px",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        padding: "8px 12px",
-                        borderRadius: "8px",
-                        background: "rgba(245, 158, 11, 0.1)",
-                        border: "1px solid rgba(245, 158, 11, 0.2)",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <Award size={15} color="#fbbf24" />
-                        <div>
-                          <div style={{ fontSize: "13px", fontWeight: 600, color: "#fbbf24" }}>{cert.courseTitle}</div>
-                          <div style={{ fontSize: "11px", color: "#94a3b8" }}>ID: {cert.certificateId}</div>
-                        </div>
+                      <div>
+                        <div style={{ fontWeight: 600, color: "#fbbf24", fontSize: "13px" }}>{cert.courseTitle}</div>
+                        <div style={{ fontSize: "11px", color: "#94a3b8", fontFamily: "monospace" }}>ID: {cert.certificateId}</div>
                       </div>
-                      <Link
-                        href={`/verify/${cert.certificateId}`}
-                        target="_blank"
-                        className="sh-btn sh-btn-secondary"
-                        style={{ fontSize: "11px", padding: "4px 8px" }}
-                      >
-                        Verify <ExternalLink size={11} />
-                      </Link>
+                      <span style={{ fontSize: "11px", color: "#94a3b8" }}>
+                        {new Date(cert.issueDate).toLocaleDateString()}
+                      </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div style={{ fontSize: "13px", color: "#64748b" }}>No certificates issued yet.</div>
+                <div style={{ fontSize: "12px", color: "#64748b", padding: "10px", background: "rgba(255, 255, 255, 0.02)", borderRadius: "8px" }}>
+                  No certificates issued yet.
+                </div>
               )}
             </div>
 
             {/* Modal Actions */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "16px", borderTop: "1px solid rgba(255, 255, 255, 0.08)" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <Link
                 href={`/admin/collections/users/${selectedStudent.id}`}
-                className="sh-btn sh-btn-primary"
-                style={{ fontSize: "12.5px" }}
+                className="sh-btn sh-btn-secondary"
+                target="_blank"
               >
-                Edit in Admin Panel <ExternalLink size={13} />
+                Edit in Admin <ExternalLink size={14} />
               </Link>
-              <button onClick={() => setSelectedStudent(null)} className="sh-btn sh-btn-secondary">
+              <button onClick={() => setSelectedStudent(null)} className="sh-btn sh-btn-primary">
                 Close
               </button>
             </div>
