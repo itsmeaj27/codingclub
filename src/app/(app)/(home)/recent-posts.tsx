@@ -103,9 +103,9 @@ export default async function RecentPostsSection() {
                     {post.title}
                   </h3>
 
-                  {post.meta && post.meta.description && (
+                  {(post.description || post.meta?.description) && (
                     <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-grow">
-                      {post.meta.description}
+                      {post.description || post.meta?.description}
                     </p>
                   )}
 

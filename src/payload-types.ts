@@ -558,6 +558,12 @@ export interface Post {
   showOnHome?: boolean | null;
   categories?: (number | Category)[] | null;
   authors?: (number | User)[] | null;
+  relatedPosts?: (number | Post)[] | null;
+  meta?: {
+    title?: string | null;
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
   populatedAuthors?:
     | {
         id?: string | null;
@@ -1718,6 +1724,14 @@ export interface PostsSelect<T extends boolean = true> {
   showOnHome?: T;
   categories?: T;
   authors?: T;
+  relatedPosts?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
   populatedAuthors?:
     | T
     | {
@@ -2539,10 +2553,42 @@ export interface TaskSchedulePublish {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
-export interface Auth {
-  [k: string]: unknown;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  style: 'info' | 'warning' | 'error' | 'success';
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
 }
-
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock".
+ */
+export interface CodeBlock {
+  language?: ('typescript' | 'javascript' | 'css') | null;
+  code: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
+}
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}
