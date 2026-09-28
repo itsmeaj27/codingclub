@@ -5,20 +5,14 @@ import Link from "next/link";
 import {
   Users,
   Search,
-  Filter,
   Download,
   RefreshCw,
   GraduationCap,
-  Calendar,
   BookOpen,
   Award,
   ExternalLink,
   ChevronRight,
   X,
-  Mail,
-  Building,
-  Hash,
-  ShieldCheck,
 } from "lucide-react";
 
 interface StudentUser {
@@ -36,6 +30,36 @@ interface StudentUser {
   certificatesCount?: number;
   enrolledCourses?: Array<{ id: string | number; title: string; status: string }>;
   certificates?: Array<{ id: string | number; certificateId: string; courseTitle: string; issueDate: string }>;
+}
+
+interface RawUser {
+  id: string | number;
+  name?: string;
+  email?: string;
+  username?: string;
+  course?: string;
+  semester?: string;
+  department?: string;
+  role?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface RawEnrollment {
+  id: string | number;
+  student?: { id: string | number } | string | number | null;
+  course?: { id: string | number; title?: string } | string | number | null;
+  status?: string;
+}
+
+interface RawCertificate {
+  id: string | number;
+  student?: { id: string | number } | string | number | null;
+  certificateId?: string;
+  course?: { title?: string } | string | number | null;
+  courseTitle?: string;
+  issueDate?: string;
+  createdAt?: string;
 }
 
 const STYLES = `
@@ -182,15 +206,15 @@ export default function StudentsHub() {
     try {
       // 1. Fetch Users
       const usersRes = await fetch("/api/users?limit=1000&sort=-createdAt").then((r) => r.json()).catch(() => null);
-      const allUsers: any[] = usersRes?.docs || [];
+      const allUsers: RawUser[] = usersRes?.docs || [];
 
       // 2. Fetch Enrollments
       const enrollmentsRes = await fetch("/api/enrollments?limit=1000&depth=1").then((r) => r.json()).catch(() => null);
-      const allEnrollments: any[] = enrollmentsRes?.docs || [];
+      const allEnrollments: RawEnrollment[] = enrollmentsRes?.docs || [];
 
       // 3. Fetch Certificates
       const certsRes = await fetch("/api/certificates?limit=1000&depth=1").then((r) => r.json()).catch(() => null);
-      const allCerts: any[] = certsRes?.docs || [];
+      const allCerts: RawCertificate[] = certsRes?.docs || [];
 
       // Filter for students (role === 'student' or all users)
       const mappedStudents: StudentUser[] = allUsers.map((u) => {

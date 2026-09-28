@@ -3,9 +3,25 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { headers, cookies } from 'next/headers'
 
+interface SiteSettingsGlobal {
+  maintenanceMode?: boolean
+  maintenanceMessage?: string
+}
+
+interface MaintenancePayloadClient {
+  findGlobal: (args: { slug: string }) => Promise<SiteSettingsGlobal | null>
+  updateGlobal: (args: {
+    slug: string
+    data: Partial<SiteSettingsGlobal>
+  }) => Promise<SiteSettingsGlobal>
+  auth: (args: { headers: Headers }) => Promise<{
+    user?: { role?: string; email?: string } | null
+  }>
+}
+
 export async function GET() {
   try {
-    const payload: any = await getPayload({ config: configPromise })
+    const payload = (await getPayload({ config: configPromise })) as unknown as MaintenancePayloadClient
     const settings = await payload.findGlobal({
       slug: 'site-settings',
     }).catch(() => null)
@@ -28,7 +44,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const payload: any = await getPayload({ config: configPromise })
+    const payload = (await getPayload({ config: configPromise })) as unknown as MaintenancePayloadClient
     const headersList = await headers()
     const cookieStore = await cookies()
     const token = cookieStore.get('payload-token')?.value
