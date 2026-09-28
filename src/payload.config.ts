@@ -288,6 +288,25 @@ export default buildConfig({
           EXCEPTION
             WHEN others THEN null;
           END $$;
+
+          CREATE TABLE IF NOT EXISTS "site_settings" (
+            "id" serial PRIMARY KEY,
+            "maintenance_mode" boolean DEFAULT false,
+            "maintenance_message" text DEFAULT 'The student portal is currently undergoing scheduled maintenance. Student login is temporarily disabled. Please check back later!',
+            "allow_admin_bypass" boolean DEFAULT true,
+            "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+            "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+          );
+          INSERT INTO "site_settings" ("maintenance_mode", "allow_admin_bypass")
+            SELECT false, true WHERE NOT EXISTS (SELECT 1 FROM "site_settings");
+
+          CREATE TABLE IF NOT EXISTS "students" (
+            "id" serial PRIMARY KEY,
+            "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+            "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+          );
+          INSERT INTO "students" DEFAULT VALUES
+            WHERE NOT EXISTS (SELECT 1 FROM "students" LIMIT 1);
         `;
       if (db?.pool?.query) {
         await db.pool.query(schemaSql);

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDocumentInfo } from "@payloadcms/ui";
-import Image from "next/image";
 
 export default function MyCustomAction() {
   const pathname = usePathname();
@@ -64,7 +63,15 @@ export default function MyCustomAction() {
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        flexWrap: "nowrap",
+        whiteSpace: "nowrap",
+      }}
+    >
       {/* Back to List Button (Doc View) */}
       {isDocView && collectionSlug && (
         <Link
@@ -72,69 +79,67 @@ export default function MyCustomAction() {
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: "5px",
-            padding: "4px 10px",
-            fontSize: "12px",
+            gap: "4px",
+            padding: "4px 8px",
+            fontSize: "11px",
             fontWeight: 500,
             borderRadius: "6px",
             background: "var(--theme-elevation-150, #222)",
             color: "var(--theme-elevation-800, #eee)",
             border: "1px solid var(--theme-elevation-250, #444)",
             textDecoration: "none",
-            transition: "all 0.2s ease",
           }}
           title={`Back to ${collectionLabel} List`}
         >
-          <span>⬅</span> Back to {collectionLabel}
+          ⬅ {collectionLabel}
         </Link>
       )}
 
-      {/* Maintenance Mode Quick Toggle Button */}
+      {/* Maintenance Mode Quick Toggle */}
       <button
         onClick={handleToggleMaintenance}
         disabled={loadingMaintenance}
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: "6px",
-          padding: "5px 12px",
-          fontSize: "11.5px",
+          gap: "5px",
+          padding: "4px 10px",
+          fontSize: "11px",
           fontWeight: 700,
-          borderRadius: "8px",
+          borderRadius: "6px",
           cursor: "pointer",
           border: maintenanceMode
-            ? "1px solid rgba(239, 68, 68, 0.6)"
-            : "1px solid rgba(16, 185, 129, 0.4)",
+            ? "1px solid rgba(239, 68, 68, 0.5)"
+            : "1px solid rgba(16, 185, 129, 0.35)",
           background: maintenanceMode
-            ? "linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(185, 28, 28, 0.35))"
-            : "linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.2))",
+            ? "rgba(239, 68, 68, 0.15)"
+            : "rgba(16, 185, 129, 0.1)",
           color: maintenanceMode ? "#fca5a5" : "#6ee7b7",
-          boxShadow: maintenanceMode
-            ? "0 0 14px rgba(239, 68, 68, 0.4)"
-            : "0 0 10px rgba(16, 185, 129, 0.2)",
           transition: "all 0.2s ease",
+          flexShrink: 0,
         }}
-        title="Click to toggle Maintenance Mode on/off"
+        title="Toggle Maintenance Mode"
       >
         <span
           style={{
-            width: "8px",
-            height: "8px",
+            width: "7px",
+            height: "7px",
             borderRadius: "50%",
             backgroundColor: maintenanceMode ? "#ef4444" : "#10b981",
             boxShadow: maintenanceMode
-              ? "0 0 8px #ef4444"
-              : "0 0 8px #10b981",
+              ? "0 0 6px #ef4444"
+              : "0 0 6px #10b981",
+            flexShrink: 0,
           }}
         />
         {loadingMaintenance
-          ? "Updating..."
+          ? "..."
           : maintenanceMode
-          ? "MAINTENANCE: ON"
-          : "SITE: LIVE"}
+          ? "MAINTENANCE"
+          : "LIVE"}
       </button>
 
-      {/* Visit Website Button */}
+      {/* Visit Website */}
       <Link
         href="/"
         target="_blank"
@@ -142,18 +147,19 @@ export default function MyCustomAction() {
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: "5px",
-          padding: "5px 11px",
-          fontSize: "12px",
+          gap: "4px",
+          padding: "4px 8px",
+          fontSize: "11px",
           fontWeight: 500,
           borderRadius: "6px",
           background: "var(--theme-elevation-100, #181818)",
           color: "var(--theme-elevation-650, #bbb)",
           border: "1px solid var(--theme-elevation-200, #333)",
           textDecoration: "none",
+          flexShrink: 0,
         }}
       >
-        <span>🌐</span> View Site
+        🌐 View Site
       </Link>
 
       {/* Super Admin Badge */}
@@ -161,63 +167,42 @@ export default function MyCustomAction() {
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: "6px",
-          padding: "4px 10px",
-          borderRadius: "8px",
-          background: "linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15))",
-          border: "1px solid rgba(59, 130, 246, 0.35)",
+          gap: "4px",
+          padding: "4px 8px",
+          borderRadius: "6px",
+          background: "rgba(59, 130, 246, 0.12)",
+          border: "1px solid rgba(59, 130, 246, 0.3)",
           color: "#93c5fd",
-          fontSize: "11px",
+          fontSize: "10px",
           fontWeight: 700,
           letterSpacing: "0.04em",
-          userSelect: "none",
+          flexShrink: 0,
         }}
-        title="Logged in as Super Administrator"
+        title="Super Administrator"
       >
-        <div
-          style={{
-            width: "18px",
-            height: "18px",
-            borderRadius: "4px",
-            overflow: "hidden",
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Image
-            src="/ccc_logo.png"
-            width={16}
-            height={16}
-            alt="Admin"
-            style={{ objectFit: "contain" }}
-          />
-        </div>
-        <span>SUPER ADMIN</span>
+        ⚙️ ADMIN
       </div>
 
-      {/* High-Visibility Header Logout Button */}
+      {/* Log Out Button */}
       <Link
         href="/admin/logout"
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: "5px",
-          padding: "5px 12px",
-          fontSize: "12px",
+          gap: "4px",
+          padding: "4px 10px",
+          fontSize: "11px",
           fontWeight: 700,
-          borderRadius: "8px",
-          background: "linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(185, 28, 28, 0.35))",
-          border: "1px solid rgba(239, 68, 68, 0.5)",
-          color: "#ffffff",
+          borderRadius: "6px",
+          background: "rgba(239, 68, 68, 0.2)",
+          border: "1px solid rgba(239, 68, 68, 0.45)",
+          color: "#fca5a5",
           textDecoration: "none",
-          boxShadow: "0 2px 10px rgba(239, 68, 68, 0.25)",
-          transition: "all 0.2s ease",
+          flexShrink: 0,
         }}
-        title="Log Out from Admin Portal"
+        title="Log Out"
       >
-        <span>🚪</span> Log Out
+        🚪 Log Out
       </Link>
     </div>
   );
