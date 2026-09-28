@@ -127,11 +127,15 @@ export interface Config {
     header: Header;
     footer: Footer;
     'certificate-settings': CertificateSetting;
+    students: Student;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'certificate-settings': CertificateSettingsSelect<false> | CertificateSettingsSelect<true>;
+    students: StudentsSelect<false> | StudentsSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -514,8 +518,21 @@ export interface Page {
  */
 export interface Post {
   id: number;
+  /**
+   * Give your post a title
+   */
   title: string;
+  /**
+   * Write a short summary or description about this post (shown in previews & cards)
+   */
+  description?: string | null;
+  /**
+   * Optional cover/hero image for the post
+   */
   heroImage?: (number | null) | Media;
+  /**
+   * Write your post content here. Use the toolbar for formatting.
+   */
   content: {
     root: {
       type: string;
@@ -531,21 +548,15 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
+  /**
+   * Auto-set when you publish
+   */
   publishedAt?: string | null;
   /**
-   * Tick to show this post in the "Latest from our Blog" section on the home page
+   * Display this post in the blog section on home page
    */
   showOnHome?: boolean | null;
+  categories?: (number | Category)[] | null;
   authors?: (number | User)[] | null;
   populatedAuthors?:
     | {
@@ -1700,19 +1711,12 @@ export interface FormBlockSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
   heroImage?: T;
   content?: T;
-  relatedPosts?: T;
-  categories?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
   publishedAt?: T;
   showOnHome?: T;
+  categories?: T;
   authors?: T;
   populatedAuthors?:
     | T
@@ -2381,6 +2385,40 @@ export interface CertificateSetting {
   createdAt?: string | null;
 }
 /**
+ * Comprehensive student directory to filter, search, and inspect registered students by batch, course, month, and year.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "students".
+ */
+export interface Student {
+  id: number;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Global site configuration, student maintenance mode toggle, and club announcements.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * When enabled, students cannot log in or view student dashboard. Admins can still access the admin portal. A maintenance notice will be shown on the home page.
+   */
+  maintenanceMode?: boolean | null;
+  /**
+   * This message will be shown on the home page and login screen when maintenance mode is active.
+   */
+  maintenanceMessage?: string | null;
+  /**
+   * Admins will always be able to log in to /admin and manage club records.
+   */
+  allowAdminBypass?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -2446,6 +2484,27 @@ export interface CertificateSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "students_select".
+ */
+export interface StudentsSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  maintenanceMode?: T;
+  maintenanceMessage?: T;
+  allowAdminBypass?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -2475,42 +2534,6 @@ export interface TaskSchedulePublish {
     user?: (number | null) | User;
   };
   output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language?: ('typescript' | 'javascript' | 'css') | null;
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

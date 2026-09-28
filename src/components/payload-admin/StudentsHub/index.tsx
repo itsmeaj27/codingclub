@@ -460,11 +460,28 @@ export default function StudentsHub() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <button onClick={loadData} className="sh-btn sh-btn-secondary" title="Refresh Student List">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                loadData();
+              }}
+              className="sh-btn sh-btn-secondary"
+              title="Refresh Student List"
+            >
               <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
               Refresh
             </button>
-            <button onClick={handleExportCSV} className="sh-btn sh-btn-primary">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleExportCSV();
+              }}
+              className="sh-btn sh-btn-primary"
+            >
               <Download size={15} />
               Export CSV ({filteredStudents.length})
             </button>
@@ -606,7 +623,10 @@ export default function StudentsHub() {
           {/* Reset Filters */}
           {(search || selectedDegree !== "ALL" || selectedClubCourse !== "ALL" || selectedSemester !== "ALL" || selectedYear !== "ALL" || selectedMonth !== "ALL") && (
             <button
-              onClick={() => {
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 setSearch("");
                 setSelectedDegree("ALL");
                 setSelectedClubCourse("ALL");
@@ -733,7 +753,12 @@ export default function StudentsHub() {
                     </td>
                     <td style={{ textAlign: "right" }}>
                       <button
-                        onClick={() => setSelectedStudent(s)}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedStudent(s);
+                        }}
                         className="sh-btn sh-btn-secondary"
                         style={{ padding: "5px 12px", fontSize: "12px" }}
                       >
@@ -792,7 +817,12 @@ export default function StudentsHub() {
                 </div>
               </div>
               <button
-                onClick={() => setSelectedStudent(null)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedStudent(null);
+                }}
                 style={{
                   background: "rgba(255, 255, 255, 0.08)",
                   border: "none",
@@ -912,7 +942,15 @@ export default function StudentsHub() {
               >
                 Edit in Admin <ExternalLink size={14} />
               </Link>
-              <button onClick={() => setSelectedStudent(null)} className="sh-btn sh-btn-primary">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedStudent(null);
+                }}
+                className="sh-btn sh-btn-primary"
+              >
                 Close
               </button>
             </div>
