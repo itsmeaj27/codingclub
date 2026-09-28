@@ -90,7 +90,7 @@ export const Card: React.FC<{
           </h3>
         )}
 
-        {description && (
+        {sanitizedDescription && (
           <p className="text-sm text-muted-foreground dark:text-muted-foreground line-clamp-3 min-h-[4.5rem]">
             {sanitizedDescription}
           </p>

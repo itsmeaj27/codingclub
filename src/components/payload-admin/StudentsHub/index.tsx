@@ -9,7 +9,6 @@ import {
   RefreshCw,
   GraduationCap,
   BookOpen,
-  Award,
   ExternalLink,
   ChevronRight,
   X,
@@ -487,15 +486,15 @@ export default function StudentsHub() {
             </div>
           </div>
           <div className="sh-stat-card">
-            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Club Courses Available</div>
+            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Coding Club Courses</div>
             <div style={{ fontSize: "26px", fontWeight: 800, color: "#34d399", marginTop: "4px" }}>
               {clubCourses.length}
             </div>
           </div>
           <div className="sh-stat-card">
-            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Degree Programs</div>
+            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: 600 }}>Enrolled in Club Courses</div>
             <div style={{ fontSize: "26px", fontWeight: 800, color: "#fbbf24", marginTop: "4px" }}>
-              {degreesList.length || 0}
+              {students.filter((s) => (s.enrollmentsCount || 0) > 0).length}
             </div>
           </div>
         </div>
@@ -517,20 +516,20 @@ export default function StudentsHub() {
             />
           </div>
 
-          {/* Club Course Dropdown */}
-          <div style={{ flex: "1 1 150px" }}>
+          {/* Coding Club Course Dropdown (Primary Filter) */}
+          <div style={{ flex: "1 1 200px" }}>
             <select
               className="sh-filter-input"
-              style={{ width: "100%" }}
+              style={{ width: "100%", borderColor: "rgba(56, 189, 248, 0.4)", background: "rgba(15, 23, 42, 0.95)" }}
               value={selectedClubCourse}
               onChange={(e) => setSelectedClubCourse(e.target.value)}
             >
               <option value="ALL">All Club Courses ({clubCourses.length})</option>
-              <option value="ENROLLED">Enrolled in Any Course</option>
+              <option value="ENROLLED">Enrolled in Club Courses</option>
               <option value="NOT_ENROLLED">Not Enrolled</option>
               {clubCourses.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.title || `Course #${c.id}`}
+                  Course: {c.title || `Course #${c.id}`}
                 </option>
               ))}
             </select>
