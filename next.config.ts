@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cuhcodingclub.netlify.app',
+        hostname: '**.vercel.app',
       },
       {
         protocol: 'https',
