@@ -5,15 +5,32 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { AlertTriangle, ShieldCheck } from 'lucide-react'
 
 export default function LoginPage() {
     const router = useRouter()
     const [identifier, setIdentifier] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
+    const [maintenanceMode, setMaintenanceMode] = useState(false)
+    const [maintenanceMessage, setMaintenanceMessage] = useState('')
+
+    useEffect(() => {
+        fetch('/api/maintenance')
+            .then((res) => res.json())
+            .then((data) => {
+                if (data && typeof data.maintenanceMode === 'boolean') {
+                    setMaintenanceMode(data.maintenanceMode)
+                    if (data.maintenanceMessage) {
+                        setMaintenanceMessage(data.maintenanceMessage)
+                    }
+                }
+            })
+            .catch(() => {})
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -37,8 +54,25 @@ export default function LoginPage() {
             const data = await res.json()
 
             if (res.ok && data.user) {
+                const isAdmin = data.user.role === 'admin' || data.user.email === 'ajays.sharma27@gmail.com'
+
+                // If maintenance mode is ON and user is NOT admin: BLOCK LOGIN
+                if (maintenanceMode && !isAdmin) {
+                    // Destroy cookie
+                    await fetch('/api/users/logout', { method: 'POST' }).catch(() => {})
+                    toast.error(
+                        maintenanceMessage || 'Student portal is currently under maintenance. Only administrators can log in.'
+                    )
+                    setLoading(false)
+                    return
+                }
+
                 toast.success('Login successful!')
-                router.push('/student')
+                if (isAdmin) {
+                    router.push('/admin')
+                } else {
+                    router.push('/student')
+                }
                 router.refresh() // Force refresh layout to pick up cookie
             } else {
                 toast.error(data.errors?.[0]?.message || 'Invalid email or password.')
@@ -57,7 +91,7 @@ export default function LoginPage() {
             
             <form onSubmit={handleSubmit} className="relative z-10 bg-card glass-card m-auto h-fit w-full max-w-md overflow-hidden rounded-2xl border border-border shadow-xl">
                 {/* Subtle top gradient accent */}
-                <div className="h-1 w-full bg-gradient-to-r from-primary to-accent" />
+                <div className={`h-1 w-full ${maintenanceMode ? 'bg-gradient-to-r from-amber-500 to-red-500' : 'bg-gradient-to-r from-primary to-accent'}`} />
                 
                 <div className="p-8 pb-6">
                     <div className="text-center">
@@ -68,7 +102,20 @@ export default function LoginPage() {
                         <p className="text-sm text-muted-foreground">Sign in to your member account</p>
                     </div>
 
-                    <div className="mt-8 space-y-5">
+                    {/* Maintenance Mode Warning Notice */}
+                    {maintenanceMode && (
+                        <div className="mt-5 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs flex items-start gap-2.5">
+                            <AlertTriangle size={18} className="shrink-0 text-amber-500 mt-0.5" />
+                            <div>
+                                <div className="font-semibold text-amber-300">Maintenance Mode Active</div>
+                                <div className="mt-0.5 text-zinc-300">
+                                    {maintenanceMessage || 'Student access is temporarily disabled for maintenance. Club administrators may still log in.'}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mt-6 space-y-5">
                         <div className="space-y-2">
                             <Label htmlFor="identifier" className="text-foreground">University Email or Roll Number</Label>
                             <Input 
@@ -110,7 +157,8 @@ export default function LoginPage() {
                         <div className="flex justify-center pt-2">
                             <Button type="button" variant="outline" asChild className="w-full border-border text-foreground hover:bg-muted transition-colors">
                                 <Link href="/admin">
-                                    Go to Admin Panel
+                                    <ShieldCheck size={16} className="mr-1.5" />
+                                    Admin Portal Login
                                 </Link>
                             </Button>
                         </div>

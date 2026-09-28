@@ -131,6 +131,20 @@ export default function BeforeDashboard() {
       external: true,
     },
     {
+      label: "Students Directory",
+      icon: "👥",
+      href: "/admin/globals/students",
+      color: "#06b6d4",
+      tag: "STUDENTS",
+    },
+    {
+      label: "Site Maintenance",
+      icon: "⚙️",
+      href: "/admin/globals/site-settings",
+      color: "#ef4444",
+      tag: "SETTINGS",
+    },
+    {
       label: "Student View",
       icon: "👤",
       href: "/student",
@@ -396,6 +410,7 @@ export default function BeforeDashboard() {
             <Link
               key={idx}
               href={item.href}
+              prefetch={false}
               target={item.external ? "_blank" : undefined}
               style={{
                 display: "flex",

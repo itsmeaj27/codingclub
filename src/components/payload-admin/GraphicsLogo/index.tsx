@@ -40,20 +40,41 @@ export default function CustomAdminLogo() {
         />
       </div>
       <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
-        <span
-          style={{
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            fontSize: "20px",
-            fontWeight: 800,
-            letterSpacing: "0.04em",
-            background: "linear-gradient(135deg, #60a5fa, #a78bfa)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            lineHeight: 1.1,
-          }}
-        >
-          CODING CLUB
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span
+            style={{
+              fontFamily: "system-ui, -apple-system, sans-serif",
+              fontSize: "19px",
+              fontWeight: 800,
+              letterSpacing: "0.04em",
+              background: "linear-gradient(135deg, #60a5fa, #a78bfa)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              lineHeight: 1.1,
+            }}
+          >
+            CODING CLUB
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "2px 7px",
+              borderRadius: "6px",
+              fontSize: "9px",
+              fontWeight: 800,
+              letterSpacing: "0.08em",
+              background: "linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(244, 63, 94, 0.2))",
+              border: "1px solid rgba(239, 68, 68, 0.45)",
+              color: "#fca5a5",
+              textTransform: "uppercase",
+              boxShadow: "0 0 10px rgba(239, 68, 68, 0.3)",
+            }}
+          >
+            🛡️ SUPER ADMIN
+          </span>
+        </div>
         <span
           style={{
             fontFamily: "system-ui, -apple-system, sans-serif",

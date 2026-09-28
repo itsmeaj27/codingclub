@@ -38,6 +38,45 @@ export default async function StudentDashboard() {
     redirect('/auth/login')
   }
 
+  // Check Site Maintenance Settings
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const siteSettings: any = await (payload as any).findGlobal({
+    slug: 'site-settings',
+  }).catch(() => null)
+
+  const isMaintenanceActive = Boolean(siteSettings?.maintenanceMode)
+  const isAdmin = user.role === 'admin' || user.email === 'ajays.sharma27@gmail.com'
+
+  if (isMaintenanceActive && !isAdmin) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-3xl p-8 text-center shadow-2xl">
+          <div className="w-16 h-16 bg-amber-500/15 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-amber-500/30 shadow-lg shadow-amber-500/10">
+            <AlertCircle size={32} />
+          </div>
+          <h1 className="text-2xl font-bold font-handjet tracking-wider text-amber-400 mb-2">
+            Portal Under Maintenance
+          </h1>
+          <p className="text-zinc-300 text-sm mb-6 leading-relaxed">
+            {siteSettings?.maintenanceMessage ||
+              'The student dashboard is currently offline for scheduled maintenance. Please check back later!'}
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/"
+              className="w-full py-2.5 px-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-semibold transition-colors"
+            >
+              Back to Home Page
+            </Link>
+            <div className="flex justify-center pt-2">
+              <LogoutButton />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // Check if academic profile details are missing
   const isDetailsMissing = !user.course || !user.semester || !user.department
 
