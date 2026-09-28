@@ -242,15 +242,15 @@ export default function StudentsHub() {
           enrollmentsCount: studentEnrollments.length,
           certificatesCount: studentCerts.length,
           enrolledCourses: studentEnrollments.map((e) => ({
-            id: typeof e.course === "object" ? e.course?.id : e.course,
-            title: typeof e.course === "object" ? e.course?.title : "Course",
+            id: (typeof e.course === "object" ? e.course?.id : e.course) ?? "",
+            title: (typeof e.course === "object" ? e.course?.title : undefined) || "Course",
             status: e.status || "enrolled",
           })),
           certificates: studentCerts.map((c) => ({
             id: c.id,
             certificateId: c.certificateId || String(c.id),
-            courseTitle: typeof c.course === "object" ? c.course?.title : c.courseTitle || "Certificate",
-            issueDate: c.issueDate || c.createdAt,
+            courseTitle: (typeof c.course === "object" ? c.course?.title : c.courseTitle) || "Certificate",
+            issueDate: c.issueDate || c.createdAt || "",
           })),
         };
       });
