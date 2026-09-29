@@ -19,7 +19,8 @@ export const Certificates: CollectionConfig = {
           data.issueDate = new Date().toISOString();
         }
 
-        if (operation === 'create') {
+        // Fall back to global default signatures if any signature is not provided
+        if (!data.signatureInstructor || !data.signatureCoordinator || !data.signatureStudentCoordinator) {
           try {
             const settings = await payload.findGlobal({
               slug: 'certificate-settings',
@@ -52,6 +53,32 @@ export const Certificates: CollectionConfig = {
           }
         }
         return data;
+      },
+    ],
+    afterRead: [
+      async ({ doc, req }) => {
+        if (!doc.signatureInstructor || !doc.signatureCoordinator || !doc.signatureStudentCoordinator) {
+          try {
+            const settings = await req.payload.findGlobal({
+              slug: 'certificate-settings',
+              depth: 1,
+            });
+            if (settings) {
+              if (!doc.signatureInstructor && settings.signatureInstructor) {
+                doc.signatureInstructor = settings.signatureInstructor;
+              }
+              if (!doc.signatureCoordinator && settings.signatureCoordinator) {
+                doc.signatureCoordinator = settings.signatureCoordinator;
+              }
+              if (!doc.signatureStudentCoordinator && settings.signatureStudentCoordinator) {
+                doc.signatureStudentCoordinator = settings.signatureStudentCoordinator;
+              }
+            }
+          } catch {
+            // Fallback gracefully
+          }
+        }
+        return doc;
       },
     ],
     afterChange: [

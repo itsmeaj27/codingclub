@@ -49,14 +49,24 @@ export default async function RecentPostsSection() {
               const date = post.publishedAt || post.createdAt;
               const parsedDate = date ? new Date(date) : new Date();
 
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const postAny = post as any;
               const heroUrl =
                 post.heroImage && typeof post.heroImage === "object" && post.heroImage.url
                   ? post.heroImage.url
+                  : postAny.images &&
+                    Array.isArray(postAny.images) &&
+                    postAny.images.length > 0 &&
+                    typeof postAny.images[0] === "object" &&
+                    postAny.images[0]?.url
+                  ? postAny.images[0].url
                   : null;
+
+              const postHref = post.slug ? `/posts/${post.slug}` : `/posts/${post.id}`;
 
               return (
                 <Link
-                  href={post.slug ? `/posts/${post.slug}` : "/posts"}
+                  href={postHref}
                   key={post.id}
                   className="group flex flex-col bg-card rounded-2xl p-4 border border-border glow-hover transition-all h-full"
                 >

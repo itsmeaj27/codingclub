@@ -38,38 +38,33 @@ function formatDate(dateInput: string) {
   });
 }
 
-function ScaleWrapper() {
+export default function CertificateView() {
+  const params = useParams();
+  const certificateId = params.certificateId as string;
+  const certificateRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [scale, setScale] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [certData, setCertData] = useState<CertificateData | null>(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isDownloadingPng, setIsDownloadingPng] = useState(false);
+  const [error, setError] = useState(false);
+
   useEffect(() => {
     const updateScale = () => {
-      const container = document.getElementById("cert-container");
-      const wrapper = document.getElementById("cert-scale-wrapper");
-      if (!container || !wrapper) return;
-      const targetWidth = 1123;
-      const targetHeight = 794;
-      const currentWidth = container.offsetWidth;
-      const scale = currentWidth / targetWidth;
-      wrapper.style.transform = `scale(${scale})`;
-      container.style.height = `${targetHeight * scale}px`;
+      if (containerRef.current) {
+        const currentWidth = containerRef.current.offsetWidth;
+        const targetWidth = 1123;
+        const newScale = Math.min(1, currentWidth / targetWidth);
+        setScale(newScale);
+      }
     };
 
     updateScale();
     window.addEventListener("resize", updateScale);
     return () => window.removeEventListener("resize", updateScale);
   }, []);
-
-  return null;
-}
-
-export default function CertificateView() {
-  const params = useParams();
-  const certificateId = params.certificateId as string;
-  const certificateRef = useRef<HTMLDivElement>(null);
-
-  const [loading, setLoading] = useState(true);
-  const [certData, setCertData] = useState<CertificateData | null>(null);
-  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
-  const [isDownloadingPng, setIsDownloadingPng] = useState(false);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function fetchCertificate() {
@@ -81,6 +76,25 @@ export default function CertificateView() {
         if (data.docs && data.docs.length > 0) {
           const cert = data.docs[0];
           if (cert.isIssued) {
+            if (!cert.signatureInstructor || !cert.signatureCoordinator || !cert.signatureStudentCoordinator) {
+              try {
+                const settingsRes = await fetch("/api/globals/certificate-settings?depth=1");
+                const settingsData = await settingsRes.json();
+                if (settingsData) {
+                  if (!cert.signatureInstructor && settingsData.signatureInstructor) {
+                    cert.signatureInstructor = settingsData.signatureInstructor;
+                  }
+                  if (!cert.signatureCoordinator && settingsData.signatureCoordinator) {
+                    cert.signatureCoordinator = settingsData.signatureCoordinator;
+                  }
+                  if (!cert.signatureStudentCoordinator && settingsData.signatureStudentCoordinator) {
+                    cert.signatureStudentCoordinator = settingsData.signatureStudentCoordinator;
+                  }
+                }
+              } catch {
+                // Ignore settings fetch error
+              }
+            }
             setCertData(cert);
           } else {
             setError(true);
@@ -153,30 +167,35 @@ export default function CertificateView() {
     ctx.fillStyle = "#137558";
     ctx.font = "900 126px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
     ctx.letterSpacing = "3px";
-    ctx.fillText("CERTIFICATE", W / 2, 455);
+    // 1b. "CERTIFICATE OF COMPLETION" (Emerald Green & Charcoal - Prominent Large Font)
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#137558";
+    ctx.font = "900 115px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
+    ctx.letterSpacing = "3px";
+    ctx.fillText("CERTIFICATE", W / 2, 390);
 
     ctx.fillStyle = "#222222";
-    ctx.font = "700 46px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
+    ctx.font = "700 42px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
     ctx.letterSpacing = "6px";
-    ctx.fillText("OF COMPLETION", W / 2, 525);
+    ctx.fillText("OF COMPLETION", W / 2, 455);
 
     // 2. Programme Name (in Royal Navy Serif - Bigger Font)
     const programmeTitle = (certData!.internship || certData!.course || "PROFESSIONAL TRAINING PROGRAM").toUpperCase();
     ctx.fillStyle = "#0f2942";
-    ctx.font = "800 62px 'Cinzel', 'Playfair Display', Georgia, serif";
-    ctx.letterSpacing = "3.5px";
-    ctx.fillText(programmeTitle, W / 2, 640);
+    ctx.font = "800 58px 'Cinzel', 'Playfair Display', Georgia, serif";
+    ctx.letterSpacing = "3px";
+    ctx.fillText(programmeTitle, W / 2, 560);
 
     // 3. "This is to certify that" (Bigger Font)
     ctx.fillStyle = "#1e293b";
-    ctx.font = "500 34px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
+    ctx.font = "500 32px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
     ctx.letterSpacing = "0px";
-    ctx.fillText("This is to certify that", W / 2, 718);
+    ctx.fillText("This is to certify that", W / 2, 640);
 
     // 4. Candidate Name (Emerald Green Serif - Bigger Font)
     ctx.fillStyle = "#156b54";
-    ctx.font = "700 96px 'Playfair Display', Georgia, serif";
-    ctx.fillText(certData!.studentName, W / 2, 822);
+    ctx.font = "700 90px 'Playfair Display', Georgia, serif";
+    ctx.fillText(certData!.studentName, W / 2, 730);
 
     // 5. Decorative Underline with Hollow Beads (Matching Sample o──────────o)
     ctx.save();
@@ -184,33 +203,33 @@ export default function CertificateView() {
     ctx.lineWidth = 4.8;
     const underlineHalf = Math.max(280, Math.min(520, certData!.studentName.length * 24));
     ctx.beginPath();
-    ctx.moveTo(W / 2 - underlineHalf + 10, 856);
-    ctx.lineTo(W / 2 + underlineHalf - 10, 856);
+    ctx.moveTo(W / 2 - underlineHalf + 10, 765);
+    ctx.lineTo(W / 2 + underlineHalf - 10, 765);
     ctx.stroke();
 
     // Hollow Circle Left
     ctx.beginPath();
-    ctx.arc(W / 2 - underlineHalf, 856, 10, 0, Math.PI * 2);
+    ctx.arc(W / 2 - underlineHalf, 765, 10, 0, Math.PI * 2);
     ctx.stroke();
 
     // Hollow Circle Right
     ctx.beginPath();
-    ctx.arc(W / 2 + underlineHalf, 856, 10, 0, Math.PI * 2);
+    ctx.arc(W / 2 + underlineHalf, 765, 10, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
 
     // 6. Body Paragraph (Bigger Font)
     ctx.fillStyle = "#2d3748";
-    ctx.font = "33px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
+    ctx.font = "32px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
     const line1 = `has successfully completed a professional training program conducted from ${formatDate(certData!.startDate)} to ${formatDate(certData!.endDate)}. His/Her`;
     const line2 = `dedication and commitment to the learning process are truly commendable`;
-    ctx.fillText(line1, W / 2, 948);
-    ctx.fillText(line2, W / 2, 998);
+    ctx.fillText(line1, W / 2, 855);
+    ctx.fillText(line2, W / 2, 905);
 
     // 7. Awarded on Date (Bigger Font)
     ctx.fillStyle = "#000000";
-    ctx.font = "800 34px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
-    ctx.fillText(`Awarded on ${formatDate(certData!.issueDate)}`, W / 2, 1065);
+    ctx.font = "800 32px 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif";
+    ctx.fillText(`Awarded on ${formatDate(certData!.issueDate)}`, W / 2, 995);
 
     // 8. QR Code Centered Below Awarded Text
     const qrSvg = document.querySelector("#certificate-node svg.qr-svg-node") as SVGSVGElement | null;
@@ -226,20 +245,20 @@ export default function CertificateView() {
     }
 
     if (qrImg && qrImg.complete && qrImg.naturalWidth > 0) {
-      ctx.drawImage(qrImg, W / 2 - 57.5, 1095, 115, 115);
+      ctx.drawImage(qrImg, W / 2 - 60, 1040, 120, 120);
     }
 
     // Certificate ID Below QR Code in Middle
     ctx.fillStyle = "#0f172a";
     ctx.font = "bold 22px 'Consolas', 'Courier New', monospace";
     ctx.letterSpacing = "0.5px";
-    ctx.fillText(`Certificate ID: ${certData!.certificateId}`, W / 2, 1245);
+    ctx.fillText(`Certificate ID: ${certData!.certificateId}`, W / 2, 1195);
 
-    // 9. Signatures (Signature lines precisely aligned with the 3 titles)
+    // 9. Signatures (Large & Prominent)
     const sigConfigs = [
-      { obj: certData!.signatureInstructor, centerX: 390, lineX1: 230, lineX2: 550 },
-      { obj: certData!.signatureCoordinator, centerX: 1115, lineX1: 945, lineX2: 1285 },
-      { obj: certData!.signatureStudentCoordinator, centerX: 1840, lineX1: 1680, lineX2: 2000 },
+      { obj: certData!.signatureInstructor, centerX: 390, lineX1: 170, lineX2: 610 },
+      { obj: certData!.signatureCoordinator, centerX: 1123, lineX1: 903, lineX2: 1343 },
+      { obj: certData!.signatureStudentCoordinator, centerX: 1840, lineX1: 1620, lineX2: 2060 },
     ];
 
     for (const sig of sigConfigs) {
@@ -247,7 +266,8 @@ export default function CertificateView() {
         try {
           const sImg = await loadImage(sig.obj.url);
           if (sImg.complete && sImg.naturalWidth > 0) {
-            ctx.drawImage(sImg, sig.centerX - 140, 1345, 280, 96);
+            // Large signature dimensions: 420px wide by 150px tall
+            ctx.drawImage(sImg, sig.centerX - 210, 1285, 420, 150);
           }
         } catch {
           // ignore
@@ -255,10 +275,10 @@ export default function CertificateView() {
       }
       // Line directly above title
       ctx.strokeStyle = "#1e293b";
-      ctx.lineWidth = 3.6;
+      ctx.lineWidth = 4.2;
       ctx.beginPath();
-      ctx.moveTo(sig.lineX1, 1450);
-      ctx.lineTo(sig.lineX2, 1450);
+      ctx.moveTo(sig.lineX1, 1445);
+      ctx.lineTo(sig.lineX2, 1445);
       ctx.stroke();
     }
 
@@ -492,14 +512,19 @@ export default function CertificateView() {
         >
           {/* Certificate View Container */}
           <div
+            ref={containerRef}
             id="cert-container"
             className="relative w-full max-w-[1123px] overflow-hidden rounded-lg shadow-md border border-slate-200 bg-white"
-            style={{ height: "794px" }}
+            style={{ height: `${794 * scale}px` }}
           >
             <div
               id="cert-scale-wrapper"
               className="absolute top-0 left-0 origin-top-left"
-              style={{ width: "1123px", height: "794px" }}
+              style={{
+                width: "1123px",
+                height: "794px",
+                transform: `scale(${scale})`,
+              }}
             >
               {/* ══════════════ EXACT MASTER CERTIFICATE (1123 x 794) ══════════════ */}
               <div
@@ -521,7 +546,7 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    top: "196px",
+                    top: "165px",
                     left: 0,
                     width: "100%",
                     textAlign: "center",
@@ -559,7 +584,7 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    top: "320px",
+                    top: "260px",
                     left: 0,
                     width: "100%",
                     textAlign: "center",
@@ -568,7 +593,7 @@ export default function CertificateView() {
                 >
                   <h3
                     style={{
-                      fontSize: "31px",
+                      fontSize: "30px",
                       fontWeight: "800",
                       color: "#0f2942",
                       textTransform: "uppercase",
@@ -585,7 +610,7 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    top: "360px",
+                    top: "308px",
                     left: 0,
                     width: "100%",
                     textAlign: "center",
@@ -609,7 +634,7 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    top: "400px",
+                    top: "340px",
                     left: 0,
                     width: "100%",
                     textAlign: "center",
@@ -653,7 +678,7 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    top: "474px",
+                    top: "418px",
                     left: 0,
                     width: "100%",
                     textAlign: "center",
@@ -684,7 +709,7 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    top: "532px",
+                    top: "486px",
                     left: 0,
                     width: "100%",
                     textAlign: "center",
@@ -708,7 +733,7 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    top: "550px",
+                    top: "518px",
                     left: 0,
                     width: "100%",
                     display: "flex",
@@ -721,7 +746,7 @@ export default function CertificateView() {
                   <QRCodeSVG
                     className="qr-svg-node"
                     value={verifyUrl}
-                    size={58}
+                    size={60}
                     level="M"
                     includeMargin={false}
                   />
@@ -744,20 +769,20 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "68px",
-                    left: "115px",
-                    width: "160px",
+                    bottom: "64px",
+                    left: "75px",
+                    width: "240px",
                     textAlign: "center",
                     zIndex: 10,
                   }}
                 >
-                  <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
+                  <div style={{ height: "76px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
                     {certData.signatureInstructor?.url && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={certData.signatureInstructor.url}
                         alt="Instructor Signature"
-                        style={{ maxHeight: "44px", maxWidth: "150px", objectFit: "contain" }}
+                        style={{ maxHeight: "72px", maxWidth: "230px", objectFit: "contain" }}
                       />
                     )}
                   </div>
@@ -768,20 +793,20 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "68px",
-                    left: "476px",
-                    width: "170px",
+                    bottom: "64px",
+                    left: "441px",
+                    width: "240px",
                     textAlign: "center",
                     zIndex: 10,
                   }}
                 >
-                  <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
+                  <div style={{ height: "76px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
                     {certData.signatureCoordinator?.url && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={certData.signatureCoordinator.url}
                         alt="Coordinator Signature"
-                        style={{ maxHeight: "44px", maxWidth: "160px", objectFit: "contain" }}
+                        style={{ maxHeight: "72px", maxWidth: "230px", objectFit: "contain" }}
                       />
                     )}
                   </div>
@@ -792,20 +817,20 @@ export default function CertificateView() {
                 <div
                   style={{
                     position: "absolute",
-                    bottom: "68px",
-                    left: "840px",
-                    width: "160px",
+                    bottom: "64px",
+                    left: "800px",
+                    width: "240px",
                     textAlign: "center",
                     zIndex: 10,
                   }}
                 >
-                  <div style={{ height: "46px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
+                  <div style={{ height: "76px", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "3px" }}>
                     {certData.signatureStudentCoordinator?.url && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={certData.signatureStudentCoordinator.url}
                         alt="Student Coordinator Signature"
-                        style={{ maxHeight: "44px", maxWidth: "150px", objectFit: "contain" }}
+                        style={{ maxHeight: "72px", maxWidth: "230px", objectFit: "contain" }}
                       />
                     )}
                   </div>
@@ -855,8 +880,6 @@ export default function CertificateView() {
           </div>
         </div>
       </main>
-
-      <ScaleWrapper />
     </div>
   );
 }

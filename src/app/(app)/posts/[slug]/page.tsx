@@ -9,9 +9,8 @@ import { notFound } from "next/navigation";
 import React, { cache } from "react";
 import RichText from "@/components/payload/RichText";
 
-import type { Post } from "@/payload-types";
-
 import { PostHero } from "@/payload/heros/PostHero";
+import { PostGallery } from "@/components/payload/PostGallery";
 import { generateMeta } from "@/payload/utilities/generateMeta";
 import PageClient from "./page.client";
 import { LivePreviewListener } from "@/components/payload/LivePreviewListener";
@@ -30,13 +29,13 @@ export async function generateStaticParams() {
       },
     });
 
-    const params = posts.docs.map(({ slug }) => {
-      return { slug };
-    });
+    const params = posts.docs
+      .filter((doc) => Boolean(doc.slug && typeof doc.slug === "string"))
+      .map(({ slug }) => ({ slug: slug! }));
 
     return params || [];
   } catch (error) {
-    console.warn('Unable to query posts during generateStaticParams:', error);
+    console.warn("Unable to query posts during generateStaticParams:", error);
     return [];
   }
 }
@@ -58,8 +57,17 @@ export default async function Post({
 
   if (!post) return <PayloadRedirects url={url} />;
 
+  // Check if content has actual text/blocks
+  const hasRichContent = Boolean(
+    post.content &&
+      typeof post.content === "object" &&
+      post.content.root &&
+      Array.isArray(post.content.root.children) &&
+      post.content.root.children.length > 0
+  );
+
   return (
-    <article className="pb-16 ">
+    <article className="pb-20 bg-background min-h-screen">
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -67,42 +75,63 @@ export default async function Post({
 
       {draft && <LivePreviewListener />}
 
+      {/* Post Hero Section */}
       <PostHero post={post} />
 
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container">
-          <div className="prose prose-lg max-w-none">
-            <RichText
-              className="max-w-[48rem] mx-auto"
-              data={post.content}
-              enableGutter={false}
+      {/* Main Post Body */}
+      <div className="container mx-auto max-w-4xl px-4 sm:px-6 pt-10">
+        {/* Full Post Description / Announcement Section */}
+        {post.description && (
+          <div className="mb-10 p-6 sm:p-8 rounded-2xl bg-card border border-border/80 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3 font-mono">
+              About this Post / Announcement
+            </h3>
+            <div className="text-foreground/90 text-base sm:text-lg leading-relaxed whitespace-pre-line font-normal">
+              {post.description}
+            </div>
+          </div>
+        )}
+
+        {/* RichText Content */}
+        {hasRichContent && (
+          <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
+            <RichText data={post.content} enableGutter={false} />
+          </div>
+        )}
+
+        {/* Up to 10 Image Gallery */}
+        {post.images && Array.isArray(post.images) && post.images.length > 0 && (
+          <PostGallery images={post.images} postTitle={post.title} />
+        )}
+
+        {/* Related Posts */}
+        {post.relatedPosts && post.relatedPosts.length > 0 && (
+          <div className="mt-16 pt-10 border-t border-border">
+            <RelatedPosts
+              className="max-w-none"
+              docs={post.relatedPosts.filter(
+                (p: any) => typeof p === "object"
+              ) as any}
             />
           </div>
-
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter(
-                (post) => typeof post === "object"
-              )}
-            />
-          )}
-        </div>
+        )}
       </div>
     </article>
   );
 }
 
-export async function generateMetadata({ params }: {
-  params: Promise<{ slug: string }>
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug = '' } = await params
+  const { slug = "" } = await params;
   if (!slug || slug === "null" || slug === "undefined") {
-    return {}
+    return {};
   }
-  const post = await queryPostBySlug({ slug })
+  const post = await queryPostBySlug({ slug });
 
-  return generateMeta({ doc: post })
+  return generateMeta({ doc: post });
 }
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
@@ -112,25 +141,35 @@ const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
 
   try {
     const { isEnabled: draft } = await draftMode();
-
     const payload = await getPayload({ config: configPromise });
 
+    const isNumeric = /^\d+$/.test(slug);
+
+    // Try finding by slug, or by ID if slug is numeric
     const result = await payload.find({
       collection: "posts",
       draft,
       limit: 1,
       overrideAccess: draft,
       pagination: false,
-      where: {
-        slug: {
-          equals: slug,
-        },
-      },
+      depth: 2,
+      where: isNumeric
+        ? {
+            or: [
+              { slug: { equals: slug } },
+              { id: { equals: Number(slug) } },
+            ],
+          }
+        : {
+            slug: {
+              equals: slug,
+            },
+          },
     });
 
     return result.docs?.[0] || null;
   } catch (error) {
-    console.warn('Unable to query post by slug:', error);
+    console.warn("Unable to query post by slug:", error);
     return null;
   }
 });

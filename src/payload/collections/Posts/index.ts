@@ -55,7 +55,24 @@ export const Posts: CollectionConfig<'posts'> = {
       relationTo: 'media',
       label: 'Cover Image',
       admin: {
-        description: 'Optional cover/hero image for the post',
+        description: 'Optional cover/hero image for the post (if omitted, the first gallery image is used)',
+      },
+    },
+    {
+      name: 'images',
+      type: 'relationship',
+      relationTo: 'media',
+      hasMany: true,
+      maxRows: 10,
+      label: 'Post Images / Gallery (Max 10 Images)',
+      admin: {
+        description: 'Select up to 10 images in bulk from the Media Library to display in this post.',
+      },
+      validate: (val: unknown) => {
+        if (Array.isArray(val) && val.length > 10) {
+          return 'Maximum 10 images can be selected for a post.'
+        }
+        return true
       },
     },
     {
@@ -152,6 +169,17 @@ export const Posts: CollectionConfig<'posts'> = {
     ...slugField(),
   ],
   hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (data && !data.slug && data.title) {
+          data.slug = data.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+        }
+        return data;
+      },
+    ],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidateDelete],

@@ -10,7 +10,11 @@ import { Media } from "@/components/payload/Media";
 export type CardPostData = Pick<
   Post,
   "slug" | "categories" | "meta" | "title" | "heroImage"
->;
+> & {
+  id?: number;
+  images?: unknown[] | null;
+  description?: string | null;
+};
 
 export const Card: React.FC<{
   className?: string;
@@ -23,19 +27,36 @@ export const Card: React.FC<{
   const {
     className,
     doc,
-    relationTo,
+    relationTo = "posts",
     showCategories,
     title: titleFromProps,
   } = props;
 
   const { slug, categories, meta, title, heroImage } = doc || {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawDesc = (doc as any)?.description || meta?.description;
+  const docAny = doc as any;
+  const rawDesc = docAny?.description || meta?.description;
   const hasCategories =
     categories && Array.isArray(categories) && categories.length > 0;
   const titleToUse = titleFromProps || title;
   const sanitizedDescription = rawDesc?.replace(/\s/g, " ");
-  const href = slug ? `/${relationTo}/${slug}` : `/${relationTo || 'posts'}`;
+
+  const imageToUse =
+    heroImage && typeof heroImage !== "string"
+      ? heroImage
+      : docAny?.images &&
+        Array.isArray(docAny.images) &&
+        docAny.images.length > 0 &&
+        typeof docAny.images[0] === "object"
+      ? docAny.images[0]
+      : null;
+
+  const docId = docAny?.id;
+  const href = slug
+    ? `/${relationTo}/${slug}`
+    : docId
+    ? `/${relationTo}/${docId}`
+    : `/${relationTo}`;
   return (
     <article
       className={cn(
@@ -47,8 +68,8 @@ export const Card: React.FC<{
     >
       {/* Image Section with fixed ratio */}
       <div className="relative w-full aspect-[16/9] bg-muted dark:bg-muted overflow-hidden">
-        {heroImage && typeof heroImage !== "string" ? (
-          <Media size="33vw" resource={heroImage} />
+        {imageToUse ? (
+          <Media size="33vw" resource={imageToUse} />
         ) : (
           <div className="flex items-center justify-center size-full text-muted-foreground text-sm">
             No image

@@ -113,6 +113,9 @@ export const CertificateSettings: GlobalConfig = {
                       name: 'smtpPass',
                       label: 'SMTP / Gmail App Password',
                       type: 'text',
+                      access: {
+                        read: ({ req }) => Boolean(req.user),
+                      },
                       admin: {
                         description: '16-character Google App Password (e.g. abcd efgh ijkl mnop). Required to send real emails to students. Can also be set as SMTP_PASS in .env.',
                       },
