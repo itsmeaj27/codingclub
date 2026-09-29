@@ -113,11 +113,14 @@ export default async function RecentPostsSection() {
                     {post.title}
                   </h3>
 
-                  {(post.description || post.meta?.description) && (
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-grow">
-                      {post.description || post.meta?.description}
-                    </p>
-                  )}
+                  {(() => {
+                    const postDesc = post.description || (post as any).meta?.description;
+                    return postDesc ? (
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-grow">
+                        {postDesc}
+                      </p>
+                    ) : null;
+                  })()}
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground font-mono mt-auto pt-4 border-t border-border">
                     <Clock className="w-4 h-4" />

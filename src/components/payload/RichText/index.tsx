@@ -14,11 +14,10 @@ import {
 import { CodeBlock, CodeBlockProps } from '@/payload/blocks/Code/Component'
 
 import type {
-  BannerBlock as BannerBlockProps,
   CallToActionBlock as CTABlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
-import { BannerBlock } from '@/payload/blocks/Banner/Component'
+import { BannerBlock, type BannerBlockProps } from '@/payload/blocks/Banner/Component'
 import { CallToActionBlock } from '@/payload/blocks/CallToAction/Component'
 import { cn } from '@/payload/utilities/ui'
 

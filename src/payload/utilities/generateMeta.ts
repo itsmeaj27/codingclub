@@ -23,15 +23,16 @@ export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
 }): Promise<Metadata> => {
   const { doc } = args
+  const docMeta = (doc as any)?.meta
 
-  const ogImage = getImageURL(doc?.meta?.image)
+  const ogImage = getImageURL(docMeta?.image)
 
-  const title = doc?.meta?.title ? doc?.meta?.title + ' | NFTSpace' : 'NFTSpace'
+  const title = docMeta?.title ? docMeta?.title + ' | NFTSpace' : 'NFTSpace'
 
   return {
-    description: doc?.meta?.description,
+    description: docMeta?.description,
     openGraph: mergeOpenGraph({
-      description: doc?.meta?.description || '',
+      description: docMeta?.description || '',
       images: ogImage
         ? [
             {

@@ -9,11 +9,16 @@ import { Media } from "@/components/payload/Media";
 
 export type CardPostData = Pick<
   Post,
-  "slug" | "categories" | "meta" | "title" | "heroImage"
+  "slug" | "categories" | "title" | "heroImage"
 > & {
   id?: number;
   images?: unknown[] | null;
   description?: string | null;
+  meta?: {
+    title?: string | null;
+    image?: unknown;
+    description?: string | null;
+  } | null;
 };
 
 export const Card: React.FC<{
