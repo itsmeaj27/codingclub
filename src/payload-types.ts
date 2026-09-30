@@ -527,11 +527,11 @@ export interface Post {
    */
   description?: string | null;
   /**
-   * Optional cover/hero image for the post (if omitted, the first gallery image is used)
+   * Optional single cover image. If Post Images are provided below, they will be used as the carousel (1st image as cover).
    */
   heroImage?: (number | null) | Media;
   /**
-   * Select up to 10 images in bulk from the Media Library to display in this post.
+   * Upload or select up to 10 images at once. Visitors will see these as an Instagram-like swipeable carousel. The first image will be used as the preview cover.
    */
   images?: (number | Media)[] | null;
   /**
@@ -562,6 +562,9 @@ export interface Post {
   showOnHome?: boolean | null;
   categories?: (number | Category)[] | null;
   authors?: (number | User)[] | null;
+  /**
+   * Select related posts to display at the bottom of this post
+   */
   relatedPosts?: (number | Post)[] | null;
   populatedAuthors?:
     | {

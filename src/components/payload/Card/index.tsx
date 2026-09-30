@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import useClickableCard from "@/payload/utilities/useClickableCard";
 import Link from "next/link";
 import React, { Fragment } from "react";
+import { Layers } from "lucide-react";
 
 import type { Post } from "@/payload-types";
 import { Media } from "@/components/payload/Media";
@@ -46,14 +47,15 @@ export const Card: React.FC<{
   const titleToUse = titleFromProps || title;
   const sanitizedDescription = rawDesc?.replace(/\s/g, " ");
 
+  const imagesList =
+    docAny?.images && Array.isArray(docAny.images) ? docAny.images : [];
+  const hasMultipleImages = imagesList.length > 1;
+
   const imageToUse =
     heroImage && typeof heroImage !== "string"
       ? heroImage
-      : docAny?.images &&
-        Array.isArray(docAny.images) &&
-        docAny.images.length > 0 &&
-        typeof docAny.images[0] === "object"
-      ? docAny.images[0]
+      : imagesList.length > 0 && typeof imagesList[0] === "object"
+      ? imagesList[0]
       : null;
 
   const docId = docAny?.id;
@@ -78,6 +80,12 @@ export const Card: React.FC<{
         ) : (
           <div className="flex items-center justify-center size-full text-muted-foreground text-sm">
             No image
+          </div>
+        )}
+        {hasMultipleImages && (
+          <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-white text-[11px] font-semibold border border-white/10 shadow-sm pointer-events-none">
+            <Layers className="w-3 h-3 text-primary" />
+            <span>{imagesList.length}</span>
           </div>
         )}
       </div>

@@ -2,7 +2,7 @@ import { getPayload } from "payload";
 import configPromise from "@payload-config";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Clock, FileText } from "lucide-react";
+import { ArrowRight, Clock, FileText, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 
@@ -51,6 +51,8 @@ export default async function RecentPostsSection() {
 
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const postAny = post as any;
+              const hasMultiImages =
+                postAny.images && Array.isArray(postAny.images) && postAny.images.length > 1;
               const heroUrl =
                 post.heroImage && typeof post.heroImage === "object" && post.heroImage.url
                   ? post.heroImage.url
@@ -86,6 +88,12 @@ export default async function RecentPostsSection() {
                         <span className="text-xs text-muted-foreground font-mono">
                           Coding Club CUH
                         </span>
+                      </div>
+                    )}
+                    {hasMultiImages && (
+                      <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-white text-[11px] font-semibold border border-white/10 shadow-sm pointer-events-none">
+                        <Layers className="w-3 h-3 text-primary" />
+                        <span>{postAny.images.length}</span>
                       </div>
                     )}
                   </div>

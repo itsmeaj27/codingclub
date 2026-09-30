@@ -10,7 +10,6 @@ import React, { cache } from "react";
 import RichText from "@/components/payload/RichText";
 
 import { PostHero } from "@/payload/heros/PostHero";
-import { PostGallery } from "@/components/payload/PostGallery";
 import { generateMeta } from "@/payload/utilities/generateMeta";
 import PageClient from "./page.client";
 import { LivePreviewListener } from "@/components/payload/LivePreviewListener";
@@ -97,11 +96,6 @@ export default async function Post({
           <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
             <RichText data={post.content} enableGutter={false} />
           </div>
-        )}
-
-        {/* Up to 10 Image Gallery */}
-        {post.images && Array.isArray(post.images) && post.images.length > 0 && (
-          <PostGallery images={post.images} postTitle={post.title} />
         )}
 
         {/* Related Posts */}

@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from "payload";
 
 import {
   FixedToolbarFeature,
@@ -6,16 +6,16 @@ import {
   HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+} from "@payloadcms/richtext-lexical";
 
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { populateAuthors } from './hooks/populateAuthors'
-import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
-import { slugField } from '@/payload/fields/slug'
+import { authenticated } from "../../access/authenticated";
+import { authenticatedOrPublished } from "../../access/authenticatedOrPublished";
+import { populateAuthors } from "./hooks/populateAuthors";
+import { revalidateDelete, revalidatePost } from "./hooks/revalidatePost";
+import { slugField } from "@/payload/fields/slug";
 
-export const Posts: CollectionConfig<'posts'> = {
-  slug: 'posts',
+export const Posts: CollectionConfig<"posts"> = {
+  slug: "posts",
   access: {
     create: authenticated,
     delete: authenticated,
@@ -28,143 +28,151 @@ export const Posts: CollectionConfig<'posts'> = {
     categories: true,
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'showOnHome', 'updatedAt'],
-    useAsTitle: 'title',
-    group: 'Content & Media',
+    defaultColumns: ["title", "slug", "showOnHome", "updatedAt"],
+    useAsTitle: "title",
+    group: "Content & Media",
   },
   fields: [
     {
-      name: 'title',
-      type: 'text',
+      name: "title",
+      type: "text",
       required: true,
       admin: {
-        description: 'Give your post a title',
+        description: "Give your post a title",
       },
     },
     {
-      name: 'description',
-      type: 'textarea',
-      label: 'About this Post',
+      name: "description",
+      type: "textarea",
+      label: "About this Post",
       admin: {
-        description: 'Write a short summary or description about this post (shown in previews & cards)',
+        description:
+          "Write a short summary or description about this post (shown in previews & cards)",
       },
     },
     {
-      name: 'heroImage',
-      type: 'upload',
-      relationTo: 'media',
-      label: 'Cover Image',
+      name: "heroImage",
+      type: "upload",
+      relationTo: "media",
+      label: "Cover Image (Optional Fallback)",
       admin: {
-        description: 'Optional cover/hero image for the post (if omitted, the first gallery image is used)',
+        description:
+          "Optional single cover image. If Post Images are provided below, they will be used as the carousel (1st image as cover).",
       },
     },
     {
-      name: 'images',
-      type: 'relationship',
-      relationTo: 'media',
+      name: "images",
+      type: "upload",
+      relationTo: "media",
       hasMany: true,
       maxRows: 10,
-      label: 'Post Images / Gallery (Max 10 Images)',
+      label: "Post Images (Multi-select - Max 10)",
       admin: {
-        description: 'Select up to 10 images in bulk from the Media Library to display in this post.',
+        description:
+          "Upload or select up to 10 images at once. Visitors will see these as an Instagram-like swipeable carousel. The first image will be used as the preview cover.",
+        components: {
+          Field: "@/components/payload-admin/MultiImageUpload#default",
+        },
       },
       validate: (val: unknown) => {
         if (Array.isArray(val) && val.length > 10) {
-          return 'Maximum 10 images can be selected for a post.'
+          return "Maximum 10 images can be selected for a post.";
         }
-        return true
+        return true;
       },
     },
     {
-      name: 'content',
-      type: 'richText',
+      name: "content",
+      type: "richText",
       editor: lexicalEditor({
         features: ({ rootFeatures }) => {
           return [
             ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+            HeadingFeature({ enabledHeadingSizes: ["h2", "h3", "h4"] }),
             FixedToolbarFeature(),
             InlineToolbarFeature(),
             HorizontalRuleFeature(),
-          ]
+          ];
         },
       }),
-      label: 'Post Content',
+      label: "Post Content",
       required: true,
       admin: {
-        description: 'Write your post content here. Use the toolbar for formatting.',
+        description:
+          "Write your post content here. Use the toolbar for formatting.",
       },
     },
     {
-      name: 'publishedAt',
-      type: 'date',
+      name: "publishedAt",
+      type: "date",
       admin: {
         date: {
-          pickerAppearance: 'dayAndTime',
+          pickerAppearance: "dayAndTime",
         },
-        position: 'sidebar',
-        description: 'Auto-set when you publish',
+        position: "sidebar",
+        description: "Auto-set when you publish",
       },
       hooks: {
         beforeChange: [
           ({ siblingData, value }) => {
-            if (siblingData._status === 'published' && !value) {
-              return new Date()
+            if (siblingData._status === "published" && !value) {
+              return new Date();
             }
-            return value
+            return value;
           },
         ],
       },
     },
     {
-      name: 'showOnHome',
-      type: 'checkbox',
-      label: 'Show on Home Page',
+      name: "showOnHome",
+      type: "checkbox",
+      label: "Show on Home Page",
       defaultValue: true,
       admin: {
-        position: 'sidebar',
-        description: 'Display this post in the blog section on home page',
+        position: "sidebar",
+        description: "Display this post in the blog section on home page",
       },
     },
     {
-      name: 'categories',
-      type: 'relationship',
+      name: "categories",
+      type: "relationship",
       admin: {
-        position: 'sidebar',
-      },
-      hasMany: true,
-      relationTo: 'categories',
-    },
-    {
-      name: 'authors',
-      type: 'relationship',
-      admin: {
-        position: 'sidebar',
+        position: "sidebar",
       },
       hasMany: true,
-      relationTo: 'users',
+      relationTo: "categories",
     },
     {
-      name: 'relatedPosts',
-      type: 'relationship',
+      name: "authors",
+      type: "relationship",
       admin: {
-        position: 'sidebar',
-        description: 'Select related posts to display at the bottom of this post',
+        position: "sidebar",
+      },
+      hasMany: true,
+      relationTo: "users",
+    },
+    {
+      name: "relatedPosts",
+      type: "relationship",
+      admin: {
+        position: "sidebar",
+        description:
+          "Select related posts to display at the bottom of this post",
       },
       filterOptions: ({ id }) => {
         return {
           id: {
             not_in: [id],
           },
-        }
+        };
       },
       hasMany: true,
-      relationTo: 'posts',
+      relationTo: "posts",
     },
     // Hidden field for populating author data
     {
-      name: 'populatedAuthors',
-      type: 'array',
+      name: "populatedAuthors",
+      type: "array",
       access: {
         update: () => false,
       },
@@ -174,12 +182,12 @@ export const Posts: CollectionConfig<'posts'> = {
       },
       fields: [
         {
-          name: 'id',
-          type: 'text',
+          name: "id",
+          type: "text",
         },
         {
-          name: 'name',
-          type: 'text',
+          name: "name",
+          type: "text",
         },
       ],
     },
@@ -191,8 +199,8 @@ export const Posts: CollectionConfig<'posts'> = {
         if (data && !data.slug && data.title) {
           data.slug = data.title
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '');
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
         }
         return data;
       },
@@ -210,4 +218,4 @@ export const Posts: CollectionConfig<'posts'> = {
     },
     maxPerDoc: 50,
   },
-}
+};

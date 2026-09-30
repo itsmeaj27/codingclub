@@ -1,11 +1,11 @@
 import { formatDateTime } from "@/payload/utilities/formatDateTime";
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, Calendar, User as UserIcon } from "lucide-react";
 
-import type { Post, Media as MediaType } from "@/payload-types";
+import type { Post } from "@/payload-types";
 import { formatAuthors } from "@/payload/utilities/formatAuthors";
+import { PostCarousel } from "@/components/payload/PostCarousel";
 
 export const PostHero: React.FC<{
   post: Post;
@@ -16,21 +16,6 @@ export const PostHero: React.FC<{
     populatedAuthors &&
     populatedAuthors.length > 0 &&
     formatAuthors(populatedAuthors) !== "";
-
-  // Determine cover image URL (prefer heroImage, fallback to first gallery image)
-  let coverUrl: string | null = null;
-  let coverAlt = title;
-
-  if (heroImage && typeof heroImage === "object" && heroImage.url) {
-    coverUrl = heroImage.url;
-    coverAlt = heroImage.alt || title;
-  } else if (images && Array.isArray(images) && images.length > 0) {
-    const firstImg = images[0];
-    if (typeof firstImg === "object" && firstImg !== null && (firstImg as MediaType).url) {
-      coverUrl = (firstImg as MediaType).url!;
-      coverAlt = (firstImg as MediaType).alt || title;
-    }
-  }
 
   return (
     <div className="w-full bg-background border-b border-border/60 pb-8 pt-4">
@@ -90,19 +75,14 @@ export const PostHero: React.FC<{
           )}
         </div>
 
-        {/* Featured Cover Image */}
-        {coverUrl && (
-          <div className="mt-8 relative aspect-[16/9] sm:aspect-[21/9] max-h-[480px] w-full rounded-2xl overflow-hidden border border-border shadow-md bg-muted">
-            <Image
-              src={coverUrl}
-              alt={coverAlt}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 896px"
-              className="object-cover"
-            />
-          </div>
-        )}
+        {/* Instagram-Style Post Carousel or Featured Image */}
+        <div className="mt-8">
+          <PostCarousel
+            images={images}
+            heroImage={heroImage}
+            title={title}
+          />
+        </div>
       </div>
     </div>
   );

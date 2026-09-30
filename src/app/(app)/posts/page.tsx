@@ -25,6 +25,7 @@ export default async function Page() {
       categories: true,
       description: true,
       heroImage: true,
+      images: true,
     },
   });
 
