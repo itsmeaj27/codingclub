@@ -562,6 +562,7 @@ export interface Post {
   showOnHome?: boolean | null;
   categories?: (number | Category)[] | null;
   authors?: (number | User)[] | null;
+  relatedPosts?: (number | Post)[] | null;
   populatedAuthors?:
     | {
         id?: string | null;
@@ -1723,6 +1724,7 @@ export interface PostsSelect<T extends boolean = true> {
   showOnHome?: T;
   categories?: T;
   authors?: T;
+  relatedPosts?: T;
   populatedAuthors?:
     | T
     | {
