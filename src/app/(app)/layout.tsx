@@ -10,6 +10,7 @@ import  Navbar  from "@/components/navbar";
 import FooterSection from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
+import { ServiceWorkerRegister } from "@/components/service-worker-register";
 
 const fontInter = Inter({
   subsets: ["latin"],
@@ -32,6 +33,11 @@ export const metadata: Metadata = {
   title: "Coding Club Cuh",
   description: "coding club central university of haryana",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || process.env.URL || "https://codingclubcuh.online"),
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "Coding Club Cuh",
     description: "coding club central university of haryana",
@@ -54,6 +60,7 @@ export default function RootLayout({
       <body
         className={`${fontInter.variable} ${fontHandjet.variable} ${fontJersey.variable} ${fontInter.className} antialiased`}
       >
+        <ServiceWorkerRegister />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -49,7 +49,29 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
 
   const { value = [], setValue } = useField<any[]>({ path });
 
-  const [selectedDocs, setSelectedDocs] = useState<MediaItem[]>([]);
+  const [selectedDocs, setSelectedDocs] = useState<MediaItem[]>(() => {
+    if (!Array.isArray(value)) return [];
+    const initialItems: MediaItem[] = [];
+    for (const item of value) {
+      if (typeof item === 'object' && item !== null) {
+        const doc =
+          'value' in item && typeof item.value === 'object' && item.value !== null
+            ? (item.value as Record<string, any>)
+            : (item as Record<string, any>);
+        if (doc && doc.id && doc.url) {
+          initialItems.push({
+            id: Number(doc.id),
+            filename: typeof doc.filename === 'string' ? doc.filename : null,
+            url: typeof doc.url === 'string' ? doc.url : null,
+            alt: typeof doc.alt === 'string' ? doc.alt : null,
+            width: typeof doc.width === 'number' ? doc.width : null,
+            height: typeof doc.height === 'number' ? doc.height : null,
+          });
+        }
+      }
+    }
+    return initialItems;
+  });
   const [loadingInitial, setLoadingInitial] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{
@@ -68,6 +90,8 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  const loadedIdsRef = useRef<string>('');
+
   // Extract raw IDs from value
   const currentIds: number[] = React.useMemo(() => {
     if (!Array.isArray(value)) return [];
@@ -84,24 +108,40 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
       .filter((id) => !isNaN(id) && id > 0);
   }, [value]);
 
+  const currentIdsKey = currentIds.join(',');
+
   // Load details for current attached image IDs
   useEffect(() => {
-    if (currentIds.length === 0) {
-      setSelectedDocs([]);
+    // If the IDs haven't changed since last load, do nothing
+    if (loadedIdsRef.current === currentIdsKey) {
       return;
     }
 
-    const hasAll =
-      selectedDocs.length === currentIds.length &&
-      selectedDocs.every((doc, i) => doc.id === currentIds[i]);
-    if (hasAll) return;
+    if (!currentIdsKey) {
+      loadedIdsRef.current = '';
+      setSelectedDocs((prev) => (prev.length > 0 ? [] : prev));
+      return;
+    }
+
+    const ids = currentIdsKey.split(',').map(Number).filter((id) => !isNaN(id) && id > 0);
+
+    // If selectedDocs already contains all documents for currentIds, avoid redundant network request
+    if (
+      selectedDocs.length === ids.length &&
+      ids.every((id, i) => selectedDocs[i]?.id === id && selectedDocs[i]?.url)
+    ) {
+      loadedIdsRef.current = currentIdsKey;
+      return;
+    }
+
+    loadedIdsRef.current = currentIdsKey;
 
     let isMounted = true;
     setLoadingInitial(true);
 
     const fetchDocs = async () => {
       try {
-        const query = currentIds.map((id) => `where[id][in]=${id}`).join('&');
+        const query = ids.map((id, index) => `where[id][in][${index}]=${id}`).join('&');
         const res = await fetch(`/api/media?${query}&limit=50&depth=0`);
         if (!res.ok) throw new Error('Failed to fetch media');
         const data = await res.json();
@@ -110,7 +150,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
         const docsMap = new Map<number, MediaItem>();
         docs.forEach((d) => docsMap.set(d.id, d));
 
-        const ordered = currentIds
+        const ordered = ids
           .map((id) => docsMap.get(id))
           .filter((d): d is MediaItem => Boolean(d && d.url));
 
@@ -129,13 +169,15 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [currentIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIdsKey]);
 
   // Update value helper
   const updateMediaSelection = useCallback(
     (newDocs: MediaItem[]) => {
-      setSelectedDocs(newDocs);
       const newIds = newDocs.map((d) => d.id);
+      loadedIdsRef.current = newIds.join(',');
+      setSelectedDocs(newDocs);
       setValue(newIds);
     },
     [setValue]
@@ -196,56 +238,40 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
     }
 
     setIsUploading(true);
-    const newlyUploadedDocs: MediaItem[] = [];
+    setUploadProgress({
+      current: 1,
+      total: filesToUpload.length,
+      filename: `Uploading ${filesToUpload.length} ${filesToUpload.length === 1 ? 'image' : 'images'}...`,
+    });
 
-    for (let i = 0; i < filesToUpload.length; i++) {
-      const file = filesToUpload[i];
-      setUploadProgress({
-        current: i + 1,
-        total: filesToUpload.length,
-        filename: file.name,
+    try {
+      const formData = new FormData();
+      for (const file of filesToUpload) {
+        formData.append('files', file);
+      }
+
+      const res = await fetch('/api/media/upload-batch', {
+        method: 'POST',
+        body: formData,
       });
 
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('alt', file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '));
-        formData.append('folder', 'gallery/2026');
+      const data = await res.json().catch(() => null);
 
-        const res = await fetch('/api/media', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => null);
-          throw new Error(errData?.errors?.[0]?.message || `Upload failed for ${file.name}`);
-        }
-
-        const data = await res.json();
-        const doc = data.doc;
-        if (doc && doc.id) {
-          newlyUploadedDocs.push({
-            id: doc.id,
-            filename: doc.filename,
-            url: doc.url,
-            alt: doc.alt,
-            width: doc.width,
-            height: doc.height,
-          });
-        }
-      } catch (err: any) {
-        console.error(`Error uploading ${file.name}:`, err);
-        setErrorMessage(`Failed to upload ${file.name}: ${err.message || 'Network error'}`);
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.error || `Upload failed with status ${res.status}`);
       }
-    }
 
-    setIsUploading(false);
-    setUploadProgress(null);
-
-    if (newlyUploadedDocs.length > 0) {
-      const combined = [...selectedDocs, ...newlyUploadedDocs];
-      updateMediaSelection(combined);
+      const newlyUploadedDocs: MediaItem[] = data.docs || [];
+      if (newlyUploadedDocs.length > 0) {
+        const combined = [...selectedDocs, ...newlyUploadedDocs];
+        updateMediaSelection(combined);
+      }
+    } catch (err: any) {
+      console.error('Batch upload error:', err);
+      setErrorMessage(`Upload error: ${err.message || 'Network error'}`);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(null);
     }
   };
 
