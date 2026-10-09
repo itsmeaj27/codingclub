@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPayload } from "payload";
 import configPromise from "@payload-config";
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github, Code2 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 
 export default async function ProjectsSection() {
@@ -18,63 +18,106 @@ export default async function ProjectsSection() {
     if (projects.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-20 bg-background">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="py-16 md:py-28 relative overflow-hidden">
+      {/* Background */}
+      <div aria-hidden className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
+      <div aria-hidden className="absolute -bottom-32 right-0 w-[500px] h-[500px] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none" />
+
+      <div className="mx-auto max-w-6xl px-6 relative z-10">
         <SectionHeading 
           title="Student Projects" 
-          subtitle="Discover what our community has built." 
-          badge="Showcase" 
+          subtitle="Real-world software built by our community — from web apps to open-source tools." 
+          badge="🚀 Showcase" 
         />
         
-        <div className="grid gap-8 md:grid-cols-2 mt-12">
+        <div className="grid gap-6 md:grid-cols-2 mt-12">
           {projects.map((project) => (
-            <div key={project.id} className="bg-card border-border rounded-2xl overflow-hidden glow-hover gradient-border transition-all duration-300 group">
-              <div className="aspect-[16/10] w-full bg-muted relative overflow-hidden">
+            <div
+              key={project.id}
+              className="group relative bg-card border border-border rounded-3xl overflow-hidden hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/8 transition-all duration-500"
+            >
+              {/* Screenshot */}
+              <div className="aspect-[16/9] w-full bg-muted relative overflow-hidden">
                 {project.screenshot && typeof project.screenshot === 'object' && project.screenshot.url && (
                   <Image 
                     src={project.screenshot.url} 
                     alt={project.name} 
                     fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
-                {/* Dark overlay on hover for better focus */}
-                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/10 to-transparent" />
+                
+                {/* Floating action links on hover */}
+                <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                  {project.github && (
+                    <Link
+                      href={project.github}
+                      target="_blank"
+                      className="size-9 rounded-full bg-card/90 backdrop-blur-sm border border-border flex items-center justify-center text-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm"
+                    >
+                      <Github className="w-4 h-4" />
+                    </Link>
+                  )}
+                  {project.liveDemo && (
+                    <Link
+                      href={project.liveDemo}
+                      target="_blank"
+                      className="size-9 rounded-full bg-primary/90 backdrop-blur-sm border border-primary flex items-center justify-center text-primary-foreground hover:opacity-90 transition-all shadow-sm"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
+                  )}
+                </div>
               </div>
+
+              {/* Content */}
               <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-bold text-2xl text-foreground">{project.name}</h3>
-                  <div className="flex gap-2">
-                    {project.github && (
-                      <Link href={project.github} target="_blank" className="p-2 bg-muted rounded-full hover:bg-secondary text-foreground transition-colors">
-                        <Github className="w-4 h-4" />
-                      </Link>
-                    )}
-                    {project.liveDemo && (
-                      <Link href={project.liveDemo} target="_blank" className="p-2 bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity">
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                    )}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <h3 className="font-bold text-xl text-foreground group-hover:text-primary transition-colors duration-300 leading-tight">
+                    {project.name}
+                  </h3>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Code2 className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Project</span>
                   </div>
                 </div>
                 
                 {project.techStack && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.techStack.split(',').map((tech, i) => (
-                      <span key={i} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground font-medium border border-border">
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {project.techStack.split(',').map((tech: string, i: number) => (
+                      <span
+                        key={i}
+                        className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-primary/8 text-primary border border-primary/15"
+                      >
                         {tech.trim()}
                       </span>
                     ))}
                   </div>
                 )}
                 
-                <p className="text-muted-foreground mb-4 line-clamp-3 text-sm">
+                <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed mb-4">
                   {project.description}
                 </p>
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Built by:</span> {project.members}
+
+                <div className="pt-3 border-t border-border/60 flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground">Built by:</span>{" "}
+                    {project.members}
                   </p>
+                  <div className="flex gap-2">
+                    {project.github && (
+                      <Link href={project.github} target="_blank" className="text-muted-foreground hover:text-primary transition-colors">
+                        <Github className="w-4 h-4" />
+                      </Link>
+                    )}
+                    {project.liveDemo && (
+                      <Link href={project.liveDemo} target="_blank" className="text-muted-foreground hover:text-primary transition-colors">
+                        <ExternalLink className="w-4 h-4" />
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

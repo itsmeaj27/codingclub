@@ -9,6 +9,7 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { menuLinks } from "@/lib/constants";
 import { ModeToggle } from "./theme-mode-toggler";
+import { CommandMenu } from "./command-menu";
 
 const Navbar = () => {
   const [menuState, setMenuState] = React.useState(false);
@@ -85,7 +86,8 @@ const Navbar = () => {
             </div>
 
             {/* Desktop CTAs */}
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-3">
+              <CommandMenu />
               <ModeToggle />
               {user ? (
                 <Button asChild variant="ghost" size="sm" className="hover:bg-primary/10">

@@ -1,66 +1,102 @@
-import { Code2, Cpu, Globe, Layout, Lightbulb, Users } from "lucide-react";
+import { Code2, Cpu, Globe, Layout, Lightbulb, Users, ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
+import Link from "next/link";
 
 const objectives = [
   {
-    title: "Peer Learning",
-    description: "Learn from seniors and peers in a collaborative, ego-free environment.",
+    title: "Peer-to-Peer Learning",
+    description: "Learn algorithms, tools, and languages directly from senior developers in a collaborative, supportive setting.",
     icon: Users,
-    colorClass: "bg-blue-500/10 text-blue-500",
+    colorClass: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+    tag: "Community",
+    href: "/about",
   },
   {
-    title: "Web Development",
-    description: "Master modern frameworks like React, Next.js, and Node.js.",
+    title: "Modern Web Engineering",
+    description: "Master modern production stacks like Next.js 15, React 19, TypeScript, Tailwind CSS, and REST/GraphQL APIs.",
     icon: Globe,
-    colorClass: "bg-violet-500/10 text-violet-500",
+    colorClass: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+    tag: "Full-Stack",
+    href: "/courses",
   },
   {
-    title: "DSA & Problem Solving",
-    description: "Crack coding interviews with daily practice and logic building.",
+    title: "DSA & Algorithmic Problem Solving",
+    description: "Crack technical interviews and competitive programming challenges with structured practice and logic building.",
     icon: Code2,
-    colorClass: "bg-emerald-500/10 text-emerald-500",
+    colorClass: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    tag: "Interviews",
+    href: "/courses",
   },
   {
-    title: "AI & Machine Learning",
-    description: "Explore the future of tech with hands-on AI model training.",
+    title: "AI, ML & Generative Tech",
+    description: "Explore LLMs, intelligent prompt engineering, model tuning, and hands-on AI application development.",
     icon: Cpu,
-    colorClass: "bg-amber-500/10 text-amber-500",
+    colorClass: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    tag: "Emerging Tech",
+    href: "/courses",
   },
   {
-    title: "UI/UX Design",
-    description: "Design beautiful, user-centric interfaces before writing code.",
+    title: "Product Design & Modern UI/UX",
+    description: "Craft stunning, accessible user interfaces with Figma, motion systems, and design tokens before writing code.",
     icon: Layout,
-    colorClass: "bg-rose-500/10 text-rose-500",
+    colorClass: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+    tag: "Design",
+    href: "/about",
   },
   {
-    title: "Workshops & Hackathons",
-    description: "Participate in regular events to build projects under pressure.",
+    title: "Hackathons & Live Sprints",
+    description: "Build real products under pressure, pitch to industry judges, and win awards in campus and national hackathons.",
     icon: Lightbulb,
-    colorClass: "bg-cyan-500/10 text-cyan-500",
+    colorClass: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+    tag: "Competitions",
+    href: "/events",
   },
 ];
 
 export default function ObjectivesSection() {
   return (
-    <section className="py-12 md:py-20 bg-background">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="py-20 md:py-28 relative overflow-hidden">
+      <div className="mx-auto max-w-6xl px-6 relative z-10">
         <SectionHeading 
-          title="What We Do" 
-          subtitle="Our core objectives and focus areas." 
-          badge="Focus Areas" 
+          title="What We Do & Specialize In" 
+          subtitle="Explore our core domains, technical masterclasses, and community programs." 
+          badge="Specializations" 
+          align="center"
         />
         
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-12">
           {objectives.map((obj, i) => {
             const Icon = obj.icon;
             return (
-              <div key={i} className="bg-card border-border p-6 rounded-2xl glow-hover gradient-border group relative">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 ${obj.colorClass}`}>
-                  <Icon className="w-6 h-6" />
+              <Link
+                key={i}
+                href={obj.href}
+                className="group relative p-7 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl hover:border-primary/50 transition-all duration-300 hover:-translate-y-1.5 shadow-lg hover:shadow-primary/10 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={`size-12 rounded-2xl border flex items-center justify-center transition-transform group-hover:scale-110 ${obj.colorClass}`}>
+                      <Icon className="size-6" />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/60 group-hover:border-primary/40 group-hover:text-primary transition-colors">
+                      {obj.tag}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors flex items-center justify-between">
+                    <span>{obj.title}</span>
+                    <ArrowUpRight className="size-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                  </h3>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    {obj.description}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-xl mb-2 text-foreground">{obj.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{obj.description}</p>
-              </div>
+
+                <div className="pt-6 mt-6 border-t border-border/40 flex items-center gap-1 text-[11px] font-semibold text-primary/80 group-hover:text-primary">
+                  <span>Explore domain</span>
+                  <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+                </div>
+              </Link>
             );
           })}
         </div>

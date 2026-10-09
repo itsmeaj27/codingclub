@@ -1,62 +1,78 @@
 import { SectionHeading } from "@/components/ui/section-heading";
-import { Target, Users } from "lucide-react";
+import { Target, Users, Shield, Rocket } from "lucide-react";
+import { AboutTerminal } from "./about-terminal";
 
 export default function AboutSection() {
   return (
-    <section className="py-16 md:py-24">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div>
+    <section className="py-20 md:py-28 relative overflow-hidden">
+      <div className="mx-auto max-w-6xl px-6 relative z-10">
+        <div className="grid md:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Left Column: Mission & Model */}
+          <div className="md:col-span-7">
             <SectionHeading
-              title="About Coding Club CUH"
-              badge="Who We Are"
+              title="Built by Students, Engineered for Impact"
+              badge="About Our Community"
               align="left"
-              className="mb-8"
+              className="mb-6"
             />
-            <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Coding Club CUH was founded in 2022 with a clear vision: to create an ecosystem where students can learn, build, and grow together. We bridge the gap between academic theory and real-world software engineering.
+            <p className="text-muted-foreground text-base md:text-lg mb-8 leading-relaxed">
+              Established in 2022 under the mentorship of <strong className="text-foreground">Dr. Sunil Kumar</strong> (Dept. of CS & IT), Coding Club CUH bridges academic coursework and modern software engineering through peer learning, open-source building, and competitive programming.
             </p>
-            <div className="space-y-4">
-              <div className="bg-card p-5 rounded-2xl border border-border glow-hover transition-all">
-                <h3 className="font-semibold text-lg mb-2 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Target className="w-5 h-5 text-primary" />
-                  </div>
-                  Our Mission
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="p-5 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl hover:border-primary/40 transition-all shadow-sm">
+                <div className="size-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                  <Target className="size-5" />
+                </div>
+                <h3 className="font-bold text-foreground text-base mb-1.5">
+                  Core Mission
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed pl-[52px]">
-                  To foster a strong programming culture and equip students with modern tech skills through peer-to-peer learning and hands-on projects.
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Cultivating a high-velocity coding culture where every student masters practical programming and modern dev tools.
                 </p>
               </div>
-              <div className="bg-card p-5 rounded-2xl border border-border glow-hover transition-all">
-                <h3 className="font-semibold text-lg mb-2 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-accent" />
-                  </div>
-                  Students Teach, Students Learn
+
+              <div className="p-5 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl hover:border-primary/40 transition-all shadow-sm">
+                <div className="size-11 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center mb-4">
+                  <Users className="size-5" />
+                </div>
+                <h3 className="font-bold text-foreground text-base mb-1.5">
+                  Peer-to-Peer Learning
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed pl-[52px]">
-                  We believe the best way to learn is to teach. Our club operates on a peer learning model where senior students guide and mentor juniors.
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Senior student mentors conduct hands-on classes in Web Dev, Python, C++, and DSA to elevate juniors.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl hover:border-primary/40 transition-all shadow-sm">
+                <div className="size-11 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
+                  <Shield className="size-5" />
+                </div>
+                <h3 className="font-bold text-foreground text-base mb-1.5">
+                  Verified Credentials
+                </h3>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Cryptographically verifiable completion certificates with instant QR verification and high-res PDF generation.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl hover:border-primary/40 transition-all shadow-sm">
+                <div className="size-11 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
+                  <Rocket className="size-5" />
+                </div>
+                <h3 className="font-bold text-foreground text-base mb-1.5">
+                  Hackathons & Sprints
+                </h3>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Intensive campus hackathons where participants build real solutions, compete for awards, and build portfolios.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="relative aspect-square md:aspect-[4/5] rounded-3xl overflow-hidden border border-border bg-gradient-to-br from-primary/10 via-accent/10 to-primary/5">
-            {/* Abstract decorative background */}
-            <div className="absolute inset-0 dot-grid opacity-40" />
-            <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-primary/20 blur-3xl" />
-            <div className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full bg-accent/20 blur-3xl" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-6xl md:text-7xl font-handjet font-bold text-gradient">
-                  CC
-                </div>
-                <div className="text-lg font-medium text-muted-foreground mt-2">
-                  Est. 2022
-                </div>
-              </div>
-            </div>
+          {/* Right Column: Interactive Code Terminal Bento */}
+          <div className="md:col-span-5">
+            <AboutTerminal />
           </div>
         </div>
       </div>

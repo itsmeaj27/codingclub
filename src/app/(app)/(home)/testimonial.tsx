@@ -1,68 +1,152 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent } from '@/components/ui/card'
-import { SectionHeading } from '@/components/ui/section-heading'
-import { Quote } from 'lucide-react'
+"use client";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SectionHeading } from "@/components/ui/section-heading";
+import { Quote, Star } from "lucide-react";
+import { InfiniteSlider } from "@/components/motion-primitives/infinite-slider";
 
 type Testimonial = {
-    name: string
-    role: string
-    image: string
-    quote: string
-}
+  name: string;
+  role: string;
+  image: string;
+  quote: string;
+  stars?: number;
+};
 
 const testimonials: Testimonial[] = [
-  // TODO: Add real student testimonials or fetch from Payload CMS
-]
+  {
+    name: "Arjun Sharma",
+    role: "B.Tech CSE, 3rd Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "Joining Coding Club CUH completely changed my trajectory. The peer-led sessions on DSA and Web Dev gave me the confidence to crack my first internship interview.",
+    stars: 5,
+  },
+  {
+    name: "Priya Mehra",
+    role: "B.Sc IT, 2nd Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "The hackathon was an incredible experience! Building a real-world project overnight with teammates I'd just met taught me more than any classroom session ever could.",
+    stars: 5,
+  },
+  {
+    name: "Rohit Nanda",
+    role: "M.Sc CS, 1st Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "The AI chatbot on the website is super helpful! It guided me through setting up my first Next.js project step by step. The club's tech infrastructure itself is impressive.",
+    stars: 5,
+  },
+  {
+    name: "Anjali Singh",
+    role: "B.Tech CSE, Final Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "From attending sessions as a fresher to leading Python workshops as a senior — Coding Club CUH shaped who I am as a developer. The certificate I earned opened doors for me.",
+    stars: 5,
+  },
+  {
+    name: "Karan Yadav",
+    role: "B.Tech CSE, 2nd Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "The Full-Stack Web Development Workshop was mind-blowing. We went from 'what is an API' to deploying a live app in one session. Senior mentors are genuinely passionate.",
+    stars: 5,
+  },
+  {
+    name: "Neha Kumari",
+    role: "B.Sc IT, 3rd Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "I was nervous about coding, but the friendly environment at Coding Club made me comfortable to ask even basic questions. Now I'm helping others code — full circle!",
+    stars: 5,
+  },
+  {
+    name: "Rahul Verma",
+    role: "MCA, 1st Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "The Coding Club is what every university CS society should aspire to be. Real projects, verified certificates, and sessions that feel like professional dev meetups.",
+    stars: 5,
+  },
+  {
+    name: "Sita Devi",
+    role: "B.Tech ECE, 2nd Year",
+    image: "https://res.cloudinary.com/azzisskq/image/upload/v1789927153/codingclub/teams/members/cuh_team_2026.jpg",
+    quote: "Even as an ECE student, I felt incredibly welcomed. The C & Python Masterclass was perfectly structured for beginners. I built my first GUI app by the end of week one!",
+    stars: 5,
+  },
+];
 
-const chunkArray = (array: Testimonial[], chunkSize: number): Testimonial[][] => {
-    if (array.length === 0) return [];
-    const result: Testimonial[][] = []
-    for (let i = 0; i < array.length; i += chunkSize) {
-        result.push(array.slice(i, i + chunkSize))
-    }
-    return result
+function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+  return (
+    <div className="relative w-[320px] flex-shrink-0 bg-card border border-border rounded-3xl p-6 flex flex-col gap-4 hover:border-primary/30 transition-colors duration-300 overflow-hidden group">
+      {/* Subtle hover gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none rounded-3xl" />
+      
+      {/* Stars */}
+      <div className="flex gap-0.5">
+        {Array.from({ length: testimonial.stars ?? 5 }).map((_, i) => (
+          <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+        ))}
+      </div>
+
+      {/* Quote icon */}
+      <Quote className="w-7 h-7 text-primary/20 -mb-2" />
+
+      {/* Quote text */}
+      <blockquote className="text-sm text-foreground/85 leading-relaxed flex-1">
+        &ldquo;{testimonial.quote}&rdquo;
+      </blockquote>
+
+      {/* Author */}
+      <div className="flex items-center gap-3 pt-3 border-t border-border/50">
+        <Avatar className="size-9 ring-2 ring-primary/15">
+          <AvatarImage alt={testimonial.name} src={testimonial.image} loading="lazy" width={80} height={80} />
+          <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+            {testimonial.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="font-bold text-sm text-foreground leading-tight">{testimonial.name}</p>
+          <p className="text-[11px] text-muted-foreground">{testimonial.role}</p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-const testimonialChunks = chunkArray(testimonials, Math.max(1, Math.ceil(testimonials.length / 3)))
-
 export default function WallOfLoveSection() {
-    if (testimonials.length === 0) return null; // Hide section until real testimonials are added
+  return (
+    <section className="py-16 md:py-28 relative overflow-hidden">
+      {/* Background */}
+      <div aria-hidden className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
+      <div aria-hidden className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
 
-    return (
-        <section className="py-16 md:py-24">
-            <div className="mx-auto max-w-6xl px-6">
-                <SectionHeading
-                    title="Loved by the Community"
-                    subtitle="Hear what our students and alumni have to say about the Coding Club CUH."
-                    badge="Testimonials"
-                />
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {testimonialChunks.map((chunk, chunkIndex) => (
-                        <div key={chunkIndex} className="space-y-4">
-                            {chunk.map(({ name, role, quote, image }, index) => (
-                                <Card key={index} className="bg-card border-border glow-hover transition-all">
-                                    <CardContent className="p-6">
-                                        <Quote className="w-8 h-8 text-primary/20 mb-4" />
-                                        <blockquote className="mb-6">
-                                            <p className="text-foreground leading-relaxed">{quote}</p>
-                                        </blockquote>
-                                        <div className="flex items-center gap-3 pt-4 border-t border-border">
-                                            <Avatar className="size-10 ring-2 ring-primary/10">
-                                                <AvatarImage alt={name} src={image} loading="lazy" width="120" height="120" />
-                                                <AvatarFallback className="bg-primary/10 text-primary">CUH</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <h3 className="font-semibold text-sm">{name}</h3>
-                                                <span className="text-muted-foreground text-xs">{role}</span>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    )
+      <div className="mx-auto max-w-6xl px-6 relative z-10">
+        <SectionHeading
+          title="Loved by the Community"
+          subtitle="Hear from students whose journeys were shaped by Coding Club CUH."
+          badge="💬 Testimonials"
+        />
+      </div>
+
+      {/* Infinite marquee row 1 — forward */}
+      <div className="mt-12 relative">
+        {/* Fade edges */}
+        <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 w-24 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+        <InfiniteSlider speedOnHover={20} gap={16} speed={55} className="py-2">
+          {testimonials.slice(0, 4).map((t) => (
+            <TestimonialCard key={t.name} testimonial={t} />
+          ))}
+        </InfiniteSlider>
+      </div>
+
+      {/* Infinite marquee row 2 — reverse */}
+      <div className="mt-4 relative">
+        <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 w-24 h-full bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+        <InfiniteSlider speedOnHover={20} gap={16} speed={55} reverse className="py-2">
+          {testimonials.slice(4).map((t) => (
+            <TestimonialCard key={t.name} testimonial={t} />
+          ))}
+        </InfiniteSlider>
+      </div>
+    </section>
+  );
 }

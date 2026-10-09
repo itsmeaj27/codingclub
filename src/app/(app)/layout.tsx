@@ -11,6 +11,8 @@ import FooterSection from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
+import Chatbot from "@/components/chatbot/Chatbot";
+import { AmbientSpotlight } from "@/components/ambient-spotlight";
 
 const fontInter = Inter({
   subsets: ["latin"],
@@ -67,6 +69,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <AmbientSpotlight />
           <Navbar />
           <Toaster />
           <NextTopLoader
@@ -82,6 +85,7 @@ export default function RootLayout({
           />
           {children}
           <FooterSection />
+          <Chatbot />
         </ThemeProvider>
       </body>
     </html>

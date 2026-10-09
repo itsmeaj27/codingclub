@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Loader2,
   ArrowRight,
+  ArrowLeft,
   Sparkles,
   Info,
 } from "lucide-react";
@@ -135,6 +136,15 @@ function StudentDetailsForm() {
 
       <div className="relative z-10 m-auto w-full max-w-2xl">
         <div className="mb-6 text-center">
+          <div className="flex items-center justify-start mb-4">
+            <Link
+              href="/student"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full bg-muted border border-border"
+            >
+              <ArrowLeft size={13} />
+              <span>Back to Dashboard</span>
+            </Link>
+          </div>
           <Link href="/" aria-label="Coding Club CUH" className="mx-auto block w-fit">
             <Logo />
           </Link>
@@ -275,9 +285,23 @@ function StudentDetailsForm() {
                   onChange={(e) => setCourse(e.target.value)}
                   className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground text-sm"
                 />
-                <p className="text-[11px] text-muted-foreground">
-                  Enter your enrolled degree or branch (e.g. MCA, B.Tech CSE, BCA)
-                </p>
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] text-muted-foreground mr-1">Quick select:</span>
+                  {["B.Tech CSE", "MCA", "B.Sc IT", "M.Sc CS", "B.Tech ECE", "B.Tech EE"].map((c) => (
+                    <button
+                      type="button"
+                      key={c}
+                      onClick={() => setCourse(c)}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                        course === c
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted text-muted-foreground border-border hover:text-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Semester text box */}
@@ -295,9 +319,23 @@ function StudentDetailsForm() {
                   onChange={(e) => setSemester(e.target.value)}
                   className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground text-sm"
                 />
-                <p className="text-[11px] text-muted-foreground">
-                  Enter your current semester or year (e.g. 1st Semester, 3rd Semester, Completed)
-                </p>
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] text-muted-foreground mr-1">Quick select:</span>
+                  {["1st Sem", "2nd Sem", "3rd Sem", "4th Sem", "5th Sem", "6th Sem", "7th Sem", "8th Sem"].map((s) => (
+                    <button
+                      type="button"
+                      key={s}
+                      onClick={() => setSemester(s)}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                        semester === s
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted text-muted-foreground border-border hover:text-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Department text box */}
@@ -315,9 +353,27 @@ function StudentDetailsForm() {
                   onChange={(e) => setDepartment(e.target.value)}
                   className="focus:ring-primary/50 focus:border-primary bg-background border-border text-foreground text-sm"
                 />
-                <p className="text-[11px] text-muted-foreground">
-                  Your university department (e.g. Computer Science and IT, School of Engineering)
-                </p>
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] text-muted-foreground mr-1">Quick select:</span>
+                  {[
+                    "Computer Science and IT",
+                    "School of Engineering & Tech",
+                    "Vocational Studies",
+                  ].map((d) => (
+                    <button
+                      type="button"
+                      key={d}
+                      onClick={() => setDepartment(d)}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                        department === d
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted text-muted-foreground border-border hover:text-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

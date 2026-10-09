@@ -1,11 +1,22 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, UserPlus } from "lucide-react";
+import { ArrowRight, CalendarDays, UserPlus, Sparkles, Code2, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextEffect } from "@/components/motion-primitives/text-effect";
 import { CarouselPlugin } from "./carousel";
+import { BorderBeam } from "@/components/magicui/border-beam";
 
 export default function HeroSection() {
+  const handleOpenAi = () => {
+    window.dispatchEvent(
+      new CustomEvent("cccuh:open_chat", {
+        detail: { prompt: "Hello! Tell me about Coding Club CUH and what projects or bootcamps I can join." },
+      })
+    );
+  };
+
   return (
     <main className="overflow-hidden relative pt-24 pb-16 lg:pt-36 lg:pb-28">
       {/* Dot grid background */}
@@ -33,7 +44,7 @@ export default function HeroSection() {
               <span className="relative inline-flex size-2 rounded-full bg-primary" />
             </span>
             <span className="text-foreground text-sm font-medium">
-              See Upcoming Events
+              See Upcoming Events & Hackathons
             </span>
             <span className="block h-4 w-px bg-border" />
             <div className="bg-primary/10 group-hover:bg-primary/20 size-7 overflow-hidden rounded-full transition-colors duration-300 flex items-center justify-center">
@@ -86,6 +97,37 @@ export default function HeroSection() {
               </Link>
             </Button>
           </div>
+
+          {/* Hybrid interactive highlight pills */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+            <button
+              onClick={handleOpenAi}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-card/80 hover:bg-card hover:border-primary/50 backdrop-blur-md border border-border shadow-xs transition-all cursor-pointer group"
+              title="Launch AI Coding Assistant"
+            >
+              <Sparkles className="size-3.5 text-indigo-400 group-hover:rotate-12 transition-transform" />
+              <span className="font-medium text-foreground">AI Coding Assistant</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary/20 text-primary uppercase">
+                Interactive
+              </span>
+            </button>
+
+            <Link
+              href="/courses"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-card/80 hover:bg-card hover:border-emerald-500/50 backdrop-blur-md border border-border shadow-xs transition-all text-foreground"
+            >
+              <Terminal className="size-3.5 text-emerald-400" />
+              <span className="font-medium">Peer-Led Bootcamps</span>
+            </Link>
+
+            <Link
+              href="/verify"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-card/80 hover:bg-card hover:border-blue-500/50 backdrop-blur-md border border-border shadow-xs transition-all text-foreground"
+            >
+              <Code2 className="size-3.5 text-blue-400" />
+              <span className="font-medium">Instant Certificate Verification</span>
+            </Link>
+          </div>
         </div>
 
         {/* Image showcase */}
@@ -94,7 +136,8 @@ export default function HeroSection() {
             aria-hidden
             className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
           />
-          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border bg-card p-2 shadow-xl shadow-primary/5 ring-1 ring-border aspect-15/8 glow-hover">
+          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border bg-card p-2 shadow-2xl shadow-primary/10 ring-1 ring-border aspect-15/8 glow-hover">
+            <BorderBeam size={360} duration={14} delay={0} colorFrom="#3b82f6" colorTo="#8b5cf6" />
             <CarouselPlugin />
           </div>
         </div>

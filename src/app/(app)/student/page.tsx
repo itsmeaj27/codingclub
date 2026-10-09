@@ -3,14 +3,30 @@ import configPromise from '@payload-config'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Award, User, ShieldCheck, Edit3, AlertCircle, Calendar, MapPin, ExternalLink } from 'lucide-react'
+import {
+  Award,
+  User,
+  ShieldCheck,
+  Edit3,
+  AlertCircle,
+  Calendar,
+  MapPin,
+  ExternalLink,
+  BookOpen,
+  GraduationCap,
+  Sparkles,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+} from 'lucide-react'
 import { LogoutButton } from '@/components/logout-button'
 import type { Certificate } from '@/payload-types'
 import { getEffectiveEventStatus, sortEvents } from '@/payload/utilities/eventStatus'
+import { StudentDashboardClient } from '@/components/student/student-dashboard-client'
 
 export default async function StudentDashboard() {
   const payload = await getPayload({ config: configPromise })
-  
+
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
 
@@ -20,18 +36,21 @@ export default async function StudentDashboard() {
 
   let user = null
   try {
-    const meReq = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001'}/api/users/me`, {
-      headers: {
-        Authorization: `JWT ${token}`
+    const meReq = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001'}/api/users/me`,
+      {
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
       }
-    }).catch(() => null)
-    
+    ).catch(() => null)
+
     if (meReq?.ok) {
-        const meData = await meReq.json()
-        user = meData?.user
+      const meData = await meReq.json()
+      user = meData?.user
     }
   } catch (error) {
-    console.error("Failed to fetch user session", error)
+    console.error('Failed to fetch user session', error)
   }
 
   if (!user) {
@@ -40,31 +59,33 @@ export default async function StudentDashboard() {
 
   // Check Site Maintenance Settings
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const siteSettings: any = await (payload as any).findGlobal({
-    slug: 'site-settings',
-  }).catch(() => null)
+  const siteSettings: any = await (payload as any)
+    .findGlobal({
+      slug: 'site-settings',
+    })
+    .catch(() => null)
 
   const isMaintenanceActive = Boolean(siteSettings?.maintenanceMode)
   const isAdmin = user.role === 'admin' || user.email === 'ajays.sharma27@gmail.com'
 
   if (isMaintenanceActive && !isAdmin) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-3xl p-8 text-center shadow-2xl">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-card/90 backdrop-blur-xl border border-border rounded-3xl p-8 text-center shadow-2xl">
           <div className="w-16 h-16 bg-amber-500/15 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-amber-500/30 shadow-lg shadow-amber-500/10">
             <AlertCircle size={32} />
           </div>
           <h1 className="text-2xl font-bold font-handjet tracking-wider text-amber-400 mb-2">
             Portal Under Maintenance
           </h1>
-          <p className="text-zinc-300 text-sm mb-6 leading-relaxed">
+          <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
             {siteSettings?.maintenanceMessage ||
               'The student dashboard is currently offline for scheduled maintenance. Please check back later!'}
           </p>
           <div className="flex flex-col gap-3">
             <Link
               href="/"
-              className="w-full py-2.5 px-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-semibold transition-colors"
+              className="w-full py-2.5 px-4 bg-muted hover:bg-muted/80 text-foreground rounded-xl text-sm font-semibold transition-colors"
             >
               Back to Home Page
             </Link>
@@ -80,14 +101,14 @@ export default async function StudentDashboard() {
   // Check if academic profile details are missing
   const isDetailsMissing = !user.course || !user.semester || !user.department
 
-  // Fetch certificates linked to this user account (by student relationship)
+  // Fetch certificates linked to this user account
   const userCerts = await payload.find({
     collection: 'certificates',
     where: {
       student: {
-        equals: user.id
-      }
-    }
+        equals: user.id,
+      },
+    },
   })
 
   // Fetch enrollments linked to this user account
@@ -95,199 +116,339 @@ export default async function StudentDashboard() {
     collection: 'enrollments',
     where: {
       student: {
-        equals: user.id
-      }
+        equals: user.id,
+      },
     },
     depth: 2,
     sort: '-enrolledAt',
   })
 
   // Fetch events from CMS
-  const eventsRes = await payload.find({
-    collection: 'events',
-    limit: 20,
-    sort: '-date',
-  }).catch(() => null)
+  const eventsRes = await payload
+    .find({
+      collection: 'events',
+      limit: 20,
+      sort: '-date',
+    })
+    .catch(() => null)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawEvents: any[] = eventsRes?.docs || []
   const sortedEvents = sortEvents(rawEvents)
 
+  const issuedCertsCount = userCerts.docs.filter((c) => c.isIssued).length
+  const activeEnrollmentsCount = userEnrollments.docs?.length || 0
+  const upcomingEventsCount = sortedEvents.filter(
+    (e) => getEffectiveEventStatus(e) === 'upcoming'
+  ).length
+
   return (
-    <div className="min-h-screen bg-zinc-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto space-y-8">
-        
-        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#1a365d] rounded-full flex items-center justify-center text-white text-2xl font-bold">
-              {String(user.name)?.charAt(0)?.toUpperCase() || 'U'}
+    <div className="min-h-screen bg-background text-foreground pt-28 pb-16 px-4 sm:px-6 lg:px-8 selection:bg-primary selection:text-white">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Welcome Header Banner */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-violet-600/10 border border-border/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-5">
+              <div className="relative size-16 sm:size-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold font-handjet shadow-lg shadow-indigo-500/20 border border-white/20">
+                {String(user.name)?.charAt(0)?.toUpperCase() || 'U'}
+                <span className="absolute -bottom-1 -right-1 size-4 rounded-full bg-emerald-500 border-2 border-background" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary/15 text-primary border border-primary/20">
+                    CUH Student Portal
+                  </span>
+                  {user.course && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-muted text-muted-foreground border border-border">
+                      {user.course}
+                    </span>
+                  )}
+                </div>
+                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground font-handjet">
+                  Welcome back, {user.name}!
+                </h1>
+                <p className="text-sm text-muted-foreground flex items-center gap-2 mt-0.5">
+                  <span>{user.email}</span>
+                  {user.username && (
+                    <>
+                      <span>&bull;</span>
+                      <span className="font-mono text-xs text-foreground/80">
+                        Roll: {user.username}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-zinc-900 font-handjet tracking-wide">
-                Welcome back, {user.name}!
-              </h1>
-              <p className="text-zinc-500">{user.email}</p>
+
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Link
+                href="/student/details"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground border border-border transition-colors"
+              >
+                <Edit3 size={14} />
+                <span>Edit Profile</span>
+              </Link>
+              <div className="shrink-0">
+                <LogoutButton />
+              </div>
             </div>
           </div>
-          
-          <LogoutButton />
         </div>
 
+        {/* Warning Banner if Profile is Missing Details */}
         {isDetailsMissing && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="text-amber-600 mt-0.5 shrink-0" size={22} />
+          <div className="relative overflow-hidden rounded-2xl bg-amber-500/10 border border-amber-500/30 p-5 backdrop-blur-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-500 shrink-0 mt-0.5">
+                <AlertCircle size={20} />
+              </div>
               <div>
-                <h4 className="font-bold text-amber-900 text-sm">Action Required: Complete Academic Profile</h4>
-                <p className="text-xs text-amber-700 mt-0.5">
-                  Please fill in your Course, Semester, and Department so they appear accurately on your official certificates and verification records.
+                <h4 className="font-bold text-foreground text-sm">
+                  Action Required: Complete Academic Profile
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed max-w-2xl">
+                  Please specify your Course, Semester, and Department so they appear accurately on your official certificates and credential verification records.
                 </p>
               </div>
             </div>
             <Link
               href="/student/details"
-              className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-colors shrink-0"
+              className="bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-amber-600/20 shrink-0 flex items-center gap-1.5"
             >
-              Fill Details Now &rarr;
+              <span>Fill Details Now</span>
+              <ArrowRight size={13} />
             </Link>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="col-span-1 space-y-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
-                  <User size={20} className="text-[#1a365d]" />
-                  Student Profile
+        {/* Quick Bento Stats Overview */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-2xl p-5 bg-card/80 backdrop-blur-md border border-border shadow-sm flex items-center gap-4">
+            <div className="size-12 rounded-xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center shrink-0">
+              <Award className="size-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-handjet text-foreground tracking-wide">
+                {issuedCertsCount}
+              </p>
+              <p className="text-xs text-muted-foreground font-medium">Issued Certificates</p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl p-5 bg-card/80 backdrop-blur-md border border-border shadow-sm flex items-center gap-4">
+            <div className="size-12 rounded-xl bg-blue-500/15 text-blue-500 flex items-center justify-center shrink-0">
+              <BookOpen className="size-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-handjet text-foreground tracking-wide">
+                {activeEnrollmentsCount}
+              </p>
+              <p className="text-xs text-muted-foreground font-medium">Enrolled Courses</p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl p-5 bg-card/80 backdrop-blur-md border border-border shadow-sm flex items-center gap-4">
+            <div className="size-12 rounded-xl bg-violet-500/15 text-violet-500 flex items-center justify-center shrink-0">
+              <Calendar className="size-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-handjet text-foreground tracking-wide">
+                {upcomingEventsCount}
+              </p>
+              <p className="text-xs text-muted-foreground font-medium">Upcoming Events</p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl p-5 bg-card/80 backdrop-blur-md border border-border shadow-sm flex items-center gap-4">
+            <div className="size-12 rounded-xl bg-indigo-500/15 text-indigo-500 flex items-center justify-center shrink-0">
+              <GraduationCap className="size-6" />
+            </div>
+            <div>
+              <p className="text-base font-bold font-handjet text-foreground truncate max-w-[120px]">
+                {user.department || 'CUH CS & IT'}
+              </p>
+              <p className="text-xs text-muted-foreground font-medium">
+                {user.semester ? `Semester ${user.semester}` : 'Academic Profile'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Grid: Profile Column + Certificates Column */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column (Academic Profile & Verify Center) */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Student Profile Card */}
+            <div className="rounded-3xl bg-card/90 backdrop-blur-xl border border-border p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-5 pb-3 border-b border-border/60">
+                <h3 className="font-bold text-foreground text-base flex items-center gap-2">
+                  <User size={18} className="text-primary" />
+                  Academic Profile
                 </h3>
                 <Link
                   href="/student/details"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#1a365d] hover:underline"
-                  title="Edit details"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                 >
                   <Edit3 size={13} />
                   <span>Edit</span>
                 </Link>
               </div>
-              <div className="space-y-3 text-sm text-zinc-600">
-                <div className="flex justify-between border-b border-zinc-100 pb-2">
-                  <span className="font-medium">Name:</span>
-                  <span>{user.name}</span>
+
+              <div className="space-y-3.5 text-xs text-muted-foreground">
+                <div className="flex justify-between items-center py-1 border-b border-border/40">
+                  <span className="font-medium text-foreground">Full Name:</span>
+                  <span className="font-semibold text-foreground">{user.name}</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 pb-2">
-                  <span className="font-medium">Roll No:</span>
-                  <span className="font-mono text-zinc-700">{user.username || '—'}</span>
+                <div className="flex justify-between items-center py-1 border-b border-border/40">
+                  <span className="font-medium text-foreground">Roll No:</span>
+                  <span className="font-mono text-foreground">{user.username || '—'}</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 pb-2">
-                  <span className="font-medium">Email:</span>
-                  <span className="truncate max-w-[140px]">{user.email}</span>
+                <div className="flex justify-between items-center py-1 border-b border-border/40">
+                  <span className="font-medium text-foreground">Course:</span>
+                  <span className="font-semibold text-foreground">
+                    {user.course || <span className="text-amber-500 italic">Not set</span>}
+                  </span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 pb-2">
-                  <span className="font-medium">Course:</span>
-                  <span className="font-medium text-zinc-800">{user.course || <span className="text-amber-600 text-xs font-normal italic">Not set</span>}</span>
+                <div className="flex justify-between items-center py-1 border-b border-border/40">
+                  <span className="font-medium text-foreground">Semester:</span>
+                  <span className="font-semibold text-foreground">
+                    {user.semester ? `Sem ${user.semester}` : <span className="text-amber-500 italic">Not set</span>}
+                  </span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 pb-2">
-                  <span className="font-medium">Semester:</span>
-                  <span className="font-medium text-zinc-800">{user.semester || <span className="text-amber-600 text-xs font-normal italic">Not set</span>}</span>
+                <div className="flex justify-between items-center py-1 border-b border-border/40">
+                  <span className="font-medium text-foreground">Department:</span>
+                  <span className="font-semibold text-foreground truncate max-w-[150px] text-right">
+                    {user.department || <span className="text-amber-500 italic">Not set</span>}
+                  </span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-100 pb-2">
-                  <span className="font-medium">Department:</span>
-                  <span className="font-medium text-zinc-800 text-right max-w-[150px] truncate">{user.department || <span className="text-amber-600 text-xs font-normal italic">Not set</span>}</span>
-                </div>
-                <div className="flex justify-between pt-1">
-                  <span className="font-medium">Role:</span>
-                  <span className="uppercase text-xs bg-zinc-100 px-2 py-1 rounded font-bold">Student</span>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="font-medium text-foreground">Member Status:</span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                    <CheckCircle2 size={10} /> Verified Member
+                  </span>
                 </div>
               </div>
             </div>
-            
-            <div className="bg-[#1a365d] rounded-2xl shadow-sm text-white p-6 relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-10">
-                 <ShieldCheck size={100} />
-               </div>
-               <h3 className="text-lg font-bold mb-2 relative z-10">Verify Center</h3>
-               <p className="text-sm text-blue-100 mb-6 relative z-10">Check the authenticity of any Coding Club certificate.</p>
-               <Link href="/verify" className="inline-flex bg-white text-[#1a365d] px-4 py-2 rounded-lg font-bold text-sm relative z-10 hover:bg-blue-50 transition-colors">
-                 Go to Verifier
-               </Link>
+
+            {/* Quick Verification Center Card */}
+            <div className="rounded-3xl bg-gradient-to-br from-indigo-900/30 via-primary/20 to-blue-900/30 border border-primary/30 p-6 relative overflow-hidden shadow-lg">
+              <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                <ShieldCheck size={120} />
+              </div>
+              <div className="relative z-10 space-y-3">
+                <div className="size-10 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center">
+                  <ShieldCheck size={22} />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">Verify Center</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Cryptographically verify any official certificate issued by Coding Club CUH using its unique ID or QR code.
+                </p>
+                <Link
+                  href="/verify"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2.5 rounded-xl font-semibold text-xs transition-colors shadow-md shadow-primary/20"
+                >
+                  <span>Go to Public Verifier</span>
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
             </div>
           </div>
 
-          <div className="col-span-1 md:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 h-full">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
-                  <Award size={20} className="text-[#d4af37]" />
-                  Your Certificates
-                </h3>
-                <span className="bg-[#d4af37] text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {userCerts.docs.filter(c => c.isIssued).length} Issued
+          {/* Right Column (Certificates Showcase) */}
+          <div className="lg:col-span-8">
+            <div className="rounded-3xl bg-card/90 backdrop-blur-xl border border-border p-6 sm:p-8 shadow-sm h-full flex flex-col">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-border/60">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center">
+                    <Award size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">Your Certificates & Activity</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Official credentials, interactive actions, and club milestones
+                    </p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                  {issuedCertsCount} Issued
                 </span>
               </div>
 
-              {userCerts.docs.filter(c => c.isIssued).length > 0 ? (
-                <div className="grid gap-4">
-                  {userCerts.docs.filter(c => c.isIssued).map((cert: Certificate) => (
-                    <div key={cert.id} className="border border-zinc-200 rounded-xl p-4 hover:border-[#2d7a5e] hover:shadow-md transition-all">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">✓ Issued</span>
-                          </div>
-                          <h4 className="font-bold text-zinc-800 text-base">{cert.internship}</h4>
-                          <p className="text-xs text-zinc-500 mt-1">
-                            <span className="font-medium text-zinc-600">Certificate ID:</span> {cert.certificateId}
-                          </p>
-                          {cert.issueDate && (
-                            <p className="text-xs text-zinc-500">
-                              <span className="font-medium text-zinc-600">Issued on:</span>{' '}
-                              {new Date(cert.issueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-2 w-full sm:w-auto">
-                          <Link
-                            href={`/certificate/${cert.certificateId}`}
-                            className="text-sm font-bold bg-[#2d7a5e] text-white px-5 py-2.5 rounded-lg hover:bg-[#1a5c42] transition-colors text-center"
-                          >
-                            🎓 View & Download
-                          </Link>
-                          <Link
-                            href={`/verify/${cert.certificateId}`}
-                            className="text-sm font-medium border border-zinc-300 text-zinc-600 px-5 py-2 rounded-lg hover:border-[#2d7a5e] hover:text-[#2d7a5e] transition-colors text-center"
-                          >
-                            🔍 Verify
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {issuedCertsCount > 0 ? (
+                <StudentDashboardClient
+                  user={{
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    course: user.course,
+                    semester: user.semester,
+                    department: user.department,
+                  }}
+                  certificates={userCerts.docs as Certificate[]}
+                  enrollmentsCount={activeEnrollmentsCount}
+                  upcomingEventsCount={upcomingEventsCount}
+                />
               ) : (
-                <div className="flex flex-col items-center justify-center h-48 text-zinc-400 border-2 border-dashed border-zinc-100 rounded-xl">
-                  <Award size={48} className="mb-2 opacity-20" />
-                  <p className="font-medium text-zinc-500">No certificates issued yet.</p>
-                  <p className="text-sm text-zinc-400">Complete an event or internship to earn one!</p>
+                <div className="space-y-6 flex-1 flex flex-col justify-between">
+                  <StudentDashboardClient
+                    user={{
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                      username: user.username,
+                      course: user.course,
+                      semester: user.semester,
+                      department: user.department,
+                    }}
+                    certificates={[]}
+                    enrollmentsCount={activeEnrollmentsCount}
+                    upcomingEventsCount={upcomingEventsCount}
+                  />
+
+                  <div className="p-8 text-center rounded-2xl border-2 border-dashed border-border/60 bg-muted/20">
+                    <div className="size-14 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground mx-auto mb-3">
+                      <Award size={28} />
+                    </div>
+                    <h4 className="font-semibold text-foreground text-sm">
+                      No certificates issued yet
+                    </h4>
+                    <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto mb-4 leading-relaxed">
+                      Enroll in hands-on bootcamps or participate in campus hackathons to earn your verified credentials!
+                    </p>
+                    <Link
+                      href="/courses"
+                      className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-4 py-2.5 rounded-xl transition-colors shadow-sm"
+                    >
+                      <span>Browse Active Courses</span>
+                      <ArrowRight size={13} />
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Courses and Events Section */}
+        {/* Bottom Bento: Courses & Events Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
-                <span className="text-xl">📚</span>
-                Enrolled Courses
-              </h3>
+          {/* Enrolled Courses */}
+          <div className="rounded-3xl bg-card/90 backdrop-blur-xl border border-border p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-5 pb-3 border-b border-border/60">
+              <div className="flex items-center gap-2.5">
+                <div className="size-9 rounded-xl bg-blue-500/15 text-blue-500 flex items-center justify-center">
+                  <BookOpen size={18} />
+                </div>
+                <h3 className="font-bold text-foreground text-base">Enrolled Courses</h3>
+              </div>
               <Link
                 href="/courses"
-                className="text-xs font-semibold text-[#1a365d] hover:underline"
+                className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
               >
-                Browse All Courses &rarr;
+                <span>Browse All</span>
+                <ArrowRight size={11} />
               </Link>
             </div>
 
@@ -295,68 +456,68 @@ export default async function StudentDashboard() {
               <div className="space-y-3">
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {userEnrollments.docs.map((enrollment: any) => {
-                  const courseObj = typeof enrollment.course === 'object' ? enrollment.course : null
-                  const certObj = typeof enrollment.certificate === 'object' ? enrollment.certificate : null
+                  const courseObj =
+                    typeof enrollment.course === 'object' ? enrollment.course : null
+                  const certObj =
+                    typeof enrollment.certificate === 'object' ? enrollment.certificate : null
                   const certId = certObj?.certificateId
 
                   return (
                     <div
                       key={enrollment.id}
-                      className="border border-zinc-100 rounded-xl p-3.5 bg-zinc-50/50 hover:bg-white hover:border-zinc-300 transition-all"
+                      className="rounded-2xl border border-border/70 p-4 bg-muted/30 hover:bg-muted/60 transition-all flex justify-between items-start gap-3"
                     >
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-zinc-900 text-sm truncate">
-                            {courseObj?.title || 'Course'}
-                          </h4>
-                          <p className="text-xs text-zinc-500 mt-0.5">
-                            Instructor: {courseObj?.instructorName || 'Coding Club Mentor'}
-                          </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 capitalize">
-                              {enrollment.status === 'completed'
-                                ? 'Cohort Completed'
-                                : enrollment.status === 'active'
-                                ? 'In Progress'
-                                : 'Enrolled'}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-foreground text-sm truncate">
+                          {courseObj?.title || 'Coding Bootcamp'}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Instructor: {courseObj?.instructorName || 'Coding Club Mentor'}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 capitalize">
+                            {enrollment.status === 'completed'
+                              ? 'Cohort Completed'
+                              : enrollment.status === 'active'
+                              ? 'In Progress'
+                              : 'Enrolled'}
+                          </span>
+                          {enrollment.selectedForCertificate && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                              Selected for Certificate
                             </span>
-                            {enrollment.selectedForCertificate && (
-                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                                🌟 Selected for Certificate
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
-
-                        {certId ? (
-                          <Link
-                            href={`/certificate/${certId}`}
-                            className="text-xs font-bold bg-[#137558] hover:bg-[#0e5641] text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                          >
-                            🎓 Get Certificate
-                          </Link>
-                        ) : (
-                          <Link
-                            href={`/courses/${courseObj?.slug || courseObj?.id}`}
-                            className="text-xs font-medium text-zinc-500 hover:text-zinc-800 border border-zinc-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                          >
-                            Details
-                          </Link>
-                        )}
                       </div>
+
+                      {certId ? (
+                        <Link
+                          href={`/certificate/${certId}`}
+                          className="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap shadow-xs"
+                        >
+                          Certificate
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`/courses/${courseObj?.slug || courseObj?.id}`}
+                          className="text-xs font-medium text-muted-foreground hover:text-foreground border border-border px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap"
+                        >
+                          Details
+                        </Link>
+                      )}
                     </div>
                   )
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-36 text-zinc-400 border-2 border-dashed border-zinc-100 rounded-xl p-4 text-center">
-                <p className="font-medium text-zinc-500 text-sm">No active course enrollments.</p>
-                <p className="text-xs text-zinc-400 mt-1 mb-3">
-                  Enroll in upcoming hands-on workshops to earn certificates!
+              <div className="flex flex-col items-center justify-center h-44 text-center rounded-2xl border-2 border-dashed border-border/60 p-4">
+                <p className="font-medium text-foreground text-sm">No active enrollments</p>
+                <p className="text-xs text-muted-foreground mt-1 mb-4">
+                  Join upcoming peer-led bootcamps and classes!
                 </p>
                 <Link
                   href="/courses"
-                  className="text-xs font-bold bg-[#1a365d] text-white px-4 py-1.5 rounded-lg hover:bg-[#2a4d7d] transition-colors"
+                  className="text-xs font-bold bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors shadow-sm"
                 >
                   Explore Courses
                 </Link>
@@ -364,17 +525,21 @@ export default async function StudentDashboard() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
-                <span className="text-xl">📅</span>
-                Upcoming Events
-              </h3>
+          {/* Upcoming Events */}
+          <div className="rounded-3xl bg-card/90 backdrop-blur-xl border border-border p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-5 pb-3 border-b border-border/60">
+              <div className="flex items-center gap-2.5">
+                <div className="size-9 rounded-xl bg-violet-500/15 text-violet-500 flex items-center justify-center">
+                  <Calendar size={18} />
+                </div>
+                <h3 className="font-bold text-foreground text-base">Upcoming Events</h3>
+              </div>
               <Link
                 href="/events"
-                className="text-xs font-semibold text-[#1a365d] hover:underline"
+                className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
               >
-                Browse All Events &rarr;
+                <span>Browse All</span>
+                <ArrowRight size={11} />
               </Link>
             </div>
 
@@ -391,82 +556,77 @@ export default async function StudentDashboard() {
                   return (
                     <div
                       key={event.id}
-                      className="border border-zinc-100 rounded-xl p-3.5 bg-zinc-50/50 hover:bg-white hover:border-zinc-300 transition-all"
+                      className="rounded-2xl border border-border/70 p-4 bg-muted/30 hover:bg-muted/60 transition-all flex justify-between items-start gap-3"
                     >
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-zinc-900 text-sm truncate">
-                            {event.title}
-                          </h4>
-                          <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-zinc-500">
-                            <span className="inline-flex items-center gap-1 font-medium text-zinc-700">
-                              <Calendar size={12} className="text-[#1a365d]" />
-                              {dateStr}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-foreground text-sm truncate">
+                          {event.title}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-muted-foreground">
+                          <span className="inline-flex items-center gap-1 font-medium text-foreground/80">
+                            <Clock size={11} className="text-primary" />
+                            {dateStr}
+                          </span>
+                          {event.location && (
+                            <span className="inline-flex items-center gap-1 truncate max-w-[140px]">
+                              <MapPin size={11} className="text-muted-foreground" />
+                              {event.location}
                             </span>
-                            {event.startTime && (
-                              <span className="text-zinc-500">
-                                &bull; {event.startTime}
-                              </span>
-                            )}
-                            {event.location && (
-                              <span className="inline-flex items-center gap-1 truncate max-w-[140px]">
-                                <MapPin size={12} className="text-zinc-400" />
-                                {event.location}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span
-                              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize ${
-                                effectiveStatus === 'upcoming'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : effectiveStatus === 'ongoing'
-                                  ? 'bg-amber-100 text-amber-800 animate-pulse'
-                                  : 'bg-zinc-100 text-zinc-600'
-                              }`}
-                            >
-                              {effectiveStatus}
-                            </span>
-                            {effectiveStatus !== 'completed' && event.isRegistrationOpen !== false && (
-                              <span className="text-[11px] font-medium text-emerald-600">
-                                &bull; Registration Open
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
-
-                        {effectiveStatus !== 'completed' && event.isRegistrationOpen !== false && event.registrationLink ? (
-                          <a
-                            href={event.registrationLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-bold bg-[#1a365d] hover:bg-[#2a4d7d] text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap inline-flex items-center gap-1"
+                        <div className="flex items-center gap-2 mt-2">
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${
+                              effectiveStatus === 'upcoming'
+                                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                                : effectiveStatus === 'ongoing'
+                                ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse'
+                                : 'bg-muted text-muted-foreground'
+                            }`}
                           >
-                            <span>Register</span>
-                            <ExternalLink size={11} />
-                          </a>
-                        ) : (
-                          <Link
-                            href="/events"
-                            className="text-xs font-medium text-zinc-500 hover:text-zinc-800 border border-zinc-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                          >
-                            Details
-                          </Link>
-                        )}
+                            {effectiveStatus}
+                          </span>
+                          {effectiveStatus !== 'completed' && event.isRegistrationOpen !== false && (
+                            <span className="text-[10px] font-medium text-emerald-400">
+                              Registration Open
+                            </span>
+                          )}
+                        </div>
                       </div>
+
+                      {effectiveStatus !== 'completed' &&
+                      event.isRegistrationOpen !== false &&
+                      event.registrationLink ? (
+                        <a
+                          href={event.registrationLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground px-3.5 py-1.5 rounded-xl transition-colors whitespace-nowrap inline-flex items-center gap-1 shadow-sm"
+                        >
+                          <span>Register</span>
+                          <ExternalLink size={11} />
+                        </a>
+                      ) : (
+                        <Link
+                          href="/events"
+                          className="text-xs font-medium text-muted-foreground hover:text-foreground border border-border px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap"
+                        >
+                          Details
+                        </Link>
+                      )}
                     </div>
                   )
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-36 text-zinc-400 border-2 border-dashed border-zinc-100 rounded-xl p-4 text-center">
-                <p className="font-medium text-zinc-500 text-sm">No upcoming events right now.</p>
-                <p className="text-xs text-zinc-400 mt-1 mb-3">
-                  Stay tuned for upcoming hackathons, coding classes, and workshops!
+              <div className="flex flex-col items-center justify-center h-44 text-center rounded-2xl border-2 border-dashed border-border/60 p-4">
+                <p className="font-medium text-foreground text-sm">No upcoming events right now</p>
+                <p className="text-xs text-muted-foreground mt-1 mb-4">
+                  Stay tuned for coding contests and hackathons!
                 </p>
                 <Link
                   href="/events"
-                  className="text-xs font-bold bg-[#1a365d] text-white px-4 py-1.5 rounded-lg hover:bg-[#2a4d7d] transition-colors"
+                  className="text-xs font-bold bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors shadow-sm"
                 >
                   Explore Events Timeline
                 </Link>
@@ -474,7 +634,6 @@ export default async function StudentDashboard() {
             )}
           </div>
         </div>
-
       </div>
     </div>
   )
